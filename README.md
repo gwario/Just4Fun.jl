@@ -1,0 +1,1 @@
+# Just4Fun [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://gwario.gitlab.io/Just4Fun.jl/dev) [![Build Status](https://gitlab.com/gwario/Just4Fun.jl/badges/main/pipeline.svg)](https://gitlab.com/gwario/Just4Fun.jl/pipelines) [![Coverage](https://gitlab.com/gwario/Just4Fun.jl/badges/main/coverage.svg)](https://gitlab.com/gwario/Just4Fun.jl/commits/main)
