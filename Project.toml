@@ -1,0 +1,7 @@
+name = "Just4Fun"
+uuid = "0d7812c4-fa3b-419c-ad61-1d3cb8b5efa2"
+authors = ["Mario Gastegger <mario.gastegger@gmail.com>"]
+version = "0.1.0"
+
+[compat]
+julia = "1.7"
