@@ -1,0 +1,34 @@
+# for interactive play with an external player, the state of the board as well as the state of the players own hand must be supplied.
+# The policy output is then correct, as at the moment no information about the hidden cards is taken into account.
+
+##################                  - this has to be specified
+# p1 row 1
+1 1 1 0 0 0
+# p2 row 1
+0 0 0 0 0 1
+# ...
+0 0 0 0 0 0
+0 0 0 0 0 1
+
+0 0 0 0 0 0
+0 0 0 0 0 1
+
+0 0 0 0 0 0
+0 0 0 0 0 0
+
+0 0 0 0 0 0
+0 0 0 0 0 0
+
+0 0 0 0 0 0
+0 0 0 0 0 0
+##################
+# other player cards (p1/yellow)    - this has to be specified
+1 2 3 4
+##################
+
+# red player cards                  - can be ignored
+5 6 7 10
+# stack                             - can be ignored
+9 10 11 12 13 14 15 16 17 18 19
+# used cards                        - can be ignored
+1 2 3 4 5 6 7 8 9 10 11 12
