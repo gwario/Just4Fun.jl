@@ -1,0 +1,30 @@
+# p1 row 1
+1 1 1 0 0 0
+# p2 row 1
+0 0 0 0 0 1
+# ...
+0 0 0 0 0 0
+0 0 0 0 0 1
+
+0 0 0 0 0 0
+0 0 0 0 0 1
+
+0 0 0 0 0 0
+0 0 0 0 0 0
+
+0 0 0 0 0 0
+0 0 0 0 0 0
+
+0 0 0 0 0 0
+0 0 0 0 0 0
+# other player cards (p1/yellow)
+1 2 3 4
+# red player cards
+5 6 7 10
+# stack
+9 10 11 12 13 14 15 16 17 18 19
+# used cards
+1 2 3 4 5 6 7 8 9 10 11 12
+# since both have have same amount of plys, its player 1/yellow's turn... state judgement is for p1/yellow
+# state is always be 0 - in progress
+# action_indices is irrelevant for the game - just statistics
