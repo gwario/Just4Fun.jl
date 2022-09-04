@@ -21,23 +21,23 @@ Julia 1.7:
   extends:
     - .script
     - .coverage
-pages:
-  image: julia:1.7
-  stage: deploy
-  script:
-    - |
-      julia --project=docs -e '
-        using Pkg
-        Pkg.develop(PackageSpec(path=pwd()))
-        Pkg.instantiate()
-        using Documenter: doctest
-        using Just4Fun
-        doctest(Just4Fun)
-        include("docs/make.jl")'
-    - mkdir -p public
-    - mv docs/build public/dev
-  artifacts:
-    paths:
-      - public
-  only:
-    - main
+#pages:
+#  image: julia:1.7
+#  stage: deploy
+#  script:
+#    - |
+#      julia --project=docs -e '
+#        using Pkg
+#        Pkg.develop(PackageSpec(path=pwd()))
+#        Pkg.instantiate()
+#        using Documenter: doctest
+#        using Just4Fun
+#        doctest(Just4Fun)
+#        include("docs/make.jl")'
+#    - mkdir -p public
+#    - mv docs/build public/dev
+#  artifacts:
+#    paths:
+#      - public
+#  only:
+#    - main
