@@ -312,7 +312,8 @@ NOTE: This inforamtion is sensitive!
 function print_playercards(g::Just4FunEnv)
   name_max_len = max([length(player_name(Player(i))) for i in 1:NUM_PLAYERS]...)
 
-  for player in range(YELLOW; length=NUM_PLAYERS)
+  for player_index in range(YELLOW; length=NUM_PLAYERS)
+    player = Player(player_index)
     cards_str = join(sort(convert(Array{Int64}, playercards(g, player))), " ")
     name_str = lpad(player_name(player), name_max_len)
     println("$name_str's hand: $cards_str $(player == g.curplayer ? "(you)" : "")")
@@ -431,8 +432,9 @@ Safe to be displayed to the current player.
 function print_player_remaining_stones(g::Just4FunEnv)
   name_max_len = max([length(player_name(Player(i))) for i in 1:NUM_PLAYERS]...)
 
-  for player in range(YELLOW; length=NUM_PLAYERS)
-    player_stones = g.player_stones[to_index(player)]
+  for player_index in range(YELLOW; length=NUM_PLAYERS)
+    player = Player(player_index)
+    player_stones = g.player_stones[player_index]
     name_str = lpad(player_name(player), name_max_len)
     println("$name_str: $player_stones stones $(player == g.curplayer ? "(you)" : "")")
   end

@@ -298,8 +298,8 @@ function update_action_mask!(g::Just4FunEnv)
   # reset all masks
   g.action_masks = SMatrix{NUM_ACTIONS, NUM_PLAYERS, UInt8}(zeros(UInt8, NUM_ACTIONS, NUM_PLAYERS))
   
-  for player in range(YELLOW, length=NUM_PLAYERS)
-    player_index = to_index(player)
+  for player_index in range(YELLOW, length=NUM_PLAYERS)
+    player = Player(player_index)
     if FEATURE_CARDS
       # get the possible cells according to combinations of the players cards
       player_cards = playercards(g, player)
@@ -395,7 +395,8 @@ function update_status!(g::Just4FunEnv)
   # TODO: checking for the previous player might be sufficient
   # FIXME: performance improvements possible
   
-  for player in range(Player(Just4Fun.YELLOW), length=2)
+  for player_index in range(Just4Fun.YELLOW, length=2)
+    player = Player(player_index)
     for field_value in FIELD_VALUES
       if winning_pattern_at(spec, FIELD_VALUES, g.field_stones, player, field_value)
         #@atomic push!(Just4Fun.STATS.wins_by_pattern, 1)
@@ -461,7 +462,7 @@ Returns the points info (sum of fields with majority and the highest
 field with majority) of each player.
 """
 function get_points_info(g::Just4FunEnv)::Tuple{Vector{FieldValue}, Vector{FieldValue}}
-  players = range(Just4Fun.YELLOW, length=NUM_PLAYERS)
+  players = map(p_i -> Player(p_i), range(Just4Fun.YELLOW, length=NUM_PLAYERS))
   points = zeros(UInt8, NUM_PLAYERS)
   max_field_points = zeros(UInt8, NUM_PLAYERS)
 
