@@ -204,7 +204,7 @@ playercards(g::Just4FunEnv, player::Player)::Cards
 
 Returns the player's cards.
 """
-playercards(g::Just4FunEnv, player::Player)::Cards = g.player_cards[:, to_index(player)]
+playercards(g::Just4FunEnv, player::Player)::Cards = getindex(g.player_cards, :, to_index(player))
 
 """
 curplayerstones(g::Just4FunEnv)::Stones
