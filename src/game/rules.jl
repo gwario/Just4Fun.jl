@@ -100,7 +100,7 @@ Returns the vector of stones on a field.
 """
 function get_stones(g::Just4FunEnv, field_value::FieldValue)::SVector{NUM_PLAYERS, Stones}
   field_index = findfirst(f -> f == field_value, FIELD_VALUES)
-  player_stones = g.field_stones[field_index[1], field_index[2], :]
+  player_stones = g.field_stones[field_index[1], field_index[2], :] # FIXME: 
   return player_stones
 end
 
@@ -204,7 +204,7 @@ playercards(g::Just4FunEnv, player::Player)::Cards
 
 Returns the player's cards.
 """
-playercards(g::Just4FunEnv, player::Player)::Cards = getindex(g.player_cards, :, to_index(player))
+playercards(g::Just4FunEnv, player::Player)::Cards = getindex(g.player_cards, :, to_index(player)) # FIXME: 
 
 """
 curplayerstones(g::Just4FunEnv)::Stones
@@ -310,12 +310,12 @@ function update_action_mask!(g::Just4FunEnv)
         field_stones = get_stones(g, field_value)
         available = !dominated(field_stones, player) && !dominating(field_stones, player) && (!FEATURE_MULTI_STONE ? empty_field(field_stones) : true)
         # update state
-        g.action_masks = setindex(g.action_masks, available, CartesianIndex((mask_index, player_index)))
+        g.action_masks = setindex(g.action_masks, available, CartesianIndex((mask_index, player_index))) # FIXME: 
       end
       
       # if any card combination is possible: set redraw action false, otherwise true
-      some_available = sum(g.action_masks[:, player_index]) >= 0x1
-      redraw_mask_index = ACTION_ACTION_MASK_INDEX_MAP[(cards=[], value=0)]
+      some_available = sum(g.action_masks[:, player_index]) >= 0x1 # FIXME: 
+      redraw_mask_index = ACTION_ACTION_MASK_INDEX_MAP[(cards=Cards[], value=FieldValue(0))]
       g.action_masks = setindex(g.action_masks, !some_available, CartesianIndex((redraw_mask_index, player_index)))
     else
       actions = GI.actions(GI.spec(g))

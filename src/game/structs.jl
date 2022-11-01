@@ -3,23 +3,22 @@
 ####
 struct Just4FunSpec <: GI.AbstractGameSpec
 
-  per_game_seeds:: Union{Vector{Int},Nothing}
-
-  initial_stack :: Union{Stack{CardValue},Nothing}
+  per_game_seeds:: Vector{Int64}
+  initial_stack :: Stack{CardValue}
 
   function Just4FunSpec()::Just4FunSpec
-    new([], nothing)
+    new(Int64[], Stack{CardValue}())
   end
 
-  function Just4FunSpec(per_game_seeds::Vector{Int})::Just4FunSpec
-    new(per_game_seeds, nothing)
+  function Just4FunSpec(per_game_seeds::Vector{Int64})::Just4FunSpec
+    new(per_game_seeds, Stack{CardValue}())
   end
   
   function Just4FunSpec(predefined_stack::Stack{CardValue})::Just4FunSpec
-    new([], predefined_stack)
+    new(Int64[], predefined_stack)
   end
 
-  function Just4FunSpec(predefined_stack::Stack{CardValue}, per_game_seeds::Vector{Int})::Just4FunSpec
+  function Just4FunSpec(predefined_stack::Stack{CardValue}, per_game_seeds::Vector{Int64})::Just4FunSpec
     new(per_game_seeds, predefined_stack)
   end
 end

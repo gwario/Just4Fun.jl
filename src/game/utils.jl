@@ -1,9 +1,9 @@
 """
-  flip_colors(playerstones::SVector)::SVector
+  flip_colors(playerstones::SVector{Stones})::SVector{Stones}
 
 Circular shift of the player's number of stones.
 """
-function flip_colors(playerstones::SVector)::SVector
+function flip_colors(playerstones::SVector{Stones})::SVector{Stones}
   return SVector{length(playerstones), Stones}(circshift(playerstones, -1))
 end
 
@@ -34,7 +34,7 @@ end
 #
 #Returns a copy of the stack.
 #"""
-function Base.copy(stack::Stack{CardValue})
+function Base.copy(stack::Stack{CardValue})::Stack{CardValue}
   copy = Stack{CardValue}()
   for elem in Iterators.reverse(stack)
     push!(copy, elem)

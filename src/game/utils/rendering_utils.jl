@@ -482,42 +482,42 @@ function print_game_result(g::Just4FunEnv)
   end
 end
 
-function Base.show(io::IO, ::MIME"text/plain", s::Just4FunSpec)
-  println(io, "Just4FunSpec:")
-  println(io, "initial_stack=$(convert(Vector{Int64}, collect(Iterators.reverse(s.initial_stack))))")
-  println(io, "FIELD_VALUES=$(convert(Matrix{Int64}, FIELD_VALUES))")
-  println(io, "DECK=$(DECK)")
-  println(io, "SIZE_HAND=$(SIZE_HAND)")
-  println(io, "WIN_LENGTH=$(WIN_LENGTH)")
-end
-
-function Base.show(io::IO, ::MIME"text/plain", s::Just4FunEnv)
-  println(io, "Just4FunEnv:")
-  println(io, "stack=$(convert(Vector{Int64}, collect(Iterators.reverse(s.stack))))")
-  println(io, "used_cards=$(convert(Vector{Int64}, s.used_cards))")
-  println(io, "player_cards{1}=$(convert(Vector{Int64}, s.player_cards[:, 1]))")
-  println(io, "player_cards{2}=$(convert(Vector{Int64}, s.player_cards[:, 2]))")
-  println(io, "field_stones{1}=$(convert(Matrix{Int64}, s.field_stones[:, :, 1]))")
-  println(io, "field_stones{2}=$(convert(Matrix{Int64}, s.field_stones[:, :, 2]))")
-  println(io, "player_stones=$(convert(Vector{Int64}, s.player_stones))")
-  println(io, "curplayer=$(convert(Int64, s.curplayer))")
-  println(io, "action_masks{1}=$(convert(Vector{Int64}, s.action_masks[:, 1]))")
-  println(io, "action_masks{2}=$(convert(Vector{Int64}, s.action_masks[:, 2]))")
-  println(io, "state=$(s.state)")
-  println(io, "winner=$(convert(Int64, s.winner))")
-end
-
-function Base.show(io::IO, ::MIME"text/plain", s::NamedTuple{
-  (:stack, :used_cards, :player_cards, :field_stones, :player_stones, :curplayer),
-  Tuple{DataType, Vector{UInt8}, SMatrix{4, 2, UInt8, 8}, SArray{Tuple{6, 6, 2}, UInt8, 3, 72}, SVector{2, UInt8}, UInt8}
-})
-  println(io, "State:")
-  println(io, "stack=$(convert(Vector{Int64}, s.stack))")
-  println(io, "used_cards=$(convert(Vector{Int64}, s.used_cards))")
-  println(io, "player_cards{1}=$(convert(Vector{Int64}, s.player_cards[:, 1]))")
-  println(io, "player_cards{2}=$(convert(Vector{Int64}, s.player_cards[:, 2]))")
-  println(io, "field_stones{1}=$(convert(Matrix{Int64}, s.field_stones[:, :, 1]))")
-  println(io, "field_stones{2}=$(convert(Matrix{Int64}, s.field_stones[:, :, 2]))")
-  println(io, "player_stones=$(convert(Vector{Int64}, s.player_stones))")
-  println(io, "curplayer=$(convert(Int64, s.curplayer))")
-end
+#function Base.show(io::IO, ::MIME"text/plain", s::Just4FunSpec)
+#  println(io, "Just4FunSpec:")
+#  println(io, "initial_stack=$(convert(Vector{Int64}, collect(Iterators.reverse(s.initial_stack))))")
+#  println(io, "FIELD_VALUES=$(convert(Matrix{Int64}, FIELD_VALUES))")
+#  println(io, "DECK=$(DECK)")
+#  println(io, "SIZE_HAND=$(SIZE_HAND)")
+#  println(io, "WIN_LENGTH=$(WIN_LENGTH)")
+#end
+#
+#function Base.show(io::IO, ::MIME"text/plain", s::Just4FunEnv)
+#  println(io, "Just4FunEnv:")
+#  println(io, "stack=$(convert(Vector{Int64}, collect(Iterators.reverse(s.stack))))")
+#  println(io, "used_cards=$(convert(Vector{Int64}, s.used_cards))")
+#  println(io, "player_cards{1}=$(convert(Vector{Int64}, s.player_cards[:, 1]))")
+#  println(io, "player_cards{2}=$(convert(Vector{Int64}, s.player_cards[:, 2]))")
+#  println(io, "field_stones{1}=$(convert(Matrix{Int64}, s.field_stones[:, :, 1]))")
+#  println(io, "field_stones{2}=$(convert(Matrix{Int64}, s.field_stones[:, :, 2]))")
+#  println(io, "player_stones=$(convert(Vector{Int64}, s.player_stones))")
+#  println(io, "curplayer=$(convert(Int64, s.curplayer))")
+#  println(io, "action_masks{1}=$(convert(Vector{Int64}, s.action_masks[:, 1]))")
+#  println(io, "action_masks{2}=$(convert(Vector{Int64}, s.action_masks[:, 2]))")
+#  println(io, "state=$(s.state)")
+#  println(io, "winner=$(convert(Int64, s.winner))")
+#end
+#
+#function Base.show(io::IO, ::MIME"text/plain", s::NamedTuple{
+#  (:stack, :used_cards, :player_cards, :field_stones, :player_stones, :curplayer),
+#  Tuple{DataType, Vector{UInt8}, SMatrix{4, 2, UInt8, 8}, SArray{Tuple{6, 6, 2}, UInt8, 3, 72}, SVector{2, UInt8}, UInt8}
+#})
+#  println(io, "State:")
+#  println(io, "stack=$(convert(Vector{Int64}, collect(Iterators.reverse(s.stack))))")
+#  println(io, "used_cards=$(convert(Vector{Int64}, s.used_cards))")
+#  println(io, "player_cards{1}=$(convert(Vector{Int64}, s.player_cards[:, 1]))")
+#  println(io, "player_cards{2}=$(convert(Vector{Int64}, s.player_cards[:, 2]))")
+#  println(io, "field_stones{1}=$(convert(Matrix{Int64}, s.field_stones[:, :, 1]))")
+#  println(io, "field_stones{2}=$(convert(Matrix{Int64}, s.field_stones[:, :, 2]))")
+#  println(io, "player_stones=$(convert(Vector{Int64}, s.player_stones))")
+#  println(io, "curplayer=$(convert(Int64, s.curplayer))")
+#end

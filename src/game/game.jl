@@ -1,21 +1,21 @@
 # NOTE: Has to be overwritten by the experimentt module
 # GI.spec(g::Just4FunEnv) = Just4FunSpec()
 
-GI.two_players(spec::Just4FunSpec) = NUM_PLAYERS == 2
+GI.two_players(spec::Just4FunSpec)::Bool = NUM_PLAYERS == 2
 
 """
 GI.actions(spec::Just4FunSpec)
 
 Return the vector of all game actions. TODO: initialize on spec creation
 """
-GI.actions(spec::Just4FunSpec) = ACTIONS
+GI.actions(spec::Just4FunSpec)::Vector{Action} = ACTIONS
 
 """
-GI.init(spec::Just4FunSpec, state) :: AbstractGameEnv
+GI.init(spec::Just4FunSpec, state)::AbstractGameEnv
 
 Create a new game environment in a (possibly random) initial state.
 """
-function GI.init(spec::Just4FunSpec, state=nothing)
+function GI.init(spec::Just4FunSpec, state=nothing)::Just4FunEnv
   if isnothing(state) && !isempty(spec.per_game_seeds)
     seed = rand(spec.per_game_seeds)
     Random.seed!(seed)
@@ -29,7 +29,7 @@ function GI.init(spec::Just4FunSpec, state=nothing)
   if FEATURE_CARDS  
     if isnothing(state)
       # setup stack
-      if isnothing(spec.initial_stack)
+      if isempty(spec.initial_stack)
         stack = shuffle(copy(DECK))
       else
         stack = spec.initial_stack
@@ -82,7 +82,7 @@ GI.actions_mask(g::Just4FunEnv)
 
 Returns a boolean actions_mask indicating all allowed actions among ACTIONS.
 """
-function GI.actions_mask(g::Just4FunEnv)
+function GI.actions_mask(g::Just4FunEnv)::Vector{Bool}
   a = g.action_masks[:, to_index(g.curplayer)]
   return Vector{Bool}(a)
 end
@@ -96,7 +96,7 @@ must therefore either be fresh or persistent. If in doubt, you should make a cop
 
 NOTE: copy() is necessary
 """
-function GI.current_state(g::Just4FunEnv)
+function GI.current_state(g::Just4FunEnv)::Just4FunEnvState
   s = (
     stack           = Vector{CardValue}([c for c in Iterators.reverse(g.stack)]),
     used_cards      = copy(g.used_cards),
@@ -126,7 +126,7 @@ state:
 
 NOTE: copy() is necessary
 """
-function GI.set_state!(game::Just4FunEnv, state)
+function GI.set_state!(game::Just4FunEnv, state::Just4FunEnvState)
   game.stack = Stack{CardValue}()
   for c in state.stack
     push!(game.stack, c)
@@ -151,7 +151,7 @@ Return an independent copy of the given environment.
 
 NOTE: copy() is necessary
 """
-function GI.clone(g::Just4FunEnv)
+function GI.clone(g::Just4FunEnv)::Just4FunEnv
   env = Just4FunEnv(
     copy(g.stack), copy(g.used_cards), g.player_cards,
     g.field_stones, g.player_stones,
@@ -167,20 +167,20 @@ end
 clone(spec::Just4FunSpec)
 Return an independent copy of the given specification.
 """
-clone(spec::Just4FunSpec) = Just4FunSpec(isnothing(spec.initial_stack) ? nothing : copy(spec.initial_stack))
+clone(spec::Just4FunSpec)::Just4FunSpec = Just4FunSpec(copy(spec.initial_stack))
 
 """
 When playing interactively, yellow is the ai and red the human player?!
 """
 # TODO: change interface to support more players OR implement game in commonrl interface, which supports multi agent games
-GI.white_playing(g::Just4FunEnv) = g.curplayer == Player(YELLOW)
+GI.white_playing(g::Just4FunEnv)::Bool = g.curplayer == Player(YELLOW)
 
 """
 GI.game_terminated(g::Just4FunEnv)
 
 Returns true if the game has terminated.
 """
-GI.game_terminated(g::Just4FunEnv) = g.state > in_progress
+GI.game_terminated(g::Just4FunEnv)::Bool = g.state > in_progress
 
 """
 GI.white_reward(g::Just4FunEnv)
@@ -191,7 +191,7 @@ at an initial state.
 
 Returns reward for the YELLOW player in a game.
 """
-function GI.white_reward(g::Just4FunEnv)
+function GI.white_reward(g::Just4FunEnv)::Float32
   if GI.game_terminated(g)
     g.winner == Player(YELLOW) ?
       1. :
@@ -213,7 +213,7 @@ Update the game environment by making the current player perform action. Note th
 Action will be an Int64
 NOTE: Vectors MUST be replaced not modified inplace! Otherwise the mcts tree dict wont work.
 """
-function GI.play!(g::Just4FunEnv, action)
+function GI.play!(g::Just4FunEnv, action::Action)
 
   spec = GI.spec(g)
 

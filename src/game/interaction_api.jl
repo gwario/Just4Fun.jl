@@ -85,9 +85,11 @@ end
 render(game::Just4FunEnv)
 Print the game state on the standard output.
 """
-function GI.render(g::Just4FunEnv; with_position_names=true, botmargin=true, debug=false)
+function GI.render(g::Just4FunEnv; with_position_names=true, botmargin=true, debug=false, player::Player=Player(RED))
     pname = player_name(g.curplayer)
     board_size = size(FIELD_VALUES)
+    its_me_playing = g.curplayer == player
+
     println()
     println("$pname plays:\n")
 
@@ -125,11 +127,11 @@ function GI.render(g::Just4FunEnv; with_position_names=true, botmargin=true, deb
 
     if !GI.game_terminated(g) 
         # game is still on
-        println("$(player_name(g.curplayer))'s turn ($(GI.white_playing(g) ? "other player" : "you")).")
+        println("$(player_name(g.curplayer))'s turn ($(its_me_playing ? "you" : "other player")).")
         println()
         if !debug
             # human's turn
-            if !GI.white_playing(g) && FEATURE_CARDS
+            if its_me_playing && FEATURE_CARDS
                 #print_curplayer_possibly_available_cards(g)
                 print_points(g)
                 println()
