@@ -402,6 +402,144 @@ end
 
 #######
 
+@testset "is_available" begin
+  
+  @test Just4Fun.is_available(
+    SVector(Just4Fun.FieldValue(0), Just4Fun.FieldValue(0)),
+    Just4Fun.Player(Just4Fun.YELLOW)
+  )
+  @test Just4Fun.is_available(
+    SVector(Just4Fun.FieldValue(0), Just4Fun.FieldValue(0)),
+    Just4Fun.Player(Just4Fun.RED)
+  )
+  #@test Just4Fun.is_available(
+  #  SVector(Just4Fun.FieldValue(0), Just4Fun.FieldValue(0)),
+  #  Just4Fun.Player(Just4Fun.GREEN)
+  #)
+  #@test Just4Fun.is_available(
+  #  SVector(Just4Fun.FieldValue(0), Just4Fun.FieldValue(0)),
+  #  Just4Fun.Player(Just4Fun.MAGENTA)
+  #)
+  ##
+  @test Just4Fun.is_available(
+    SVector(Just4Fun.FieldValue(1), Just4Fun.FieldValue(1)),
+    Just4Fun.Player(Just4Fun.YELLOW)
+  )
+  @test Just4Fun.is_available(
+    SVector(Just4Fun.FieldValue(1), Just4Fun.FieldValue(1)),
+    Just4Fun.Player(Just4Fun.RED)
+  )
+  #@test Just4Fun.is_available(
+  #  SVector(Just4Fun.FieldValue(1), Just4Fun.FieldValue(1)),
+  #  Just4Fun.Player(Just4Fun.GREEN)
+  #)
+  #@test Just4Fun.is_available(
+  #  SVector(Just4Fun.FieldValue(1), Just4Fun.FieldValue(1)),
+  #  Just4Fun.Player(Just4Fun.MAGENTA)
+  #)
+  ##
+  @test Just4Fun.is_available(
+    SVector(Just4Fun.FieldValue(1), Just4Fun.FieldValue(0)),
+    Just4Fun.Player(Just4Fun.YELLOW)
+  )
+  @test Just4Fun.is_available(
+    SVector(Just4Fun.FieldValue(1), Just4Fun.FieldValue(0)),
+    Just4Fun.Player(Just4Fun.RED)
+  )
+  #@test Just4Fun.is_available(
+  #  SVector(Just4Fun.FieldValue(1), Just4Fun.FieldValue(0)),
+  #  Just4Fun.Player(Just4Fun.GREEN)
+  #)
+  #@test Just4Fun.is_available(
+  #  SVector(Just4Fun.FieldValue(1), Just4Fun.FieldValue(0)),
+  #  Just4Fun.Player(Just4Fun.MAGENTA)
+  #)
+  ##
+  @test Just4Fun.is_available(
+    SVector(Just4Fun.FieldValue(0), Just4Fun.FieldValue(1)),
+    Just4Fun.Player(Just4Fun.YELLOW)
+  )
+  @test Just4Fun.is_available(
+    SVector(Just4Fun.FieldValue(0), Just4Fun.FieldValue(1)),
+    Just4Fun.Player(Just4Fun.RED)
+  )
+  #@test Just4Fun.is_available(
+  #  SVector(Just4Fun.FieldValue(0), Just4Fun.FieldValue(1)),
+  #  Just4Fun.Player(Just4Fun.GREEN)
+  #)
+  #@test Just4Fun.is_available(
+  #  SVector(Just4Fun.FieldValue(0), Just4Fun.FieldValue(1)),
+  #  Just4Fun.Player(Just4Fun.MAGENTA)
+  #)
+  ##
+  @test Just4Fun.is_available(
+    SVector(Just4Fun.FieldValue(2), Just4Fun.FieldValue(0)),
+    Just4Fun.Player(Just4Fun.YELLOW)
+  ) == false
+  @test Just4Fun.is_available(
+    SVector(Just4Fun.FieldValue(2), Just4Fun.FieldValue(0)),
+    Just4Fun.Player(Just4Fun.RED)
+  ) == false
+  #@test Just4Fun.is_available(
+  #  SVector(Just4Fun.FieldValue(2), Just4Fun.FieldValue(0)),
+  #  Just4Fun.Player(Just4Fun.GREEN)
+  #) == false
+  #@test Just4Fun.is_available(
+  #  SVector(Just4Fun.FieldValue(2), Just4Fun.FieldValue(0)),
+  #  Just4Fun.Player(Just4Fun.MAGENTA)
+  #) == false
+  ##
+  @test Just4Fun.is_available(
+    SVector(Just4Fun.FieldValue(0), Just4Fun.FieldValue(2)),
+    Just4Fun.Player(Just4Fun.YELLOW)
+  ) == false
+  @test Just4Fun.is_available(
+    SVector(Just4Fun.FieldValue(0), Just4Fun.FieldValue(2)),
+    Just4Fun.Player(Just4Fun.RED)
+  ) == false
+  #@test Just4Fun.is_available(
+  #  SVector(Just4Fun.FieldValue(0), Just4Fun.FieldValue(2)),
+  #  Just4Fun.Player(Just4Fun.GREEN)
+  #) == false
+  #@test Just4Fun.is_available(
+  #  SVector(Just4Fun.FieldValue(0), Just4Fun.FieldValue(2)),
+  #  Just4Fun.Player(Just4Fun.MAGENTA)
+  #) == false
+  ##
+  @test Just4Fun.is_available(
+    SVector(Just4Fun.FieldValue(2), Just4Fun.FieldValue(4)),
+    Just4Fun.Player(Just4Fun.YELLOW)
+  ) == false
+  @test Just4Fun.is_available(
+    SVector(Just4Fun.FieldValue(2), Just4Fun.FieldValue(4)),
+    Just4Fun.Player(Just4Fun.RED)
+  ) == false
+  ##
+  @test Just4Fun.is_available(
+    SVector(Just4Fun.FieldValue(2), Just4Fun.FieldValue(4)),
+    Just4Fun.Player(Just4Fun.YELLOW)
+  ) == false
+  ##
+  #@test Just4Fun.is_available(
+  #  SVector(Just4Fun.FieldValue(2), Just4Fun.FieldValue(4), Just4Fun.FieldValue(2), Just4Fun.FieldValue(4)),
+  #  Just4Fun.Player(Just4Fun.YELLOW)
+  #) == false
+  #@test Just4Fun.is_available(
+  #  SVector(Just4Fun.FieldValue(2), Just4Fun.FieldValue(4), Just4Fun.FieldValue(2), Just4Fun.FieldValue(4)),
+  #  Just4Fun.Player(Just4Fun.RED)
+  #) == true
+  #@test Just4Fun.is_available(
+  #  SVector(Just4Fun.FieldValue(2), Just4Fun.FieldValue(4), Just4Fun.FieldValue(2), Just4Fun.FieldValue(4)),
+  #  Just4Fun.Player(Just4Fun.GREEN)
+  #) == false
+  #@test Just4Fun.is_available(
+  #  SVector(Just4Fun.FieldValue(2), Just4Fun.FieldValue(4), Just4Fun.FieldValue(2), Just4Fun.FieldValue(4)),
+  #  Just4Fun.Player(Just4Fun.MAGENTA)
+  #) == true
+end
+
+#######
+
 @testset "take_stone!" begin
   @testset "yellow" begin
     

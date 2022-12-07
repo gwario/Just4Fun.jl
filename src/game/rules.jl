@@ -54,6 +54,16 @@ function dominant_player(field_stones::SVector{NUM_PLAYERS, Stones})::Union{Play
 end
 
 """
+is_available(field_stones::SVector{NUM_PLAYERS, Stones}, player::Player)::Bool
+
+Returns true if the field is available for player, i.e. if player is not already
+dominating the the opponents and the opponents do not dominate the field.
+"""
+function is_available(field_stones::SVector{NUM_PLAYERS, Stones}, player::Player)::Bool
+  return !dominated(field_stones, player) && !dominating(field_stones, player)
+end
+
+"""
 dominating(field_stones::SVector{NUM_PLAYERS, Stones}, player::Player)::Bool
 
 Retruns true if player p is dominating by another player in this cell.
@@ -99,8 +109,9 @@ get_stones(g::Just4FunEnv, field_value::FieldValue)::SVector{NUM_PLAYERS, Stones
 Returns the vector of stones on a field.
 """
 function get_stones(g::Just4FunEnv, field_value::FieldValue)::SVector{NUM_PLAYERS, Stones}
+  # TODO make a map field value to index
   field_index = findfirst(f -> f == field_value, FIELD_VALUES)
-  player_stones = g.field_stones[field_index[1], field_index[2], :] # FIXME: 
+  player_stones = g.field_stones[field_index[1], field_index[2], :] # FIXME: inference trigger
   return player_stones
 end
 
@@ -118,7 +129,7 @@ function put_down!(g::Just4FunEnv, cards_to_put_down::Cards)
   for card_to_put_down in cards_to_put_down
     # find the index of the card
     player_cards = g.player_cards[:, player_index]
-    card_index = findfirst(cards -> cards == card_to_put_down, player_cards)
+    card_index = findfirst(card -> card == card_to_put_down, player_cards)
     @assert(!isnothing(card_index), "Trying to put down a card that's not in hand!")
     # remove it from player's hand
     g.player_cards = setindex(g.player_cards, CardValue(0), CartesianIndex(card_index, player_index))
@@ -193,18 +204,18 @@ Retruns true if the index (of the cell) is the one of the curplayer.
 is_curplayer_index(g::Just4FunEnv, player_index::Int64)::Bool = to_index(g.curplayer) == player_index
 
 """
-curplayercards(g::Just4FunEnv)::Cards
+curplayercards(g::Just4FunEnv)::SVector{SIZE_HAND, CardValue}
 
 Returns the current player's cards.
 """
-curplayercards(g::Just4FunEnv)::Cards = playercards(g, g.curplayer)
+curplayercards(g::Just4FunEnv)::SVector{SIZE_HAND, CardValue} = playercards(g, g.curplayer)
 
 """
-playercards(g::Just4FunEnv, player::Player)::Cards
+playercards(g::Just4FunEnv, player::Player)::SVector{SIZE_HAND, CardValue}
 
 Returns the player's cards.
 """
-playercards(g::Just4FunEnv, player::Player)::Cards = getindex(g.player_cards, :, to_index(player)) # FIXME: 
+playercards(g::Just4FunEnv, player::Player)::SVector{SIZE_HAND, CardValue} = g.player_cards[1:SIZE_HAND, to_index(player)]
 
 """
 curplayerstones(g::Just4FunEnv)::Stones
@@ -296,7 +307,7 @@ Updates the action masks of all players.
 """
 function update_action_mask!(g::Just4FunEnv)
   # reset all masks
-  g.action_masks = SMatrix{NUM_ACTIONS, NUM_PLAYERS, UInt8}(zeros(UInt8, NUM_ACTIONS, NUM_PLAYERS))
+  g.action_masks = falses(NUM_ACTIONS, NUM_PLAYERS)
   
   for player_index in range(YELLOW, length=NUM_PLAYERS)
     player = Player(player_index)
@@ -306,24 +317,25 @@ function update_action_mask!(g::Just4FunEnv)
       player_card_combinations = regular_combinations(FIELD_VALUES, player_cards)
       for player_card_combination in player_card_combinations
         field_value = convert(FieldValue, sum(player_card_combination))
+        # FIXME: it must be here where the lookup fails
         mask_index = ACTION_ACTION_MASK_INDEX_MAP[(cards=player_card_combination, value=field_value)]
         field_stones = get_stones(g, field_value)
-        available = !dominated(field_stones, player) && !dominating(field_stones, player) && (!FEATURE_MULTI_STONE ? empty_field(field_stones) : true)
+        available = is_available(field_stones, player) && (!FEATURE_MULTI_STONE ? empty_field(field_stones) : true)
         # update state
-        g.action_masks = setindex(g.action_masks, available, CartesianIndex((mask_index, player_index))) # FIXME: 
+        setindex!(g.action_masks, available, CartesianIndex((mask_index, player_index)))
       end
       
       # if any card combination is possible: set redraw action false, otherwise true
-      some_available = sum(g.action_masks[:, player_index]) >= 0x1 # FIXME: 
+      some_available = any(g.action_masks[:, player_index])
       redraw_mask_index = ACTION_ACTION_MASK_INDEX_MAP[(cards=Cards[], value=FieldValue(0))]
-      g.action_masks = setindex(g.action_masks, !some_available, CartesianIndex((redraw_mask_index, player_index)))
+      setindex!(g.action_masks, !some_available, CartesianIndex((redraw_mask_index, player_index)))
     else
       actions = GI.actions(GI.spec(g))
       for (index, field_value) in enumerate(actions)
         field_stones = get_stones(g, field_value)
         available = !dominated(field_stones, player)
         # update state
-        g.action_masks = setindex(g.action_masks, available, CartesianIndex((index, player_index)))
+        setindex!(g.action_masks, available, CartesianIndex((index, player_index)))
       end
     end
   end

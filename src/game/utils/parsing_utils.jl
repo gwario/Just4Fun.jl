@@ -16,7 +16,6 @@ function parse_action_cards(spec::Just4FunSpec, cards_string)::Union{CardsAction
             num_played_cards = length(played_cards)
             sum_played_cards = sum(played_cards)
             if 1 <= num_played_cards && num_played_cards <= SIZE_HAND && sum_played_cards <= max_field_value
-                @show (cards=played_cards, value=sum_played_cards)
                 return (cards=played_cards, value=sum_played_cards)
             else
                 @warn "Invalid action played_cards=$(convert(Vector{Int64}, played_cards)), value=$(convert(Int64, sum_played_cards))"

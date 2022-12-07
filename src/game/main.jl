@@ -48,7 +48,7 @@ const WIN_LENGTH  = JUST4FUN_DEFAULT_WIN_LENGTH
 include("utils.jl")
 
 """
-ACTION_ACTION_MASK_INDEX_MAP::Dict{NamedTuple{(:cards, :value), Tuple{Vector{UInt8}, UInt8}}, Int64}
+ACTIONS::Vector{Action}
 """
 const ACTIONS = actions = FEATURE_CARDS ?
   generate_card_actions(vec(FIELD_VALUES), DECK, SIZE_HAND) :
@@ -56,7 +56,7 @@ const ACTIONS = actions = FEATURE_CARDS ?
 const NUM_ACTIONS = length(ACTIONS)
 
 """
-ACTION_ACTION_MASK_INDEX_MAP::Dict{NamedTuple{(:cards, :value), Tuple{Vector{UInt8}, UInt8}}, Int64}
+ACTION_ACTION_MASK_INDEX_MAP::Dict{Action, Int64}
 """
 const ACTION_ACTION_MASK_INDEX_MAP = generate_action_mask_lookup_index(ACTIONS)
 

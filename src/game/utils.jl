@@ -3,7 +3,7 @@
 
 Circular shift of the player's number of stones.
 """
-function flip_colors(playerstones::SVector{Stones})::SVector{Stones}
+function flip_colors(playerstones::SVector)::SVector
   return SVector{length(playerstones), Stones}(circshift(playerstones, -1))
 end
 
@@ -54,7 +54,7 @@ regular_combinations(field_values::SMatrix{SIDE_LENGTH, SIDE_LENGTH, FieldValue}
 
 Returns all valid sorted unique combinations for cards without the empty one.
 """
-function regular_combinations(field_values::SMatrix{SIDE_LENGTH, SIDE_LENGTH, FieldValue}, cards::Cards)::Vector{Cards}
+function regular_combinations(field_values::SMatrix{SIDE_LENGTH, SIDE_LENGTH, FieldValue}, cards::SVector{SIZE_HAND, CardValue})::Vector{Cards}
   max_field_value = max(SVector(field_values)...)
   rscc = unique([sort(c) for c = collect(powerset(cards, 1, length(cards)))])
   filter(cv -> sum(cv) <= max_field_value, rscc)

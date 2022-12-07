@@ -259,7 +259,7 @@ end
 
 
   # all combinations of size up to 0 (only the empty list)
-  combinations = Just4Fun.regular_combinations(FIELD_VALUES, Cards([
+  combinations = Just4Fun.regular_combinations(FIELD_VALUES, SVector{4, CardValue}([
     CardValue(1), CardValue(2), CardValue(3), CardValue(4)
   ]))
   

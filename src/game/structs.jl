@@ -3,23 +3,36 @@
 ####
 struct Just4FunSpec <: GI.AbstractGameSpec
 
-  per_game_seeds:: Vector{Int64}
-  initial_stack :: Stack{CardValue}
+  starting_player :: Union{Nothing,Player}
+  per_game_seeds  :: Vector{Int64}
+  initial_stack   :: Stack{CardValue}
 
-  function Just4FunSpec()::Just4FunSpec
-    new(Int64[], Stack{CardValue}())
+  """
+  Just4FunSpec(starting_player::Union{Nothing,Player}=Player(YELLOW))::Just4FunSpec
+  """
+  function Just4FunSpec(starting_player::Union{Nothing,Player}=Player(YELLOW))::Just4FunSpec
+    new(starting_player, Int64[], Stack{CardValue}())
   end
 
-  function Just4FunSpec(per_game_seeds::Vector{Int64})::Just4FunSpec
-    new(per_game_seeds, Stack{CardValue}())
+  """
+  Just4FunSpec(per_game_seeds::Vector{Int64}, starting_player::Union{Nothing,Player}=Player(YELLOW))::Just4FunSpec
+  """
+  function Just4FunSpec(per_game_seeds::Vector{Int64}, starting_player::Union{Nothing,Player}=Player(YELLOW))::Just4FunSpec
+    new(starting_player, per_game_seeds, Stack{CardValue}())
   end
   
-  function Just4FunSpec(predefined_stack::Stack{CardValue})::Just4FunSpec
-    new(Int64[], predefined_stack)
+  """
+  Just4FunSpec(predefined_stack::Stack{CardValue}, starting_player::Union{Nothing,Player}=Player(YELLOW))::Just4FunSpec
+  """
+  function Just4FunSpec(predefined_stack::Stack{CardValue}, starting_player::Union{Nothing,Player}=Player(YELLOW))::Just4FunSpec
+    new(starting_player, Int64[], predefined_stack)
   end
 
-  function Just4FunSpec(predefined_stack::Stack{CardValue}, per_game_seeds::Vector{Int64})::Just4FunSpec
-    new(per_game_seeds, predefined_stack)
+  """
+  Just4FunSpec(predefined_stack::Stack{CardValue}, per_game_seeds::Vector{Int64}, starting_player::Union{Nothing,Player}=Player(YELLOW))::Just4FunSpec
+  """
+  function Just4FunSpec(predefined_stack::Stack{CardValue}, per_game_seeds::Vector{Int64}, starting_player::Union{Nothing,Player}=Player(YELLOW))::Just4FunSpec
+    new(starting_player, per_game_seeds, predefined_stack)
   end
 end
 
@@ -33,7 +46,7 @@ mutable struct Just4FunEnv <: GI.AbstractGameEnv
   player_stones :: SVector{NUM_PLAYERS, Stones}               # Size <players> (x 1)
   curplayer     :: Player
   # status helpers
-  action_masks  :: SMatrix{NUM_ACTIONS, NUM_PLAYERS, UInt8}   # Action masks for each players Size <num actions> x <players> (x 1)
+  action_masks  :: BitArray{2}   # Action masks for each players Size <num actions> x <players> (x 1)
   state         :: GameState
   winner        :: Player
 

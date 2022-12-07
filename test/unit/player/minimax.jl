@@ -1,7 +1,7 @@
 @testset "alignment_value_for" begin
   @testset "If yellow player holds more positions of winning alignments than the red player, value is positive (1)" begin
-    state = (
-      stack=Stack{CardValue}(), used_cards=Cards(),
+    state = Just4FunEnvState((
+      stack=Vector{CardValue}(), used_cards=Cards(),
       player_cards=SMatrix{4, 2}([
         0x01 0x01 ;
         0x02 0x02 ;
@@ -28,7 +28,7 @@
       curplayer=Player(YELLOW),
       state=in_progress,
       action_indices=[]
-    ) 
+    ))
     game = GI.init(Just4FunSpec(), state)
 
     # perspective of curplayer - yellow
@@ -39,8 +39,8 @@
   end
 
   @testset "If yellow player holds more positions of winning alignments than the red player, value is positive (2)" begin
-    state = (
-      stack=Stack{CardValue}(), used_cards=Cards(),
+    state = Just4FunEnvState((
+      stack=Vector{CardValue}(), used_cards=Cards(),
       player_cards=SMatrix{4, 2}([
         0x01 0x01 ;
         0x02 0x02 ;
@@ -67,7 +67,7 @@
       curplayer=Player(YELLOW),
       state=in_progress,
       action_indices=[]
-    )
+    ))
     game = GI.init(Just4FunSpec(), state)
     
     value = GI.heuristic_value(game)
@@ -77,8 +77,8 @@
   end
 
   @testset "Number of held positions of winning alignments increases value" begin
-    state_1 = (
-      stack=Stack{CardValue}(), used_cards=Cards(),
+    state_1 = Just4FunEnvState((
+      stack=Vector{CardValue}(), used_cards=Cards(),
       player_cards=SMatrix{4, 2}([
         0x01 0x01 ;
         0x02 0x02 ;
@@ -105,13 +105,13 @@
       curplayer=Player(YELLOW),
       state=in_progress,
       action_indices=[]
-    )
+    ))
     game_1 = GI.init(Just4FunSpec(), state_1)
     
     value_1 = GI.heuristic_value(game_1)
 
-    state_2 = (
-      stack=Stack{CardValue}(), used_cards=Cards(),
+    state_2 = Just4FunEnvState((
+      stack=Vector{CardValue}(), used_cards=Cards(),
       player_cards=SMatrix{4, 2}([
         0x01 0x01 ;
         0x02 0x02 ;
@@ -138,7 +138,7 @@
       curplayer=Player(YELLOW),
       state=in_progress,
       action_indices=[]
-    )
+    ))
     game_2 = GI.init(Just4FunSpec(), state_2)
     #GI.render(game)
     
@@ -177,8 +177,8 @@ This function is not needed by AlphaZero but it is useful for building baselines
 
 @testset "GI.heuristic_value" begin
   @testset "If yellow player holds more positions of alignments than the red player, value is poaitive" begin
-    state = (
-      stack=Stack{CardValue}(), used_cards=Cards(),
+    state = Just4FunEnvState((
+      stack=Vector{CardValue}(), used_cards=Cards(),
       player_cards=SMatrix{4, 2}([
         0x01 0x01 ;
         0x02 0x02 ;
@@ -205,7 +205,7 @@ This function is not needed by AlphaZero but it is useful for building baselines
       curplayer=Player(YELLOW),
       state=in_progress,
       action_indices=[]
-    )
+    ))
     game = GI.init(Just4FunSpec(), state)
     
     value = GI.heuristic_value(game)
@@ -214,8 +214,8 @@ This function is not needed by AlphaZero but it is useful for building baselines
   end
 
   @testset "If yellow player holds even more positions of alignments than the red player, value is positive and greater" begin
-    state_1 = (
-      stack=Stack{CardValue}(), used_cards=Cards(),
+    state_1 = Just4FunEnvState((
+      stack=Vector{CardValue}(), used_cards=Cards(),
       player_cards=SMatrix{4, 2}([
         0x01 0x01 ;
         0x02 0x02 ;
@@ -242,11 +242,11 @@ This function is not needed by AlphaZero but it is useful for building baselines
       curplayer=Player(YELLOW),
       state=in_progress,
       action_indices=[]
-    )
+    ))
     game_1 = GI.init(Just4FunSpec(), state_1)
     
-    state_2 = (
-      stack=Stack{CardValue}(), used_cards=Cards(),
+    state_2 = Just4FunEnvState((
+      stack=Vector{CardValue}(), used_cards=Cards(),
       player_cards=SMatrix{4, 2}([
         0x01 0x01 ;
         0x02 0x02 ;
@@ -273,7 +273,7 @@ This function is not needed by AlphaZero but it is useful for building baselines
       curplayer=Player(YELLOW),
       state=in_progress,
       action_indices=[]
-    )
+    ))
     game_2 = GI.init(Just4FunSpec(), state_2)
     
     value_1 = GI.heuristic_value(game_1)

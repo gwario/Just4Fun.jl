@@ -125,8 +125,8 @@ end
 
 @testset "Game State" begin
   @testset "Get state returns set state game" begin
-    expected_state = (
-      stack=Vector{Just4Fun.CardValue}(), used_cards=Just4Fun.Cards(),
+    expected_state = Just4FunEnvState((
+      stack=Vector{CardValue}(), used_cards=Cards(),
       player_cards=SMatrix{4, 2}([
         0x01 0x01 ;
         0x02 0x02 ;
@@ -153,7 +153,7 @@ end
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
       action_indices=[]
-    )
+    ))
     game = GI.init(Just4FunSpec(), expected_state)
     
     actual_state = GI.current_state(game)
@@ -187,8 +187,8 @@ end
 @testset "Init, set state, reward and termination" begin
   @testset "four in a row (1,1 -> 4,1) for player yellow makes white reward 1 and game terminated true" begin
 
-    state = (
-      stack=Stack{Just4Fun.CardValue}(), used_cards=Just4Fun.Cards(),
+    state = Just4FunEnvState((
+      stack=Vector{CardValue}(), used_cards=Just4Fun.Cards(),
       player_cards=SMatrix{4, 2}([
         0x01 0x01 ;
         0x02 0x02 ;
@@ -215,7 +215,7 @@ end
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
       action_indices=[]
-    )
+    ))
     game = GI.init(Just4FunSpec(), state)
     
     @test GI.white_reward(game) == 1.0
@@ -224,8 +224,8 @@ end
 
   @testset "four in a row (1,1 -> 1,4) for player yellow makes white reward 1 and game terminated true" begin
 
-    state = (
-      stack=Stack{Just4Fun.CardValue}(), used_cards=Just4Fun.Cards(),
+    state = Just4FunEnvState((
+      stack=Vector{CardValue}(), used_cards=Just4Fun.Cards(),
       player_cards=SMatrix{4, 2}([
         0x01 0x01 ;
         0x02 0x02 ;
@@ -252,7 +252,7 @@ end
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
       action_indices=[]
-    )
+    ))
     game = GI.init(Just4Fun.Just4FunSpec(), state)
     
     @test GI.white_reward(game) == 1.0
@@ -261,8 +261,8 @@ end
 
   @testset "four in a row (1,6 -> 4,2 diagonal) for player yellow makes white reward 1 and game terminated true" begin
 
-    state = (
-      stack=Stack{Just4Fun.CardValue}(), used_cards=Cards(),
+    state = Just4FunEnvState((
+      stack=Vector{CardValue}(), used_cards=Cards(),
       player_cards=SMatrix{4, 2}([
         0x01 0x01 ;
         0x02 0x02 ;
@@ -289,7 +289,7 @@ end
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
       action_indices=[]
-    )
+    ))
     game = GI.init(Just4FunSpec(), state)
     
     @test GI.white_reward(game) == 1.0
@@ -301,8 +301,8 @@ end
 
   @testset "four in a row (1,1 -> 4,1) for player red makes white reward -1 and game terminated true" begin
 
-    state = (
-      stack=Stack{Just4Fun.CardValue}(), used_cards=Cards(),
+    state = Just4FunEnvState((
+      stack=Vector{CardValue}(), used_cards=Cards(),
       player_cards=SMatrix{4, 2}([
         0x01 0x01 ;
         0x02 0x02 ;
@@ -329,7 +329,7 @@ end
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
       action_indices=[]
-    )
+    ))
     game = GI.init(Just4FunSpec(), state)
     
     @test GI.white_reward(game) == -1.0
@@ -338,8 +338,8 @@ end
 
   @testset "four in a row (1,1 -> 1,4) for player red makes white reward -1 and game terminated true" begin
 
-    state = (
-      stack=Stack{Just4Fun.CardValue}(), used_cards=Cards(),
+    state = Just4FunEnvState((
+      stack=Vector{CardValue}(), used_cards=Cards(),
       player_cards=SMatrix{4, 2}([
         0x01 0x01 ;
         0x02 0x02 ;
@@ -366,7 +366,7 @@ end
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
       action_indices=[]
-    )
+    ))
     game = GI.init(Just4FunSpec(), state)
     
     @test GI.white_reward(game) == -1.0
@@ -375,8 +375,8 @@ end
 
   @testset "four in a row (1,1 -> 4,4 diagonal) for player red makes white reward -1 and game terminated true" begin
 
-    state = (
-      stack=Stack{Just4Fun.CardValue}(), used_cards=Cards(),
+    state = Just4FunEnvState((
+      stack=Vector{CardValue}(), used_cards=Cards(),
       player_cards=SMatrix{4, 2}([
         0x01 0x01 ;
         0x02 0x02 ;
@@ -403,7 +403,7 @@ end
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
       action_indices=[]
-    )
+    ))
     game = GI.init(Just4FunSpec(), state)
     
     @test GI.white_reward(game) == -1.0
@@ -413,12 +413,12 @@ end
   #####
 
   @testset "neither player has won nor are out of stones makes white reward 0 and game terminated false" begin
-    stack = Stack{Just4Fun.CardValue}()
+    stack = Vector{CardValue}()
     push!(stack, 0x1)
     push!(stack, 0x2)
     push!(stack, 0x3)
     push!(stack, 0x4)
-    state = (
+    state = Just4FunEnvState((
       stack=stack, used_cards=Cards(),
       player_cards=SMatrix{4, 2}([
         0x01 0x01 ;
@@ -446,7 +446,7 @@ end
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
       action_indices=[]
-    )
+    ))
     game = GI.init(Just4FunSpec(), state)
     
     @test GI.white_reward(game) == 0
@@ -457,12 +457,12 @@ end
 
   @testset "if curplayer is yellow, white playing is true" begin
     
-    stack = Stack{Just4Fun.CardValue}()
+    stack = Vector{CardValue}()
     push!(stack, 0x1)
     push!(stack, 0x2)
     push!(stack, 0x3)
     push!(stack, 0x4)
-    state = (
+    state = Just4FunEnvState((
       stack=stack, used_cards=Cards(),
       player_cards=SMatrix{4, 2}([
         0x01 0x01 ;
@@ -490,7 +490,7 @@ end
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
       action_indices=[]
-    )
+    ))
     game = GI.init(Just4FunSpec(), state)
     
     @test GI.white_playing(game) == true
@@ -498,12 +498,12 @@ end
 
   @testset "if curplayer is red, white playing is false" begin
     
-    stack = Stack{Just4Fun.CardValue}()
+    stack = Vector{CardValue}()
     push!(stack, 0x1)
     push!(stack, 0x2)
     push!(stack, 0x3)
     push!(stack, 0x4)
-    state = (
+    state = Just4FunEnvState((
       stack=stack, used_cards=Cards(),
       player_cards=SMatrix{4, 2}([
         0x01 0x01 ;
@@ -531,7 +531,7 @@ end
       curplayer=Player(Just4Fun.RED),
       state=in_progress,
       action_indices=[]
-    )
+    ))
     game = GI.init(Just4FunSpec(), state)
     
     @test GI.white_playing(game) == false
@@ -542,8 +542,8 @@ end
   # there can be no draw
   @testset "player with highest pos wins (yellow)" begin
     
-    stack = Stack{Just4Fun.CardValue}()
-    state = (
+    stack = Vector{CardValue}()
+    state = Just4FunEnvState((
       stack=stack, used_cards=Cards(),
       player_cards=SMatrix{4, 2}([
         0x01 0x01 ;
@@ -571,7 +571,7 @@ end
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
       action_indices=[]
-    )
+    ))
     game = GI.init(Just4FunSpec())
     GI.set_state!(game, state)
     
@@ -581,8 +581,8 @@ end
 
   @testset "player with highest pos wins (yellow)" begin
     
-    stack = Stack{Just4Fun.CardValue}()
-    state = (
+    stack = Vector{CardValue}()
+    state = Just4FunEnvState((
       stack=stack, used_cards=Cards(),
       player_cards=SMatrix{4, 2}([
         0x01 0x01 ;
@@ -610,7 +610,7 @@ end
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
       action_indices=[]
-    )
+    ))
     game = GI.init(Just4FunSpec())
     GI.set_state!(game, state)
     
@@ -622,8 +622,8 @@ end
 
   @testset "player with most points wins (red)" begin
     
-    stack = Stack{Just4Fun.CardValue}()
-    state = (
+    stack = Vector{CardValue}()
+    state = Just4FunEnvState((
       stack=stack, used_cards=Cards(),
       player_cards=SMatrix{4, 2}([
         0x01 0x01 ;
@@ -651,7 +651,7 @@ end
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
       action_indices=[]
-    )
+    ))
     game = GI.init(Just4FunSpec())
     GI.set_state!(game, state)
     
@@ -661,8 +661,8 @@ end
 
   @testset "player with most points wins (yellow)" begin
     
-    stack = Stack{Just4Fun.CardValue}()
-    state = (
+    stack = Vector{CardValue}()
+    state = Just4FunEnvState((
       stack=stack, used_cards=Cards(),
       player_cards=SMatrix{4, 2}([
         0x01 0x01 ;
@@ -690,7 +690,7 @@ end
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
       action_indices=[]
-    )
+    ))
     game = GI.init(Just4FunSpec())
     GI.set_state!(game, state)
     

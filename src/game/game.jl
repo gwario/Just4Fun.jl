@@ -51,7 +51,8 @@ function GI.init(spec::Just4FunSpec, state=nothing)::Just4FunEnv
   # setup player's stones
   player_stones = SVector{NUM_PLAYERS, Stones}(repeat([Stones(NUM_PLAYER_STONES)], NUM_PLAYERS))
   # set current player
-  curplayer = Player(YELLOW)
+  curplayer = isnothing(spec.starting_player) ? Player(rand(1:NUM_PLAYERS)) : spec.starting_player
+  #curplayer = isnothing(spec.beginner) ? Player(YELLOW) : spec.beginner
   # initialize actions masks
   actions_masks = SMatrix{NUM_ACTIONS, NUM_PLAYERS, UInt8}(zeros(UInt8, NUM_ACTIONS, NUM_PLAYERS))
   
@@ -221,7 +222,7 @@ function GI.play!(g::Just4FunEnv, action::Action)
   if FEATURE_CARDS
     if isredraw(action)
       curplayer_cards = curplayercards(g)
-      put_down!(g, curplayer_cards)
+      put_down!(g, Cards(curplayer_cards))
       pick_cards!(g, length(curplayer_cards))
       
       #println("Before Play - Curplayer $(g.curplayer)")
@@ -245,7 +246,7 @@ function GI.play!(g::Just4FunEnv, action::Action)
   end
   
   update_status!(g, action)
-
+  
   stones_left = !iszero(sum(g.player_stones))
   # if at least some player has stones left
   if stones_left
