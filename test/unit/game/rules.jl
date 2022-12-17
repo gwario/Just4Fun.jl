@@ -538,6 +538,8 @@ end
   #) == true
 end
 
+# TODO: add test for fields_reachability
+
 #######
 
 @testset "take_stone!" begin

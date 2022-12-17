@@ -15,6 +15,6 @@ export print_game_result, print_points
 export GameState, in_progress, end_by_pattern, end_by_points, end_by_max_field, end_by_draw
 export CARD_ACTION_SEPARATOR
 # TODO: make configurable in spec maybe
-export FIELD_VALUES, SIZE_HAND, SIDE_LENGTH, NUM_PLAYERS
+export FIELD_VALUES, FIELD_PROBAS, SIZE_HAND, SIDE_LENGTH, NUM_PLAYERS
 export FEATURE_CARDS
 end

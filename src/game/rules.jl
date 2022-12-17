@@ -64,6 +64,26 @@ function is_available(field_stones::SVector{NUM_PLAYERS, Stones}, player::Player
 end
 
 """
+fields_reachability(player_cards::SMatrix{SIZE_HAND, NUM_PLAYERS, CardValue}, player::Player)::Array{Float32}
+
+Returns an array with values true, if the respective field is reachable with a player's hand.
+"""
+function fields_reachability(all_player_cards::SMatrix{SIZE_HAND, NUM_PLAYERS, CardValue}, player::Player)::Array{Float32}
+  player_cards = all_player_cards[1:SIZE_HAND, to_index(player)]
+  player_card_combinations = regular_combinations(FIELD_VALUES, SVector{SIZE_HAND, CardValue}(player_cards))
+  values = unique(map(cc -> sum(cc), player_card_combinations))
+  field_array = zeros(Float32, SIDE_LENGTH, SIDE_LENGTH)
+  for value in values
+    positions = findall(isequal(value), FIELD_VALUES)
+    for pos in positions
+      field_array[pos] = 1.0
+    end
+  end
+  return field_array
+end
+
+
+"""
 dominating(field_stones::SVector{NUM_PLAYERS, Stones}, player::Player)::Bool
 
 Retruns true if player p is dominating by another player in this cell.
