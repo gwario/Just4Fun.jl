@@ -60,6 +60,16 @@ function regular_combinations(field_values::SMatrix{SIDE_LENGTH, SIDE_LENGTH, Fi
   filter(cv -> sum(cv) <= max_field_value, rscc)
 end
 
+"""
+regular_combinations(field_values::SMatrix{SIDE_LENGTH, SIDE_LENGTH, FieldValue}, cards::Vector{CardValue})::Vector{Cards}
+
+Returns all valid sorted unique combinations for cards without the empty one.
+"""
+function regular_combinations(field_values::SMatrix{SIDE_LENGTH, SIDE_LENGTH, FieldValue}, cards::Vector{CardValue})::Vector{Cards}
+  max_field_value = max(SVector(field_values)...)
+  rscc = unique([sort(c) for c = collect(powerset(cards, 1, length(cards)))])
+  filter(cv -> sum(cv) <= max_field_value, rscc)
+end
 
 """
 generate_card_actions(field_values::SVector{SIDE_LENGTH^2, FieldValue}, deck::Vector{CardValue}, size_hand::Int64)::Vector{CardsAction}

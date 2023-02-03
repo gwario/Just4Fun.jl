@@ -109,6 +109,8 @@ function GI.current_state(g::Just4FunEnv)::Just4FunEnvState
     curplayer       = g.curplayer,
 
     state           = g.state,
+    winner          = g.winner,
+
     action_indices  = copy(g.action_indices) # necessary!
   )
   return s

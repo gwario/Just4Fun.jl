@@ -5,9 +5,12 @@ using Combinatorics
 using DataStructures
 using Crayons
 using Random
+using Formatting: fmt
 using SnoopPrecompile
 
 @precompile_all_calls include("game/main.jl")
+
+@precompile_all_calls include("game/utils/state_rendering_utils.jl")
 
 export Just4FunSpec, Just4FunEnv, Just4FunEnvState, CardValue, Cards, Stones, FieldValue, Action, CardsAction
 export Player, YELLOW, RED, GREEN, MAGENTA, next_player, curplayercards, player_name

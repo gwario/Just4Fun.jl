@@ -238,6 +238,14 @@ Returns the player's cards.
 playercards(g::Just4FunEnv, player::Player)::SVector{SIZE_HAND, CardValue} = g.player_cards[1:SIZE_HAND, to_index(player)]
 
 """
+playercards(s::Just4FunEnvState, player::Player)::Cards
+
+Returns the player's cards.
+"""
+playercards(s::Just4FunEnvState, player::Player)::Cards = Cards(s.player_cards[:, to_index(player)])
+
+
+"""
 curplayerstones(g::Just4FunEnv)::Stones
 
 Returns the current player's stones.

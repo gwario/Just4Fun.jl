@@ -25,12 +25,12 @@ const Action = Union{CardsAction, NoCardsAction}
 const Just4FunEnvState = NamedTuple{
   (
     :stack, :used_cards, :player_cards,
-    :field_stones, :player_stones, :curplayer, :state, :action_indices
+    :field_stones, :player_stones, :curplayer, :state, :winner, :action_indices
   ),
   Tuple{
     Vector{UInt8}, Vector{UInt8}, StaticArraysCore.SMatrix{4, 2, UInt8, 8},
     StaticArraysCore.SArray{Tuple{6, 6, 2}, UInt8, 3, 72},
-    StaticArraysCore.SVector{2, UInt8}, UInt8, GameState, Vector{Int64}
+    StaticArraysCore.SVector{2, UInt8}, UInt8, GameState, UInt8, Vector{Int64}
   }
  }
 
