@@ -361,7 +361,7 @@ function update_action_mask!(g::Just4FunEnv)
       actions = GI.actions(GI.spec(g))
       for (index, field_value) in enumerate(actions)
         field_stones = get_stones(g, field_value)
-        available = !dominated(field_stones, player)
+        available = is_available(field_stones, player)
         # update state
         setindex!(g.action_masks, available, CartesianIndex((index, player_index)))
       end
@@ -370,7 +370,7 @@ function update_action_mask!(g::Just4FunEnv)
 end
 
 """
-update_status!(g::Just4FunEnv, action::CardsAction)
+update_status!(g::Just4FunEnv, action::Action)
 
 Update the game status assuming g.curplayer just played action.
 NOTE: seen as if the current player has just played action!
@@ -378,7 +378,7 @@ NOTE: seen as if the current player has just played action!
 * finished (current player has won; no actions nor stones left for the next player)
 * winner
 """
-function update_status!(g::Just4FunEnv, action::CardsAction)
+function update_status!(g::Just4FunEnv, action::Action)
   spec = GI.spec(g)
   
   winner_by_goal = false
@@ -389,7 +389,7 @@ function update_status!(g::Just4FunEnv, action::CardsAction)
   # Update winner and finished only if it was a regular action (otherwise those do not change)
   if !isredraw(action)
 
-    field_value = FEATURE_CARDS ? action.value : action
+    field_value = action isa CardsAction ? action.value : FieldValue(action)
   
     if winning_pattern_at(spec, FIELD_VALUES, g.field_stones, g.curplayer, field_value)
       #@atomic push!(Just4Fun.STATS.wins_by_pattern, 1)

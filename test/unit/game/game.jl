@@ -172,16 +172,29 @@ end
 #####
 
 @testset "Actions" begin
-  @testset "there are no card combinations with a sum of more than 36" begin
-    @test findall(a -> a.value > FieldValue(36), GI.actions(Just4FunSpec())) == []
-  end
+  if Just4Fun.FEATURE_CARDS
+    @testset "there are no card combinations with a sum of more than 36" begin
+      @test findall(a -> a.value > FieldValue(36), GI.actions(Just4FunSpec())) == []
+    end
 
-  @testset "there are no card combinations with a sum of less than 0" begin
-    @test findall(a -> a.value <  FieldValue(0), GI.actions(Just4FunSpec())) == []
-  end
+    @testset "there are no card combinations with a sum of less than 0" begin
+      @test findall(a -> a.value <  FieldValue(0), GI.actions(Just4FunSpec())) == []
+    end
 
-  @testset "there is one special action with pos 0 for redrawing cards" begin
-    @test length(findall(a -> a.value == FieldValue(0), GI.actions(Just4FunSpec()))) == 1
+    @testset "there is one special action with pos 0 for redrawing cards" begin
+      @test length(findall(a -> a.value == FieldValue(0), GI.actions(Just4FunSpec()))) == 1
+    end
+  else
+    @testset "Actions are 1-36" begin
+      @test sort(GI.actions(Just4FunSpec())) == [
+        FieldValue(1), FieldValue(2), FieldValue(3), FieldValue(4), FieldValue(5), FieldValue(6),
+        FieldValue(7), FieldValue(8), FieldValue(9), FieldValue(10), FieldValue(11), FieldValue(12),
+        FieldValue(13), FieldValue(14), FieldValue(15), FieldValue(16), FieldValue(17), FieldValue(18),
+        FieldValue(19), FieldValue(20), FieldValue(21), FieldValue(22), FieldValue(23), FieldValue(24),
+        FieldValue(25), FieldValue(26), FieldValue(27), FieldValue(28), FieldValue(29), FieldValue(30),
+        FieldValue(31), FieldValue(32), FieldValue(33), FieldValue(34), FieldValue(35), FieldValue(36)
+      ]
+    end
   end
 end
 
