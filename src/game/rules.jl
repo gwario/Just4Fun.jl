@@ -131,7 +131,7 @@ Returns the vector of stones on a field.
 function get_stones(g::Just4FunEnv, field_value::FieldValue)::SVector{NUM_PLAYERS, Stones}
   # TODO make a map field value to index
   field_index = findfirst(f -> f == field_value, FIELD_VALUES)
-  player_stones = g.field_stones[field_index[1], field_index[2], :] # FIXME: inference trigger
+  player_stones = g.field_stones[field_index[1], field_index[2], :]
   return player_stones
 end
 

@@ -90,18 +90,6 @@ function log_cell(logger::Log.Logger, s::Just4FunEnvState, board_size::Tuple{Int
 end
 
 """
-get_stones(s::Just4FunEnvState, field_value::FieldValue)::SVector{NUM_PLAYERS, Stones}
-
-Returns the vector of stones on a field.
-"""
-function get_stones(s::Just4FunEnvState, field_value::FieldValue)::SVector{NUM_PLAYERS, Stones}
-  # TODO make a map field value to index
-  field_index = findfirst(f -> f == field_value, FIELD_VALUES)
-  player_stones = s.field_stones[field_index[1], field_index[2], :] # FIXME: inference trigger
-  return player_stones
-end
-
-"""
 get_points_info(s::Just4FunEnvState)::Tuple{Vector{FieldValue}, Vector{FieldValue}}
 Returns the points info (sum of fields with majority and the highest
 field with majority) of each player.
@@ -128,7 +116,7 @@ Returns the vector of stones on a field.
 function get_stones(s::Just4FunEnvState, field_value::FieldValue)::SVector{NUM_PLAYERS, Stones}
   # TODO make a map field value to index
   field_index = findfirst(f -> f == field_value, FIELD_VALUES)
-  player_stones = s.field_stones[field_index[1], field_index[2], :] # FIXME: inference trigger
+  player_stones = s.field_stones[field_index[1], field_index[2], :]
   return player_stones
 end
 
@@ -280,83 +268,6 @@ function log_action(
 end
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-"""
-print_card_actions(card_combinations::Vector{Cards})
-
-Prints the possible actions of playing cards.
-"""
-function print_card_actions(spec::Just4FunSpec, card_combinations::Vector{Cards})
-  println("Possible cards to play:")
-  max_card_len = length(string(maximum(DECK)))
-  separator_len = length(CARD_ACTION_SEPARATOR)
-  max_card_str_len = max_card_len + separator_len
-  max_cards_string_length = length(repeat(repeat(" ", max_card_str_len), SIZE_HAND))
-  
-  for i in eachindex(card_combinations)
-    combi = card_combinations[i]
-    action_string = padded(sum(combi))
-    cards_int = convert(Array{Int64}, combi)
-    cards_strings = [string(card_int) for card_int in cards_int]
-    cards_string = join(cards_strings, CARD_ACTION_SEPARATOR)
-    cards_string_length = length(cards_string)
-    padding_string_len =  max_cards_string_length - cards_string_length
-    padding_string = repeat(CARD_LABEL_PADDING, padding_string_len)
-    color = iseven(i) ? crayon"fg:default" : crayon"fg:dark_gray" 
-    println(string(color, "$cards_string$padding_string -> $action_string", crayon"reset"))
-  end
-end
-
-"""
-print_redraw_action()
-
-Prints the redraw action that is mandatory if there are no card combinations possible.
-"""
-function print_redraw_action()
-  @warn "No possible combination of cards to play!"
-  println("No moves possible!")
-  println(string(crayon"fg:dark_gray", "redraw     -> Redraw cards", crayon"reset"))
-end
-
-"""
-print_curplayer_actions(g::Just4FunEnvState)
-
-Prints the current player's possible actions - possible card combinations.
-Safe to be displayed to the current player.
-"""
-function print_curplayer_actions(g::Just4FunEnvState)
-  spec = GI.spec(g)
-
-  card_combinations = regular_combinations(FIELD_VALUES, curplayercards(g))
-  combination_pos = [sum(combi) for combi = card_combinations]
-
-  if isdisjoint(FIELD_VALUES, combination_pos)
-    print_redraw_action()
-  else
-    print_card_actions(spec, card_combinations)
-  end
-end
-
 """
 log_winner_result(logger::Log.Logger, s::Just4FunEnvState, player_names::Vector{String})
 
@@ -389,23 +300,3 @@ function log_state(logger::Log.Logger, state::Just4FunEnvState, player_names::Ve
     end
     log_playercards_stones_points_max_field(logger, state, player_names)
 end
-
-"""
-log_action(logger::Log.Logger, state::Just4FunEnvState. player_names::Vector{String})
-Print the game state on the standard output.
-"""
-#function log_action(logger::Log.Logger, ..........)
-#    board_size = size(FIELD_VALUES)
-#    for y in 1:SIDE_LENGTH
-#        if y == 1
-#            log_upper_border(logger, board_size)
-#        end
-#        log_cell(logger, state, board_size, y)
-#        if y < board_size[1]
-#          log_middle_border(logger, board_size)
-#        else
-#          log_lower_border(logger, board_size)
-#        end  
-#    end
-#    log_playercards_stones_points_max_field(logger, state, player_names)
-#end
