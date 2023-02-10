@@ -27,6 +27,7 @@
       player_stones=SVector{2, Stones}(repeat([Stones(20)], 2)),
       curplayer=Player(YELLOW),
       state=in_progress,
+      winner=Player(0),
       action_indices=[]
     ))
     game = GI.init(Just4FunSpec(), state)
@@ -66,6 +67,7 @@
       player_stones=SVector{2, Stones}(repeat([Stones(20)], 2)),
       curplayer=Player(YELLOW),
       state=in_progress,
+      winner=Player(0),
       action_indices=[]
     ))
     game = GI.init(Just4FunSpec(), state)
@@ -104,6 +106,7 @@
       player_stones=SVector{2, Stones}(repeat([Stones(20)], 2)),
       curplayer=Player(YELLOW),
       state=in_progress,
+      winner=Player(0),
       action_indices=[]
     ))
     game_1 = GI.init(Just4FunSpec(), state_1)
@@ -137,6 +140,7 @@
       player_stones=SVector{2, Stones}(repeat([Stones(20)], 2)),
       curplayer=Player(YELLOW),
       state=in_progress,
+      winner=Player(0),
       action_indices=[]
     ))
     game_2 = GI.init(Just4FunSpec(), state_2)
@@ -148,8 +152,8 @@
 
   end
 
-  # TODO test dominated reduces value
-  # TODO test higher with more matched dominated
+  # TODO: test dominated reduces value
+  # TODO: test higher with more matched dominated
 end
 
 
@@ -158,8 +162,8 @@ end
 
 Retruns a metric for degree of completeness of all winning positions.
 """
-# TODO test from two different larger than from one
-# TODO test higher with more matched dominated
+# TODO: test from two different larger than from one
+# TODO: test higher with more matched dominated
 
 
 """
@@ -169,10 +173,10 @@ Return a heuristic estimate of the state value for the current player.
 The given state must be nonfinal and returned values must belong to the (-∞, ∞) interval.
 This function is not needed by AlphaZero but it is useful for building baselines such as minmax players.
 """
-# TODO if one player has more positions, value is larger and positive
-# TODO if other player has more positions, value is negative
-# TODO if other player has more more positions, value is smaller and negative
-# TODO if other player has more positions, value is smaller (-) and negative
+# TODO: if one player has more positions, value is larger and positive
+# TODO: if other player has more positions, value is negative
+# TODO: if other player has more more positions, value is smaller and negative
+# TODO: if other player has more positions, value is smaller (-) and negative
 
 
 @testset "GI.heuristic_value" begin
@@ -204,6 +208,7 @@ This function is not needed by AlphaZero but it is useful for building baselines
       player_stones=SVector{2, Stones}(repeat([Stones(20)], 2)),
       curplayer=Player(YELLOW),
       state=in_progress,
+      winner=Player(0),
       action_indices=[]
     ))
     game = GI.init(Just4FunSpec(), state)
@@ -241,6 +246,7 @@ This function is not needed by AlphaZero but it is useful for building baselines
       player_stones=SVector{2, Stones}(repeat([Stones(20)], 2)),
       curplayer=Player(YELLOW),
       state=in_progress,
+      winner=Player(0),
       action_indices=[]
     ))
     game_1 = GI.init(Just4FunSpec(), state_1)
@@ -272,6 +278,7 @@ This function is not needed by AlphaZero but it is useful for building baselines
       player_stones=SVector{2, Stones}(repeat([Stones(20)], 2)),
       curplayer=Player(YELLOW),
       state=in_progress,
+      winner=Player(0),
       action_indices=[]
     ))
     game_2 = GI.init(Just4FunSpec(), state_2)

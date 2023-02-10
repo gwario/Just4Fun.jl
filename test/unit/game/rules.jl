@@ -626,127 +626,133 @@ end
 end
 
 ########
+if Just4Fun.FEATURE_CARDS
+  @testset "pick_cards! both" begin
+    stack = Stack{Just4Fun.CardValue}()
+    
+    push!(stack, Just4Fun.CardValue(7)) # p2
+    push!(stack, Just4Fun.CardValue(5)) # p2
 
-@testset "pick_cards! both" begin
-  stack = Stack{Just4Fun.CardValue}()
-  
-  push!(stack, Just4Fun.CardValue(7)) # p2
-  push!(stack, Just4Fun.CardValue(5)) # p2
+    push!(stack, Just4Fun.CardValue(6)) # p1
 
-  push!(stack, Just4Fun.CardValue(6)) # p1
+    push!(stack, Just4Fun.CardValue(3)) # p2
 
-  push!(stack, Just4Fun.CardValue(3)) # p2
+    push!(stack, Just4Fun.CardValue(4)) # p1
+    push!(stack, Just4Fun.CardValue(2)) # p1
+    # ----------------------------------------
+    push!(stack, Just4Fun.CardValue(1)) # p2
+    push!(stack, Just4Fun.CardValue(2)) # p1
+    push!(stack, Just4Fun.CardValue(1)) # p2
+    push!(stack, Just4Fun.CardValue(2)) # p1
+    push!(stack, Just4Fun.CardValue(1)) # p2
+    push!(stack, Just4Fun.CardValue(2)) # p1
+    push!(stack, Just4Fun.CardValue(1)) # p2
+    push!(stack, Just4Fun.CardValue(2)) # p1
+    
+    spec = Just4Fun.Just4FunSpec(stack)
+    
+    @test length(stack) == 14
 
-  push!(stack, Just4Fun.CardValue(4)) # p1
-  push!(stack, Just4Fun.CardValue(2)) # p1
-  # ----------------------------------------
-  push!(stack, Just4Fun.CardValue(1)) # p2
-  push!(stack, Just4Fun.CardValue(2)) # p1
-  push!(stack, Just4Fun.CardValue(1)) # p2
-  push!(stack, Just4Fun.CardValue(2)) # p1
-  push!(stack, Just4Fun.CardValue(1)) # p2
-  push!(stack, Just4Fun.CardValue(2)) # p1
-  push!(stack, Just4Fun.CardValue(1)) # p2
-  push!(stack, Just4Fun.CardValue(2)) # p1
-  
-  spec = Just4Fun.Just4FunSpec(stack)
-  
-  @test length(stack) == 14
+    game = GI.init(spec)
+    
+    # the first 8 cards have been picked on init
+    @test game.player_cards == @SMatrix [
+      Just4Fun.CardValue(2) Just4Fun.CardValue(1) ;
+      Just4Fun.CardValue(2) Just4Fun.CardValue(1) ;
+      Just4Fun.CardValue(2) Just4Fun.CardValue(1) ;
+      Just4Fun.CardValue(2) Just4Fun.CardValue(1)
+    ]
+    
+    # establish precondition
+    game.player_cards = setindex(game.player_cards, Just4Fun.CardValue(0), CartesianIndex(2, 1)) # p1, card 2
+    game.player_cards = setindex(game.player_cards, Just4Fun.CardValue(0), CartesianIndex(3, 1)) # p1, card 3
+    game.player_cards = setindex(game.player_cards, Just4Fun.CardValue(0), CartesianIndex(4, 1)) # p1, card 4
+    game.player_cards = setindex(game.player_cards, Just4Fun.CardValue(0), CartesianIndex(1, 2)) # p1, card 1
+    game.player_cards = setindex(game.player_cards, Just4Fun.CardValue(0), CartesianIndex(3, 2)) # p1, card 3
+    game.player_cards = setindex(game.player_cards, Just4Fun.CardValue(0), CartesianIndex(4, 2)) # p1, card 4
 
-  game = GI.init(spec)
-  
-  # the first 8 cards have been picked on init
-  @test game.player_cards == @SMatrix [
-    Just4Fun.CardValue(2) Just4Fun.CardValue(1) ;
-    Just4Fun.CardValue(2) Just4Fun.CardValue(1) ;
-    Just4Fun.CardValue(2) Just4Fun.CardValue(1) ;
-    Just4Fun.CardValue(2) Just4Fun.CardValue(1)
-  ]
-  
-  # establish precondition
-  game.player_cards = setindex(game.player_cards, Just4Fun.CardValue(0), CartesianIndex(2, 1)) # p1, card 2
-  game.player_cards = setindex(game.player_cards, Just4Fun.CardValue(0), CartesianIndex(3, 1)) # p1, card 3
-  game.player_cards = setindex(game.player_cards, Just4Fun.CardValue(0), CartesianIndex(4, 1)) # p1, card 4
-  game.player_cards = setindex(game.player_cards, Just4Fun.CardValue(0), CartesianIndex(1, 2)) # p1, card 1
-  game.player_cards = setindex(game.player_cards, Just4Fun.CardValue(0), CartesianIndex(3, 2)) # p1, card 3
-  game.player_cards = setindex(game.player_cards, Just4Fun.CardValue(0), CartesianIndex(4, 2)) # p1, card 4
+    @test game.player_cards == @SMatrix [
+      Just4Fun.CardValue(2)  Just4Fun.CardValue(0) ;
+      Just4Fun.CardValue(0)  Just4Fun.CardValue(1) ;
+      Just4Fun.CardValue(0)  Just4Fun.CardValue(0) ;
+      Just4Fun.CardValue(0)  Just4Fun.CardValue(0)
+    ]
 
-  @test game.player_cards == @SMatrix [
-    Just4Fun.CardValue(2)  Just4Fun.CardValue(0) ;
-    Just4Fun.CardValue(0)  Just4Fun.CardValue(1) ;
-    Just4Fun.CardValue(0)  Just4Fun.CardValue(0) ;
-    Just4Fun.CardValue(0)  Just4Fun.CardValue(0)
-  ]
+    @test length(game.stack) == 6
+    @test game.curplayer == Just4Fun.Player(Just4Fun.YELLOW)
 
-  @test length(game.stack) == 6
-  @test game.curplayer == Just4Fun.Player(Just4Fun.YELLOW)
+    Just4Fun.pick_cards!(game, 2) # p1 gets 2 and 4 at first free positions which are 2 and 3 
 
-  Just4Fun.pick_cards!(game, 2) # p1 gets 2 and 4 at first free positions which are 2 and 3 
+    # post-conditions
+    @test length(game.stack) == 4
 
-  # post-conditions
-  @test length(game.stack) == 4
+    @test game.player_cards == @SMatrix [
+      Just4Fun.CardValue(2)  Just4Fun.CardValue(0) ;
+      Just4Fun.CardValue(2)  Just4Fun.CardValue(1) ;
+      Just4Fun.CardValue(4)  Just4Fun.CardValue(0) ;
+      Just4Fun.CardValue(0)  Just4Fun.CardValue(0)
+    ]
 
-  @test game.player_cards == @SMatrix [
-    Just4Fun.CardValue(2)  Just4Fun.CardValue(0) ;
-    Just4Fun.CardValue(2)  Just4Fun.CardValue(1) ;
-    Just4Fun.CardValue(4)  Just4Fun.CardValue(0) ;
-    Just4Fun.CardValue(0)  Just4Fun.CardValue(0)
-  ]
+    game.curplayer = Just4Fun.Player(Just4Fun.RED)
+    @test game.curplayer == Just4Fun.Player(Just4Fun.RED)
 
-  game.curplayer = Just4Fun.Player(Just4Fun.RED)
-  @test game.curplayer == Just4Fun.Player(Just4Fun.RED)
+    Just4Fun.pick_cards!(game, 1) # p2 gets 3 at first free positions which is 1 
 
-  Just4Fun.pick_cards!(game, 1) # p2 gets 3 at first free positions which is 1 
+    # post-conditions
+    @test length(game.stack) == 3
 
-  # post-conditions
-  @test length(game.stack) == 3
+    @test game.player_cards == @SMatrix [
+      Just4Fun.CardValue(2)  Just4Fun.CardValue(3) ;
+      Just4Fun.CardValue(2)  Just4Fun.CardValue(1) ;
+      Just4Fun.CardValue(4)  Just4Fun.CardValue(0) ;
+      Just4Fun.CardValue(0)  Just4Fun.CardValue(0)
+    ]
 
-  @test game.player_cards == @SMatrix [
-    Just4Fun.CardValue(2)  Just4Fun.CardValue(3) ;
-    Just4Fun.CardValue(2)  Just4Fun.CardValue(1) ;
-    Just4Fun.CardValue(4)  Just4Fun.CardValue(0) ;
-    Just4Fun.CardValue(0)  Just4Fun.CardValue(0)
-  ]
+    game.curplayer = Just4Fun.Player(Just4Fun.YELLOW)
+    @test game.curplayer == Just4Fun.Player(Just4Fun.YELLOW)
 
-  game.curplayer = Just4Fun.Player(Just4Fun.YELLOW)
-  @test game.curplayer == Just4Fun.Player(Just4Fun.YELLOW)
+    Just4Fun.pick_cards!(game, 1) # p1 gets 6 at first free position which is 4
 
-  Just4Fun.pick_cards!(game, 1) # p1 gets 6 at first free position which is 4
+    # post-conditions
+    @test length(game.stack) == 2
 
-  # post-conditions
-  @test length(game.stack) == 2
+    @test game.player_cards == @SMatrix [
+      Just4Fun.CardValue(2)  Just4Fun.CardValue(3) ;
+      Just4Fun.CardValue(2)  Just4Fun.CardValue(1) ;
+      Just4Fun.CardValue(4)  Just4Fun.CardValue(0) ;
+      Just4Fun.CardValue(6)  Just4Fun.CardValue(0)
+    ]
 
-  @test game.player_cards == @SMatrix [
-    Just4Fun.CardValue(2)  Just4Fun.CardValue(3) ;
-    Just4Fun.CardValue(2)  Just4Fun.CardValue(1) ;
-    Just4Fun.CardValue(4)  Just4Fun.CardValue(0) ;
-    Just4Fun.CardValue(6)  Just4Fun.CardValue(0)
-  ]
+    game.curplayer = Just4Fun.Player(Just4Fun.RED)
+    @test game.curplayer == Just4Fun.Player(Just4Fun.RED)
 
-  game.curplayer = Just4Fun.Player(Just4Fun.RED)
-  @test game.curplayer == Just4Fun.Player(Just4Fun.RED)
+    Just4Fun.pick_cards!(game, 2) # p2 gets 5 and 7 at first free positions which are 3 and 4
 
-  Just4Fun.pick_cards!(game, 2) # p2 gets 5 and 7 at first free positions which are 3 and 4
+    # post-conditions
+    @test length(game.stack) == 0
 
-  # post-conditions
-  @test length(game.stack) == 0
-
-  @test game.player_cards == @SMatrix [
-    Just4Fun.CardValue(2)  Just4Fun.CardValue(3) ;
-    Just4Fun.CardValue(2)  Just4Fun.CardValue(1) ;
-    Just4Fun.CardValue(4)  Just4Fun.CardValue(5) ;
-    Just4Fun.CardValue(6)  Just4Fun.CardValue(7)
-  ]
+    @test game.player_cards == @SMatrix [
+      Just4Fun.CardValue(2)  Just4Fun.CardValue(3) ;
+      Just4Fun.CardValue(2)  Just4Fun.CardValue(1) ;
+      Just4Fun.CardValue(4)  Just4Fun.CardValue(5) ;
+      Just4Fun.CardValue(6)  Just4Fun.CardValue(7)
+    ]
+  end
+else
+  @warn "Skipping test for FEATURE CARDS as it is disabled!"
 end
-
 ##########
 
-@testset "isredraw" begin
-  @test Just4Fun.isredraw(Just4Fun.CardsAction((cards=[], value=1))) == false
-  @test Just4Fun.isredraw(Just4Fun.CardsAction((cards=[Just4Fun.CardValue(0)], value=0))) == false
-  @test Just4Fun.isredraw(Just4Fun.CardsAction((cards=[Just4Fun.CardValue(1)], value=0))) == false
-  @test Just4Fun.isredraw(Just4Fun.CardsAction((cards=[Just4Fun.CardValue(1), Just4Fun.CardValue(2)], value=1))) == false
-  @test Just4Fun.isredraw(Just4Fun.CardsAction((cards=[], value=0))) == true
+if Just4Fun.FEATURE_CARDS
+  @testset "isredraw" begin
+    @test Just4Fun.isredraw(Just4Fun.CardsAction((cards=[], value=1))) == false
+    @test Just4Fun.isredraw(Just4Fun.CardsAction((cards=[Just4Fun.CardValue(0)], value=0))) == false
+    @test Just4Fun.isredraw(Just4Fun.CardsAction((cards=[Just4Fun.CardValue(1)], value=0))) == false
+    @test Just4Fun.isredraw(Just4Fun.CardsAction((cards=[Just4Fun.CardValue(1), Just4Fun.CardValue(2)], value=1))) == false
+    @test Just4Fun.isredraw(Just4Fun.CardsAction((cards=[], value=0))) == true
+  end
+else
+  @warn "Skipping test for FEATURE CARDS as it is disabled!"
 end
 
 ##########
@@ -873,56 +879,62 @@ end
 
 ##########
 
-@testset "curplayercards" begin
-  stack = Stack{Just4Fun.CardValue}()
-  push!(stack, Just4Fun.CardValue(1)) # p2
-  push!(stack, Just4Fun.CardValue(2)) # p1
-  push!(stack, Just4Fun.CardValue(1)) # p2
-  push!(stack, Just4Fun.CardValue(2)) # p1
-  push!(stack, Just4Fun.CardValue(1)) # p2
-  push!(stack, Just4Fun.CardValue(2)) # p1
-  push!(stack, Just4Fun.CardValue(1)) # p2
-  push!(stack, Just4Fun.CardValue(2)) # p1
-  spec = Just4Fun.Just4FunSpec(stack)
-  game = GI.init(spec)
-  @test game.curplayer == Just4Fun.Player(Just4Fun.YELLOW)
-  @test Just4Fun.curplayercards(game) == Just4Fun.Cards([
-    Just4Fun.CardValue(2), Just4Fun.CardValue(2),
-    Just4Fun.CardValue(2), Just4Fun.CardValue(2)
-  ])
+if Just4Fun.FEATURE_CARDS
+  @testset "curplayercards" begin
+    stack = Stack{Just4Fun.CardValue}()
+    push!(stack, Just4Fun.CardValue(1)) # p2
+    push!(stack, Just4Fun.CardValue(2)) # p1
+    push!(stack, Just4Fun.CardValue(1)) # p2
+    push!(stack, Just4Fun.CardValue(2)) # p1
+    push!(stack, Just4Fun.CardValue(1)) # p2
+    push!(stack, Just4Fun.CardValue(2)) # p1
+    push!(stack, Just4Fun.CardValue(1)) # p2
+    push!(stack, Just4Fun.CardValue(2)) # p1
+    spec = Just4Fun.Just4FunSpec(stack)
+    game = GI.init(spec)
+    @test game.curplayer == Just4Fun.Player(Just4Fun.YELLOW)
+    @test Just4Fun.curplayercards(game) == Just4Fun.Cards([
+      Just4Fun.CardValue(2), Just4Fun.CardValue(2),
+      Just4Fun.CardValue(2), Just4Fun.CardValue(2)
+    ])
+  end
+else
+  @warn "Skipping test for FEATURE CARDS as it is disabled!"
 end
 
 ##########
-
-@testset "playercards" begin
-  stack = Stack{Just4Fun.CardValue}()
-  push!(stack, Just4Fun.CardValue(1)) # p2
-  push!(stack, Just4Fun.CardValue(2)) # p1
-  push!(stack, Just4Fun.CardValue(1)) # p2
-  push!(stack, Just4Fun.CardValue(2)) # p1
-  push!(stack, Just4Fun.CardValue(1)) # p2
-  push!(stack, Just4Fun.CardValue(2)) # p1
-  push!(stack, Just4Fun.CardValue(1)) # p2
-  push!(stack, Just4Fun.CardValue(2)) # p1
-  spec = Just4Fun.Just4FunSpec(stack)
-  game = GI.init(spec)
-  
-  @test Just4Fun.playercards(
-    game,
-    Just4Fun.Player(Just4Fun.YELLOW)
-  ) == Just4Fun.Cards([
-    Just4Fun.CardValue(2), Just4Fun.CardValue(2),
-    Just4Fun.CardValue(2), Just4Fun.CardValue(2)
-  ])
-  @test Just4Fun.playercards(
-    game,
-    Just4Fun.Player(Just4Fun.RED)
-  ) == Just4Fun.Cards([
-    Just4Fun.CardValue(1), Just4Fun.CardValue(1),
-    Just4Fun.CardValue(1), Just4Fun.CardValue(1)
-  ])
+if Just4Fun.FEATURE_CARDS
+  @testset "playercards" begin
+    stack = Stack{Just4Fun.CardValue}()
+    push!(stack, Just4Fun.CardValue(1)) # p2
+    push!(stack, Just4Fun.CardValue(2)) # p1
+    push!(stack, Just4Fun.CardValue(1)) # p2
+    push!(stack, Just4Fun.CardValue(2)) # p1
+    push!(stack, Just4Fun.CardValue(1)) # p2
+    push!(stack, Just4Fun.CardValue(2)) # p1
+    push!(stack, Just4Fun.CardValue(1)) # p2
+    push!(stack, Just4Fun.CardValue(2)) # p1
+    spec = Just4Fun.Just4FunSpec(stack)
+    game = GI.init(spec)
+    
+    @test Just4Fun.playercards(
+      game,
+      Just4Fun.Player(Just4Fun.YELLOW)
+    ) == Just4Fun.Cards([
+      Just4Fun.CardValue(2), Just4Fun.CardValue(2),
+      Just4Fun.CardValue(2), Just4Fun.CardValue(2)
+    ])
+    @test Just4Fun.playercards(
+      game,
+      Just4Fun.Player(Just4Fun.RED)
+    ) == Just4Fun.Cards([
+      Just4Fun.CardValue(1), Just4Fun.CardValue(1),
+      Just4Fun.CardValue(1), Just4Fun.CardValue(1)
+    ])
+  end
+else
+  @warn "Skipping test for FEATURE CARDS as it is disabled!"
 end
-
 ##########
 
 @testset "valid_pos" begin

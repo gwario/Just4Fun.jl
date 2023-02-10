@@ -152,6 +152,7 @@ end
       player_stones=SVector{2, Stones}(repeat([Stones(0)], 2)),
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
+      winner=Player(0),
       action_indices=[]
     ))
     game = GI.init(Just4FunSpec(), expected_state)
@@ -214,6 +215,7 @@ end
       player_stones=SVector{2, Stones}(repeat([Stones(0)], 2)),
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
+      winner=Player(0),
       action_indices=[]
     ))
     game = GI.init(Just4FunSpec(), state)
@@ -251,6 +253,7 @@ end
       player_stones=SVector{2, Stones}(repeat([Stones(0)], 2)),
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
+      winner=Player(0),
       action_indices=[]
     ))
     game = GI.init(Just4Fun.Just4FunSpec(), state)
@@ -288,6 +291,7 @@ end
       player_stones=SVector{2, Stones}(repeat([Stones(0)], 2)),
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
+      winner=Player(0),
       action_indices=[]
     ))
     game = GI.init(Just4FunSpec(), state)
@@ -328,6 +332,7 @@ end
       player_stones=SVector{2, Stones}(repeat([Stones(0)], 2)),
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
+      winner=Player(0),
       action_indices=[]
     ))
     game = GI.init(Just4FunSpec(), state)
@@ -365,6 +370,7 @@ end
       player_stones=SVector{2, Stones}(repeat([Stones(0)], 2)),
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
+      winner=Player(0),
       action_indices=[]
     ))
     game = GI.init(Just4FunSpec(), state)
@@ -402,6 +408,7 @@ end
       player_stones=SVector{2, Stones}(repeat([Stones(0)], 2)),
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
+      winner=Player(0),
       action_indices=[]
     ))
     game = GI.init(Just4FunSpec(), state)
@@ -445,6 +452,7 @@ end
       player_stones=SVector{2, Stones}(repeat([Stones(4)], 2)),
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
+      winner=Player(0),
       action_indices=[]
     ))
     game = GI.init(Just4FunSpec(), state)
@@ -489,6 +497,7 @@ end
       player_stones=SVector{2, Stones}(repeat([Stones(4)], 2)),
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
+      winner=Player(0),
       action_indices=[]
     ))
     game = GI.init(Just4FunSpec(), state)
@@ -530,6 +539,7 @@ end
       player_stones=SVector{2, Stones}(repeat([Stones(4)], 2)),
       curplayer=Player(Just4Fun.RED),
       state=in_progress,
+      winner=Player(0),
       action_indices=[]
     ))
     game = GI.init(Just4FunSpec(), state)
@@ -570,6 +580,7 @@ end
       player_stones=SVector{2, Stones}(repeat([Stones(0)], 2)),
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
+      winner=Player(0),
       action_indices=[]
     ))
     game = GI.init(Just4FunSpec())
@@ -609,6 +620,7 @@ end
       player_stones=SVector{2, Stones}(repeat([Stones(0)], 2)),
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
+      winner=Player(0),
       action_indices=[]
     ))
     game = GI.init(Just4FunSpec())
@@ -650,6 +662,7 @@ end
       player_stones=SVector{2, Stones}(repeat([Stones(0)], 2)),
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
+      winner=Player(0),
       action_indices=[]
     ))
     game = GI.init(Just4FunSpec())
@@ -689,6 +702,7 @@ end
       player_stones=SVector{2, Stones}(repeat([Stones(0)], 2)),
       curplayer=Player(Just4Fun.YELLOW),
       state=in_progress,
+      winner=Player(0),
       action_indices=[]
     ))
     game = GI.init(Just4FunSpec())
