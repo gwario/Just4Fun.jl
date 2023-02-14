@@ -57,18 +57,25 @@ const WIN_LENGTH  = JUST4FUN_DEFAULT_WIN_LENGTH
 
 include("utils.jl")
 
+const _CARDS_ACTIONS = generate_card_actions(vec(FIELD_VALUES), DECK, SIZE_HAND)
+
+const _NO_CARDS_ACTIONS = generate_nocard_actions(vec(FIELD_VALUES))
 """
 ACTIONS::Vector{Action}
 """
-const ACTIONS = actions = FEATURE_CARDS ?
-  generate_card_actions(vec(FIELD_VALUES), DECK, SIZE_HAND) :
-  generate_nocard_actions(vec(FIELD_VALUES))
+const ACTIONS::Vector{Action} = FEATURE_CARDS ?
+  _CARDS_ACTIONS :
+  _NO_CARDS_ACTIONS
+
 const NUM_ACTIONS = length(ACTIONS)
 
 """
 ACTION_ACTION_MASK_INDEX_MAP::Dict{Action, Int64}
 """
-const ACTION_ACTION_MASK_INDEX_MAP = generate_action_mask_lookup_index(ACTIONS)
+const ACTION_ACTION_MASK_INDEX_MAP = FEATURE_CARDS ?
+  generate_action_mask_lookup_index(_CARDS_ACTIONS) :
+  generate_action_mask_lookup_index(_NO_CARDS_ACTIONS)
+@show typeof(ACTION_ACTION_MASK_INDEX_MAP)
 
 include("structs.jl")
 

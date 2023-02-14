@@ -79,7 +79,7 @@ Generates the actions when stones and cards are used, i.e. vanilla just 4 fun. O
 function generate_card_actions(field_values::SVector{SIDE_LENGTH^2, FieldValue}, deck::Vector{CardValue}, size_hand::Int64)::Vector{CardsAction}
   max_field_value = max(field_values...)
   sorted_card_combinations = all_sorted_card_combinations(deck, size_hand)
-  card_actions = map(scc -> (cards=scc, value=sum(scc)), sorted_card_combinations)
+  card_actions::Vector{CardsAction} = map(scc -> CardsAction((cards=scc, value=sum(scc))), sorted_card_combinations)
   filter(ca -> ca.value <= max_field_value, card_actions)
 end
 
@@ -93,19 +93,25 @@ function generate_nocard_actions(field_values::SVector{SIDE_LENGTH^2, FieldValue
 end
 
 """
-generate_action_mask_lookup_index(actions::Vector{CardsAction})::Dict{CardsAction, Int64}
+generate_action_mask_lookup_index(actions::Vector{CardsAction})::Dict{Action, Int64}
 
 Creates a map for fast lookup of card combinations to action mask index.
 """
-function generate_action_mask_lookup_index(actions::Vector{CardsAction})::Dict{CardsAction, Int64}
-  Dict([((cards=cards_action.cards, value=cards_action.value), idx) for (idx, cards_action) = enumerate(actions)])
+function generate_action_mask_lookup_index(actions::Vector{CardsAction})::Dict{Action, Int64}
+  Dict{Action, Int64}([
+    ((cards=cards_action.cards, value=cards_action.value), idx)
+    for (idx, cards_action) = enumerate(actions)
+  ])
 end
 
 """
-generate_action_mask_lookup_index(actions::Vector{NoCardsAction})::Dict{NoCardsAction, Int64}
+generate_action_mask_lookup_index(actions::Vector{NoCardsAction})::Dict{Action, Int64}
 
 Creates a map for fast lookup of actions to action mask index.
 """
-function generate_action_mask_lookup_index(actions::Vector{NoCardsAction})::Dict{NoCardsAction, Int64}
-  Dict([(field_value, idx) for (idx, field_value)  = enumerate(actions)])
+function generate_action_mask_lookup_index(actions::Vector{NoCardsAction})::Dict{Action, Int64}
+  Dict{Action, Int64}([
+    (field_value, idx)
+    for (idx, field_value)  = enumerate(actions)
+  ])
 end

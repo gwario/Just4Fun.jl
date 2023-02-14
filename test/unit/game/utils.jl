@@ -340,7 +340,7 @@ end
       (@SVector FieldValue[
         0x18, 0x05, 0x13, 0x0a, 0x09, 0x19, 0x1d, 0x1e, 0x03, 0x10, 0x12, 0x23, 0x0b, 0x01, 0x24, 0x14, 0x1f, 0x06,
         0x22, 0x07, 0x08, 0x0f, 0x17, 0x04, 0x1a, 0x16, 0x0d, 0x0e, 0x1b, 0x02, 0x0c, 0x20, 0x11, 0x21, 0x15, 0x1c]),
-      [0x1, 0x1, 0x2, 0xff],
+      [0x1, 0x1, 0x2, 0x4f],
       2
     )
     @test issetequal(actions, [
@@ -387,7 +387,7 @@ end
 @testset "generate_action_mask_lookup_index (depends on FEATURE_CARDS)" begin
   if Just4Fun.FEATURE_CARDS
     @testset "CardsAction" begin
-      actions = [
+      actions = Vector{CardsAction}([
         Just4Fun.CardsAction((
           cards=[CardValue(1)],
           value=FieldValue(1))),
@@ -397,7 +397,7 @@ end
         Just4Fun.CardsAction((
           cards=[CardValue(4), CardValue(9)],
           value=FieldValue(13)))
-      ]
+      ])
       action_index = Just4Fun.generate_action_mask_lookup_index(actions)
   
       for (index, action) in enumerate(actions)
@@ -407,16 +407,16 @@ end
   
   else
     @testset "NoCardsAction" begin
-      actions = [
+      actions = Vector{NoCardsAction}([
         Just4Fun.NoCardsAction(FieldValue(1)),
         Just4Fun.NoCardsAction(FieldValue(33)),
         Just4Fun.NoCardsAction(FieldValue(13))
-      ]
-       action_index = Just4Fun.generate_action_mask_lookup_index(actions)
+      ])
+      action_index = Just4Fun.generate_action_mask_lookup_index(actions)
    
-       for (index, action) in enumerate(actions)
-         @test action_index[action] == index
-       end
+      for (index, action) in enumerate(actions)
+        @test action_index[action] == index
+      end
      end
   end
 end

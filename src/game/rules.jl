@@ -345,7 +345,6 @@ function update_action_mask!(g::Just4FunEnv)
       player_card_combinations = regular_combinations(FIELD_VALUES, player_cards)
       for player_card_combination in player_card_combinations
         field_value = convert(FieldValue, sum(player_card_combination))
-        # FIXME: it must be here where the lookup fails
         mask_index = ACTION_ACTION_MASK_INDEX_MAP[(cards=player_card_combination, value=field_value)]
         field_stones = get_stones(g, field_value)
         available = is_available(field_stones, player) && (!FEATURE_MULTI_STONE ? empty_field(field_stones) : true)
@@ -387,32 +386,33 @@ function update_status!(g::Just4FunEnv, action::Action)
   update_action_mask!(g)
 
   # Update winner and finished only if it was a regular action (otherwise those do not change)
-  if !isredraw(action)
+  if FEATURE_CARDS && isredraw(action)
+    return
+  end
 
-    field_value = action isa CardsAction ? action.value : FieldValue(action)
-  
-    if winning_pattern_at(spec, FIELD_VALUES, g.field_stones, g.curplayer, field_value)
-      #@atomic push!(Just4Fun.STATS.wins_by_pattern, 1)
-      g.winner = g.curplayer
-      g.state = end_by_pattern
-      winner_by_goal = true
-    end
+  field_value = action isa CardsAction ? action.value : FieldValue(action)
 
-    if !winner_by_goal
-      # FIXME: no player has actions left - this can probably be dropped because there is probably no chance that no player will have any actions forever while still having stones becuase it would be a redraw over and over again but the cards would be reshuffled and even with 
-      no_actions_available = iszero(sum(g.action_masks))
-      no_stones_left = iszero(sum(g.player_stones))
-      @assert !no_actions_available
-      if no_stones_left
-        g.winner, g.state = winner_by_numbers(spec, g)
-        winner_by_nums = true
-      end
-    end
+  if winning_pattern_at(spec, FIELD_VALUES, g.field_stones, g.curplayer, field_value)
+    #@atomic push!(Just4Fun.STATS.wins_by_pattern, 1)
+    g.winner = g.curplayer
+    g.state = end_by_pattern
+    winner_by_goal = true
+  end
 
-    if !winner_by_goal && !winner_by_nums
-      g.winner = Player(0)
-      g.state = in_progress
+  if !winner_by_goal
+    # FIXME: no player has actions left - this can probably be dropped because there is probably no chance that no player will have any actions forever while still having stones becuase it would be a redraw over and over again but the cards would be reshuffled and even with 
+    no_actions_available = iszero(sum(g.action_masks))
+    no_stones_left = iszero(sum(g.player_stones))
+    @assert !no_actions_available
+    if no_stones_left
+      g.winner, g.state = winner_by_numbers(spec, g)
+      winner_by_nums = true
     end
+  end
+
+  if !winner_by_goal && !winner_by_nums
+    g.winner = Player(0)
+    g.state = in_progress
   end
 end
 

@@ -28,7 +28,7 @@ function parse_action_cards(spec::Just4FunSpec, cards_string)::Union{CardsAction
     end
 end
 
-function parse_action_cell_id(spec::Just4FunSpec, cell_string::String)::Union{Int64,Nothing}
-    cell_id = parse(Int64, strip(cell_string))
+function parse_action_cell_id(spec::Just4FunSpec, cell_string::String)::Union{NoCardsAction,Nothing}
+    cell_id = parse(FieldValue, strip(cell_string))
     (0 < cell_id && cell_id <= length(FIELD_VALUES)) ? cell_id : nothing
 end

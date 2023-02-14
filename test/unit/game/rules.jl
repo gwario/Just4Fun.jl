@@ -1848,34 +1848,38 @@ end
   end
 
   @testset "after action (redraw) 4" begin
-    game = GI.init(Just4FunSpec())
+    if FEATURE_CARDS
+      game = GI.init(Just4FunSpec())
 
-    @test game.winner == Player(0)
-    @test game.state == in_progress
+      @test game.winner == Player(0)
+      @test game.state == in_progress
 
-    #make player yellow win
-    #  1 14 30 24 19  8 ;
-    # 33 11  9 16 35 21 ;
-    #  6 27 31 20  3 12 ;
-    # 15 32  5 29 17 26 ;
-    # 22 10 18 36 25  2 ;
-    # 28  7 23  4 13 34
-    game.curplayer = Just4Fun.RED
-    Just4Fun.place_stone!(game, FieldValue(1))
-    game.curplayer = Just4Fun.YELLOW
-    Just4Fun.place_stone!(game, FieldValue(1))
-    Just4Fun.place_stone!(game, FieldValue(1))
-    Just4Fun.place_stone!(game, FieldValue(11))
-    Just4Fun.place_stone!(game, FieldValue(31))
-    Just4Fun.place_stone!(game, FieldValue(29))
-    # artificial win for YELLOW
+      #make player yellow win
+      #  1 14 30 24 19  8 ;
+      # 33 11  9 16 35 21 ;
+      #  6 27 31 20  3 12 ;
+      # 15 32  5 29 17 26 ;
+      # 22 10 18 36 25  2 ;
+      # 28  7 23  4 13 34
+      game.curplayer = Just4Fun.RED
+      Just4Fun.place_stone!(game, FieldValue(1))
+      game.curplayer = Just4Fun.YELLOW
+      Just4Fun.place_stone!(game, FieldValue(1))
+      Just4Fun.place_stone!(game, FieldValue(1))
+      Just4Fun.place_stone!(game, FieldValue(11))
+      Just4Fun.place_stone!(game, FieldValue(31))
+      Just4Fun.place_stone!(game, FieldValue(29))
+      # artificial win for YELLOW
 
-    # forcing an update after redraw, which is not supposed to check the winning conditions
-    Just4Fun.update_status!(game, (cards=CardValue[], value=FieldValue(0)))
+      # forcing an update after redraw, which is not supposed to check the winning conditions
+      Just4Fun.update_status!(game, (cards=CardValue[], value=FieldValue(0)))
 
-    # winner is still not set and game still not finished
-    @test game.winner == Player(0)
-    @test game.state == in_progress
+      # winner is still not set and game still not finished
+      @test game.winner == Player(0)
+      @test game.state == in_progress
+    else
+      @warn "Skipping test for FEATURE CARDS as it is disabled!"
+    end
   end
 
   @testset "action-independent (majority)" begin

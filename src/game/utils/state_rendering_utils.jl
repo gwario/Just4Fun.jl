@@ -132,14 +132,16 @@ function log_playercards_stones_points_max_field(logger::Log.Logger, s::Just4Fun
     player = Player(player_index)
     
     name_str = string(player_names[player_index], "(", player_color_slug(player), ")")
-    cards_str = join(sort(convert(Array{Int64}, playercards(s, player))), " ")
     stones_str = "$(convert(Int64, s.player_stones[player_index]))"
     sum_str = "$(convert(Int64, points[player_index]))"
     max_str = "$(convert(Int64, max_field_points[player_index]))"
-    Log.print(logger, "$name_str's hand: $cards_str ($stones_str stones) ($sum_str points) (max field is $max_str) $(player == s.curplayer ? "(it's turn)" : "")")
+    composed_hand_str = FEATURE_CARDS ? "'s hand: $(join(sort(convert(Array{Int64}, playercards(s, player))), " "))" : ""
+    Log.print(logger, "$name_str$composed_hand_str ($stones_str stones) ($sum_str points) (max field is $max_str) $(player == s.curplayer ? "(it's turn)" : "")")
   end
-  log_gamecards(logger, s)
-  log_used_cards(logger, s)
+  if FEATURE_CARDS
+    log_gamecards(logger, s)
+    log_used_cards(logger, s)
+  end
 end
 
 """
@@ -161,8 +163,8 @@ function log_used_cards(logger::Log.Logger, s::Just4FunEnvState)
   Log.print(logger, string("Pile: ", join(convert(Vector{Int64}, cards), " ")))
 end
 
-const cfield     = Log.ColType(nothing, a -> "$(Int64(a.value))")
-const ccards     = Log.ColType(nothing, a -> "$(join(Vector{Int64}(a.cards), " "))")
+const cfield     = Log.ColType(nothing, a -> a isa CardsAction ? "$(Int64(a.value))"                    : "$(Int64(a))")
+const ccards     = Log.ColType(nothing, a -> a isa CardsAction ? "$(join(Vector{Int64}(a.cards), " "))" : "-")
 const cprob      = Log.ColType(nothing, x -> fmt(".1f", 100 * x) * "%")
 const cprob_fine = Log.ColType(nothing, x -> fmt(".3f", 100 * x) * "%")
 const cval       = Log.ColType(nothing, x -> fmt("+.2f", x))
@@ -174,8 +176,12 @@ log_action(logger::Log.Logger, player::Player, player_names::Vector{String}, fie
 function log_action(logger::Log.Logger, player::Player, player_names::Vector{String},
   field_values::Vector{FieldValue}, pre_temperature_policy::Vector{Float64}, sample_policy::Vector{Float64}, available_actions::Vector{Action}, action::Action)
   name_str = string(player_names[Int64(player)], "(", player_color_slug(player), ")")
-  
-  Log.print(logger, "$name_str played Field $(action.value) (cards: $(join(Vector{Int64}(action.cards), " ")))")
+  action_str = string(
+    "Field ",
+    action isa CardsAction ? "$(Int64(action.value)) "                            : "$(Int64(action))",
+    action isa CardsAction ? "(cards: $(join(Vector{Int64}(action.cards), " ")))" : ""
+  )
+  Log.print(logger, "$name_str played $action_str")
   atable = Log.Table([
     ("field",        cfield, r -> r[1]),
     ("cards",        ccards, r -> r[1]),
@@ -185,12 +191,13 @@ function log_action(logger::Log.Logger, player::Player, player_names::Vector{Str
 
   action_value_actions_meta = Dict{Int64, Tuple{Vector{Action}, Vector{Float64}, Vector{Float64}}}()
   for (available_action, pre_temperature_proba, sample_proba) in zip(available_actions, pre_temperature_policy, sample_policy)
-    if !haskey(action_value_actions_meta, available_action.value)
-      action_value_actions_meta[available_action.value] = (Vector{Action}([available_action]), Vector{Float64}([pre_temperature_proba]), Vector{Float64}([sample_proba]))
+    available_action_value = available_action isa CardsAction ? available_action.value : available_action
+    if !haskey(action_value_actions_meta, available_action_value)
+      action_value_actions_meta[available_action_value] = (Vector{Action}([available_action]), Vector{Float64}([pre_temperature_proba]), Vector{Float64}([sample_proba]))
     else
-      push!(action_value_actions_meta[available_action.value][1], available_action)
-      push!(action_value_actions_meta[available_action.value][2], pre_temperature_proba)
-      push!(action_value_actions_meta[available_action.value][3], sample_proba)
+      push!(action_value_actions_meta[available_action_value][1], available_action)
+      push!(action_value_actions_meta[available_action_value][2], pre_temperature_proba)
+      push!(action_value_actions_meta[available_action_value][3], sample_proba)
     end
   end
 
@@ -200,7 +207,8 @@ function log_action(logger::Log.Logger, player::Player, player_names::Vector{Str
       # add for this field value all the available actions
       actions, pre_temperature_probas, sample_probas = action_value_actions_meta[field_value]
       for (a, pre_temperature_proba, sample_proba) in zip(actions, pre_temperature_probas, sample_probas)
-        @assert field_value == a.value
+        a_value = a isa CardsAction ? a.value : a
+        @assert field_value == a_value
         push!(data, (a, pre_temperature_proba, sample_proba))
       end
     else
@@ -211,7 +219,7 @@ function log_action(logger::Log.Logger, player::Player, player_names::Vector{Str
       ))
     end
   end
-  Log.table(logger, atable, sort(data, rev=false, by=r -> r[1].value))
+  Log.table(logger, atable, sort(data, rev=false, by=r -> r[1] isa CardsAction ? r[1].value : r[1]))
 end
 
 """
@@ -222,8 +230,12 @@ function log_action(
   nn_output_field_value_mapping::Vector{FieldValue}, pre_mask_policy::Vector{Float64}, mask_policy::Vector{Float64}, value::Float64,
   pre_temperature_policy::Vector{Float64}, sample_policy::Vector{Float64}, available_actions_nn_output_indices::Vector{Int64}, available_actions::Vector{Action}, action::Action)
   name_str = string(player_names[Int64(player)], "(", player_color_slug(player), ")")
-  
-  Log.print(logger, "$name_str played Field $(action.value) (cards: $(join(Vector{Int64}(action.cards), " ")))")
+  action_str = string(
+    "Field ",
+    action isa CardsAction ? "$(Int64(action.value)) "                            : "$(Int64(action))",
+    action isa CardsAction ? "(cards: $(join(Vector{Int64}(action.cards), " ")))" : ""
+  )
+  Log.print(logger, "$name_str played $action_str")
   ntable = Log.Table([
     ("field",        cfield, r -> r[1]),
     ("cards",        ccards, r -> r[1]),
@@ -251,7 +263,8 @@ function log_action(
       # add for this field value all the available actions
       actions, pre_temperature_probas, sample_probas = action_nn_index_actions_meta[nn_output_idx]
       for (a, pre_temperature_proba, sample_proba) in zip(actions, pre_temperature_probas, sample_probas)
-        @assert field_value == a.value
+        a_value = a isa CardsAction ? a.value : a
+        @assert field_value == a_value
         push!(data, (a, pre_mask_policy[nn_output_idx], mask_policy[nn_output_idx], value, pre_temperature_proba, sample_proba))
       end
     else
@@ -264,7 +277,7 @@ function log_action(
     end
   end
   # temp + sample policies is w.r. available_actions, nw related policies are w.r. NN_OUTPUT_MAPPING...
-  Log.table(logger, ntable, sort(data, rev=false, by=r -> r[1].value))
+  Log.table(logger, ntable, sort(data, rev=false, by=r -> r[1] isa CardsAction ? r[1].value : r[1]))
 end
 
 

@@ -12,7 +12,7 @@ using SnoopPrecompile
 
 @precompile_all_calls include("game/utils/state_rendering_utils.jl")
 
-export Just4FunSpec, Just4FunEnv, Just4FunEnvState, CardValue, Cards, Stones, FieldValue, Action, CardsAction
+export Just4FunSpec, Just4FunEnv, Just4FunEnvState, CardValue, Cards, Stones, FieldValue, Action, CardsAction, NoCardsAction
 export Player, YELLOW, RED, GREEN, MAGENTA, next_player, curplayercards, player_name
 export print_game_result, print_points
 export GameState, in_progress, end_by_pattern, end_by_points, end_by_max_field, end_by_draw

@@ -327,7 +327,7 @@ print_card_actions(card_combinations::Vector{Cards})
 Prints the possible actions of playing cards.
 """
 function print_card_actions(spec::Just4FunSpec, card_combinations::Vector{Cards})
-  println("Possible cards to play:")
+  println("Possible actions to play:")
   max_card_len = length(string(maximum(DECK)))
   separator_len = length(CARD_ACTION_SEPARATOR)
   max_card_str_len = max_card_len + separator_len
