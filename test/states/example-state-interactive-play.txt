@@ -2,9 +2,9 @@
 # The policy output is then correct, as at the moment no information about the hidden cards is taken into account.
 
 ##################                  - this has to be specified
-# p1 row 1
+# p1 col 1
 1 1 1 0 0 0
-# p2 row 1
+# p2 col 1
 0 0 0 0 0 1
 # ...
 0 0 0 0 0 0

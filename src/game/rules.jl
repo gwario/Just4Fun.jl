@@ -347,7 +347,7 @@ function update_action_mask!(g::Just4FunEnv)
         field_value = convert(FieldValue, sum(player_card_combination))
         mask_index = ACTION_ACTION_MASK_INDEX_MAP[(cards=player_card_combination, value=field_value)]
         field_stones = get_stones(g, field_value)
-        available = is_available(field_stones, player) && (!FEATURE_MULTI_STONE ? empty_field(field_stones) : true)
+        available = FEATURE_MULTI_STONE ? (is_available(field_stones, player) || empty_field(field_stones)) : empty_field(field_stones)
         # update state
         setindex!(g.action_masks, available, CartesianIndex((mask_index, player_index)))
       end
@@ -360,10 +360,42 @@ function update_action_mask!(g::Just4FunEnv)
       actions = GI.actions(GI.spec(g))
       for (index, field_value) in enumerate(actions)
         field_stones = get_stones(g, field_value)
-        available = is_available(field_stones, player)
+        available = FEATURE_MULTI_STONE ? (is_available(field_stones, player) || empty_field(field_stones)) : empty_field(field_stones)
         # update state
         setindex!(g.action_masks, available, CartesianIndex((index, player_index)))
       end
+    end
+  end
+end
+
+"""
+get_action_mask(s::Just4FunEnvState, player::Player)
+"""
+function get_action_mask(s::Just4FunEnvState, player::Player)
+  action_mask = falses(NUM_ACTIONS)
+  if FEATURE_CARDS
+    # get the possible cells according to combinations of the players cards
+    player_cards = playercards(s, player)
+    player_card_combinations = regular_combinations(FIELD_VALUES, player_cards)
+    for player_card_combination in player_card_combinations
+      field_value = convert(FieldValue, sum(player_card_combination))
+      mask_index = ACTION_ACTION_MASK_INDEX_MAP[(cards=player_card_combination, value=field_value)]
+      field_stones = get_stones(s, field_value)
+      available = FEATURE_MULTI_STONE ? (is_available(field_stones, player) || empty_field(field_stones)) : empty_field(field_stones)
+      # update state
+      setindex!(action_mask, available, mask_index)
+    end
+    
+    # if any card combination is possible: set redraw action false, otherwise true
+    some_available = any(action_mask)
+    redraw_mask_index = ACTION_ACTION_MASK_INDEX_MAP[(cards=Cards[], value=FieldValue(0))]
+    setindex!(action_mask, !some_available, redraw_mask_index)
+  else
+    for (index, field_value) in enumerate(ACTIONS)
+      field_stones = get_stones(s, field_value)
+      available = FEATURE_MULTI_STONE ? (is_available(field_stones, player) || empty_field(field_stones)) : empty_field(field_stones)
+      # update state
+      setindex!(action_mask, available, index)
     end
   end
 end
@@ -403,7 +435,8 @@ function update_status!(g::Just4FunEnv, action::Action)
     # FIXME: no player has actions left - this can probably be dropped because there is probably no chance that no player will have any actions forever while still having stones becuase it would be a redraw over and over again but the cards would be reshuffled and even with 
     no_actions_available = iszero(sum(g.action_masks))
     no_stones_left = iszero(sum(g.player_stones))
-    @assert !no_actions_available
+    #@show g.field_stones
+    #@assert !no_actions_available
     if no_stones_left
       g.winner, g.state = winner_by_numbers(spec, g)
       winner_by_nums = true

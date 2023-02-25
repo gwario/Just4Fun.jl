@@ -8,6 +8,9 @@ using Random
 using Formatting: fmt
 using SnoopPrecompile
 
+FEATURE_CARDS = false
+FEATURE_MULTI_STONE = false
+
 @precompile_all_calls include("game/main.jl")
 
 @precompile_all_calls include("game/utils/state_rendering_utils.jl")

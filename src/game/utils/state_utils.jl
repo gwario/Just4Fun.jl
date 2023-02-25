@@ -220,8 +220,6 @@ write_state_interactive(spec::Just4FunSpec, game::Just4FunEnv) = _write_state!(s
 
 """
 write_state_non_interactive(spec::Just4FunSpec, game::Just4FunEnv)
-
-TODO: write state to a file
 """
 function write_state_non_interactive(spec::Just4FunSpec, game::Just4FunEnv)
 
@@ -313,7 +311,7 @@ _read_state!(lines::Vector{SubString{String}})
 
 Reads a single state from an array of strings (removing them).
 """
-function _read_state!(lines::Vector{SubString{String}})
+function _read_state!(lines::Vector{SubString{String}})::Just4FunEnvState
 
     field_stones = @SArray zeros(Stones, SIDE_LENGTH, SIDE_LENGTH, NUM_PLAYERS)
     player_stones = SVector{NUM_PLAYERS}(repeat([Stones(NUM_PLAYER_STONES)], NUM_PLAYERS))
@@ -322,6 +320,7 @@ function _read_state!(lines::Vector{SubString{String}})
     used_cards = Cards()
     curplayer = Player(0)
     state::GameState = in_progress
+    winner = Player(0)
     action_indices = Vector{Int64}()
 
     # field stones and player stones
@@ -401,6 +400,7 @@ function _read_state!(lines::Vector{SubString{String}})
         curplayer       = curplayer,
 
         state           = state,
+        winner          = winner,
         action_indices  = action_indices
     )
 end

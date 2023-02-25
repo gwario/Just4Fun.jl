@@ -1,6 +1,3 @@
-const FEATURE_CARDS = true
-const FEATURE_MULTI_STONE = true
-
 ######################
 # Player constants - the colors on yucata.de
 ####
@@ -14,7 +11,7 @@ const GREEN   = 0x4
 ####
 const JUST4FUN_DEFAULT_WIN_LENGTH = 4
 const JUST4FUN_DEFAULT_SIZE_HAND = 4
-const JUST4FUN_DEFAULT_NUM_PLAYER_STONES = 20 # HINT use 3 to test out of stones rule
+const JUST4FUN_DEFAULT_NUM_PLAYER_STONES = !FEATURE_CARDS && !FEATURE_MULTI_STONE ? 18 : 20 # HINT use 3 to test out of stones rule
 const JUST4FUN_DEFAULT_DECK = [ # 55 cards
    1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
    1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
@@ -75,7 +72,7 @@ ACTION_ACTION_MASK_INDEX_MAP::Dict{Action, Int64}
 const ACTION_ACTION_MASK_INDEX_MAP = FEATURE_CARDS ?
   generate_action_mask_lookup_index(_CARDS_ACTIONS) :
   generate_action_mask_lookup_index(_NO_CARDS_ACTIONS)
-@show typeof(ACTION_ACTION_MASK_INDEX_MAP)
+#@show typeof(ACTION_ACTION_MASK_INDEX_MAP)
 
 include("structs.jl")
 

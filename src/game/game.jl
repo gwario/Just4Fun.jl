@@ -117,6 +117,15 @@ function GI.current_state(g::Just4FunEnv)::Just4FunEnvState
 end
 
 """
+GI.actions_mask(s::Just4FunEnvState)
+
+Returns a boolean actions_mask indicating all allowed actions among ACTIONS.
+"""
+function GI.actions_mask(s::Just4FunEnvState)::Vector{Bool}
+  return get_action_mask(s, s.curplayer)
+end
+
+"""
 GI.set_state!(game::Just4FunEnv, state)
 Warn: Modify the state of a game environment in place.
 state:
@@ -129,7 +138,7 @@ state:
 
 NOTE: copy() is necessary
 """
-function GI.set_state!(game::Just4FunEnv, state::Just4FunEnvState)
+function GI.set_state!(game::Just4FunEnv, state)
   game.stack = Stack{CardValue}()
   for c in state.stack
     push!(game.stack, c)
