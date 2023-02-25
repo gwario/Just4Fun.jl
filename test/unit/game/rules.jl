@@ -543,44 +543,46 @@ end
 #######
 
 @testset "take_stone!" begin
+  initial_stones = Just4Fun.FEATURE_MULTI_STONE ? 20 : 18
+
   @testset "yellow" begin
     
     game = GI.init(Just4Fun.Just4FunSpec())
     
     game.curplayer = Just4Fun.Player(Just4Fun.YELLOW)
-    # precondition
-    @test game.player_stones == SVector(Just4Fun.FieldValue(20), Just4Fun.FieldValue(20))
+    # precondition  
+    @test game.player_stones == SVector(Just4Fun.FieldValue(initial_stones), Just4Fun.FieldValue(initial_stones))
     Just4Fun.take_stone!(game)
-    @test game.player_stones == SVector(Just4Fun.FieldValue(19), Just4Fun.FieldValue(20))
+    @test game.player_stones == SVector(Just4Fun.FieldValue(initial_stones-1), Just4Fun.FieldValue(initial_stones))
     Just4Fun.take_stone!(game)
-    @test game.player_stones == SVector(Just4Fun.FieldValue(18), Just4Fun.FieldValue(20))
+    @test game.player_stones == SVector(Just4Fun.FieldValue(initial_stones-2), Just4Fun.FieldValue(initial_stones))
     Just4Fun.take_stone!(game)
-    @test game.player_stones == SVector(Just4Fun.FieldValue(17), Just4Fun.FieldValue(20))
+    @test game.player_stones == SVector(Just4Fun.FieldValue(initial_stones-3), Just4Fun.FieldValue(initial_stones))
   end
 
   @testset "red" begin
     game = GI.init(Just4Fun.Just4FunSpec())
     game.curplayer = Player(Just4Fun.RED)
     # precondition
-    @test game.player_stones == SVector(Just4Fun.FieldValue(20), Just4Fun.FieldValue(20))
+    @test game.player_stones == SVector(Just4Fun.FieldValue(initial_stones), Just4Fun.FieldValue(initial_stones))
     Just4Fun.take_stone!(game)
-    @test game.player_stones == SVector(Just4Fun.FieldValue(20), Just4Fun.FieldValue(19))
+    @test game.player_stones == SVector(Just4Fun.FieldValue(initial_stones), Just4Fun.FieldValue(initial_stones-1))
     Just4Fun.take_stone!(game)
-    @test game.player_stones == SVector(Just4Fun.FieldValue(20), Just4Fun.FieldValue(18))
+    @test game.player_stones == SVector(Just4Fun.FieldValue(initial_stones), Just4Fun.FieldValue(initial_stones-2))
     Just4Fun.take_stone!(game)
-    @test game.player_stones == SVector(Just4Fun.FieldValue(20), Just4Fun.FieldValue(17))
+    @test game.player_stones == SVector(Just4Fun.FieldValue(initial_stones), Just4Fun.FieldValue(initial_stones-3))
   end
 
   @testset "both" begin
     game = GI.init(Just4Fun.Just4FunSpec())
     game.curplayer = Just4Fun.Player(Just4Fun.RED)
     # precondition
-    @test game.player_stones == SVector(Just4Fun.FieldValue(20), Just4Fun.FieldValue(20))
+    @test game.player_stones == SVector(Just4Fun.FieldValue(initial_stones), Just4Fun.FieldValue(initial_stones))
     Just4Fun.take_stone!(game)
-    @test game.player_stones == SVector(Just4Fun.FieldValue(20), Just4Fun.FieldValue(19))
+    @test game.player_stones == SVector(Just4Fun.FieldValue(initial_stones), Just4Fun.FieldValue(initial_stones-1))
     game.curplayer = Just4Fun.Player(Just4Fun.YELLOW)
     Just4Fun.take_stone!(game)
-    @test game.player_stones == SVector(Just4Fun.FieldValue(19), Just4Fun.FieldValue(19))
+    @test game.player_stones == SVector(Just4Fun.FieldValue(initial_stones-1), Just4Fun.FieldValue(initial_stones-1))
   end
 end
 
