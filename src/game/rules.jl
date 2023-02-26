@@ -398,6 +398,7 @@ function get_action_mask(s::Just4FunEnvState, player::Player)
       setindex!(action_mask, available, index)
     end
   end
+  action_mask
 end
 
 """
