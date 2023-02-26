@@ -81,7 +81,10 @@ function log_cell(logger::Log.Logger, s::Just4FunEnvState, board_size::Tuple{Int
     pos = (x, y)
     temp_str *= (x == 1 ? STATE_BORDER_V : "")
     for p in 1:NUM_PLAYERS
-      temp_str *= padded(player_stones(s.field_stones, pos, Player(p)))
+      #temp_str *= padded(player_stones(s.field_stones, pos, Player(p)))
+      #temp_str *= padded("$(p % 2 == 0 ? "\u0332" : "")$(player_stones(s.field_stones, pos, Player(p)))")
+      stones = player_stones(s.field_stones, pos, Player(p))
+      temp_str *= padded("$(stones > 0 ? "$stones" : "")")
       temp_str *= (p != NUM_PLAYERS ? " " : "")
     end
     temp_str *= STATE_BORDER_V

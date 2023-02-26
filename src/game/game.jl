@@ -1,5 +1,6 @@
 # NOTE: Has to be overwritten by the experimentt module
 # GI.spec(g::Just4FunEnv) = Just4FunSpec()
+# GI.spec(s::Just4FunEnvState) = Just4FunSpec()
 
 GI.two_players(spec::Just4FunSpec)::Bool = NUM_PLAYERS == 2
 
@@ -123,6 +124,16 @@ Returns a boolean actions_mask indicating all allowed actions among ACTIONS.
 """
 function GI.actions_mask(s::Just4FunEnvState)::Vector{Bool}
   return get_action_mask(s, s.curplayer)
+end
+
+"""
+    available_actions(::AbstractGameEnv)
+
+Return the vector of all available actions.
+"""
+function GI.available_actions(s::Just4FunEnvState)
+  mask = GI.actions_mask(s)
+  return GI.actions(GI.spec(s))[mask]
 end
 
 """
