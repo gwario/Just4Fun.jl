@@ -28,9 +28,9 @@ const Just4FunEnvState = NamedTuple{
     :field_stones, :player_stones, :curplayer, :state, :winner, :action_indices
   ),
   Tuple{
-    Vector{UInt8}, Vector{UInt8}, StaticArraysCore.SMatrix{4, 2, UInt8, 8},
-    StaticArraysCore.SArray{Tuple{6, 6, 2}, UInt8, 3, 72},
-    StaticArraysCore.SVector{2, UInt8}, UInt8, GameState, UInt8, Vector{Int64}
+    Vector{UInt8}, Vector{UInt8}, StaticArraysCore.SMatrix{SIZE_HAND, NUM_PLAYERS, UInt8, SIZE_HAND * NUM_PLAYERS},
+    StaticArraysCore.SArray{Tuple{SIDE_LENGTH, SIDE_LENGTH, NUM_PLAYERS}, UInt8, 3, NUM_PLAYERS * SIDE_LENGTH^2},
+    StaticArraysCore.SVector{NUM_PLAYERS, UInt8}, UInt8, GameState, UInt8, Vector{Int64}
   }
  }
 
