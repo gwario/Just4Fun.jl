@@ -8,8 +8,13 @@ using Random
 using Formatting: fmt
 using SnoopPrecompile
 
-FEATURE_CARDS = false
+FEATURE_CARDS = false # if true, FIELD_VALUES has to be true as well
 FEATURE_MULTI_STONE = false
+FEATURE_FIELD_VALUES = false
+
+if FEATURE_CARDS
+    @assert FEATURE_FIELD_VALUES
+end
 
 @precompile_all_calls include("game/main.jl")
 
@@ -22,5 +27,5 @@ export GameState, in_progress, end_by_pattern, end_by_points, end_by_max_field, 
 export CARD_ACTION_SEPARATOR
 # TODO: make configurable in spec maybe
 export FIELD_VALUES, FIELD_PROBAS, SIZE_HAND, SIDE_LENGTH, NUM_PLAYERS
-export FEATURE_CARDS
+export FEATURE_CARDS, FEATURE_FIELD_VALUES, FEATURE_MULTI_STONE
 end

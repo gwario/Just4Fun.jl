@@ -242,7 +242,7 @@ function print_cell_id(g::Just4FunEnv, pos::Tuple{Int64,Int64})
   p = dominant_player(field_stones)
   if !isnothing(p)
     style = dominating_style(p)
-    print(style(padded(field_value)))
+    print(style(padded(FEATURE_FIELD_VALUES ? field_value : "")))
   else
     print(CELL_ID_DEFAULT(padded(field_value)))
   end

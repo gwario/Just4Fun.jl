@@ -432,19 +432,23 @@ function update_status!(g::Just4FunEnv, action::Action)
     winner_by_goal = true
   end
 
+  no_stones_left = iszero(sum(g.player_stones))
+  
   if !winner_by_goal
     # FIXME: no player has actions left - this can probably be dropped because there is probably no chance that no player will have any actions forever while still having stones becuase it would be a redraw over and over again but the cards would be reshuffled and even with 
-    no_actions_available = iszero(sum(g.action_masks))
-    no_stones_left = iszero(sum(g.player_stones))
+    #no_actions_available = iszero(sum(g.action_masks))
     #@show g.field_stones
     #@assert !no_actions_available
-    if no_stones_left
+    if no_stones_left && FEATURE_FIELD_VALUES
       g.winner, g.state = winner_by_numbers(spec, g)
       winner_by_nums = true
     end
   end
 
-  if !winner_by_goal && !winner_by_nums
+  if no_stones_left && !FEATURE_FIELD_VALUES
+    g.winner = Player(0)
+    g.state = end_by_draw 
+  elseif !winner_by_goal && !winner_by_nums
     g.winner = Player(0)
     g.state = in_progress
   end
