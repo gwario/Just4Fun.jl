@@ -205,7 +205,7 @@ function read_state_non_interactive(spec::Just4FunSpec)
         println("Enter the full state at once and submit by pressing Enter and Ctrl-D")
         lines = reverse(filter(not_comment, chomp.(readlines())))
     end
-
+    dump(lines)
     return _read_state!(lines)
 end
 
@@ -234,6 +234,7 @@ function write_state_non_interactive(spec::Just4FunSpec, game::Just4FunEnv)
     if isempty(input) || input == "file"
         print("Enter file path (absolute or relative to $(pwd())): ")
         file_path = strip(readline())
+        isempty(file_path) && return # abort if empty
         open(file_path, "w") do io
             _write_state!(io, spec, game)
             println("Successfully saved the current state to $(file_path).")
@@ -372,17 +373,19 @@ function _read_state!(lines::Vector{SubString{String}})::Just4FunEnvState
 
         i_line += 1
     end
-
-    # stack cards
-    line = strip(pop!(lines))
-    @debug "Parsed stack cards: $line"
-    foreach(c -> push!(stack, parse(CardValue, c)), reverse(split(line)))
     
-    # used cards
-    line = strip(pop!(lines))
-    @debug "Parsed used cards: $line"
-    foreach(c -> push!(used_cards, parse(CardValue, c)), reverse(split(line)))
-    
+    # stack cards - if not provided, it might be an empty line which got chomped to no line
+    if !isempty(lines)
+        line = strip(pop!(lines))
+        @debug "Parsed stack cards: $line"
+        foreach(c -> push!(stack, parse(CardValue, c)), reverse(split(line)))
+    end
+    # used cards - if not provided, it might be an empty line which got chomped to no line
+    if !isempty(lines)
+        line = strip(pop!(lines))
+        @debug "Parsed used cards: $line"
+        foreach(c -> push!(used_cards, parse(CardValue, c)), reverse(split(line)))
+    end
     # current player
     curplayer = Player(argmax(player_stones))
     
@@ -444,7 +447,6 @@ Writes the state to the specified stream.
 function _write_state!(io::IO, spec::Just4FunSpec, game::Just4FunEnv)
 
     clone = GI.clone(game)
-
     # stones
     println(io, "# ### Stones")
     for x in 1:SIDE_LENGTH
@@ -463,9 +465,13 @@ function _write_state!(io::IO, spec::Just4FunSpec, game::Just4FunEnv)
     end
 
     # stack cards
+    @show clone.stack
+    dump(clone.stack)
     println(io, "# ### Stack cards")
     println(io, join(Vector{Int64}([c for c in Iterators.reverse(clone.stack)]), " "))
     
+    @show clone.used_cards
+    dump(clone.used_cards)
     # used cards
     println(io, "# ### Used cards")
     println(io, join(Vector{Int64}([c for c in reverse(clone.used_cards)]), " "))

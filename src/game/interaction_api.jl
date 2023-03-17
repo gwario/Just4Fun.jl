@@ -15,10 +15,10 @@ function GI.action_string(spec::Just4FunSpec, played_cards_or_cell)
         cards, value = played_cards_or_cell
         return string(join(sort(convert(Array{Int64}, cards)), " "), " -> $(padded(value))")
     else
-        return convert(Int64, played_cards_or_cell)
+        return string(convert(Int64, played_cards_or_cell))
     end
 end 
-  
+
 """
 GI.parse_action(spec::Just4FunSpec, string)::Union(Action,Nothing)
 
