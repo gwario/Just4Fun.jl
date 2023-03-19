@@ -32,11 +32,13 @@ const Just4FunEnvState = NamedTuple{
     StaticArraysCore.SArray{Tuple{SIDE_LENGTH, SIDE_LENGTH, NUM_PLAYERS}, UInt8, 3, NUM_PLAYERS * SIDE_LENGTH^2},
     StaticArraysCore.SVector{NUM_PLAYERS, UInt8}, UInt8, GameState, UInt8, Vector{Int64}
   }
- }
+}
 
 
 for T in [
-    CardsAction
+    CardsAction,
+    Just4FunEnvState,
+    AlphaZero.TrainingSample{Just4FunEnvState}
   ]
     @eval JSON3.StructType(::Type{<:$T}) = JSON3.Struct()
 end
