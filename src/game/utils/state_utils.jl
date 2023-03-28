@@ -465,13 +465,13 @@ function _write_state!(io::IO, spec::Just4FunSpec, game::Just4FunEnv)
     end
 
     # stack cards
-    @show clone.stack
-    dump(clone.stack)
+    #@show clone.stack
+    #dump(clone.stack)
     println(io, "# ### Stack cards")
     println(io, join(Vector{Int64}([c for c in Iterators.reverse(clone.stack)]), " "))
     
-    @show clone.used_cards
-    dump(clone.used_cards)
+    #@show clone.used_cards
+    #dump(clone.used_cards)
     # used cards
     println(io, "# ### Used cards")
     println(io, join(Vector{Int64}([c for c in reverse(clone.used_cards)]), " "))

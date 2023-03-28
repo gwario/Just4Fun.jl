@@ -203,7 +203,7 @@ GI.game_terminated(g::Just4FunEnv)
 
 Returns true if the game has terminated.
 """
-GI.game_terminated(g::Just4FunEnv)::Bool = g.state > in_progress
+GI.game_terminated(g::Just4FunEnv)::Bool = g.state != in_progress
 
 """
 GI.white_reward(g::Just4FunEnv)
