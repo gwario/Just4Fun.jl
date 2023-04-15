@@ -1,3 +1,12 @@
+to_field_value(action::NoCardsAction) = action
+to_field_value(action::CardsAction) = action.value
+
+to_cards(action::CardsAction) = action.cards
+
+to_int_field_value(action::NoCardsAction) = Int64(action)
+to_int_field_value(action::CardsAction) = Int64(action.value)
+to_int_cards(action::CardsAction) = convert(Vector{Int64}, action.cards)
+
 """
   flip_colors(playerstones::SVector{Stones})::SVector{Stones}
 
@@ -50,46 +59,27 @@ Returns all unique hands for the deck of cards.
 all_sorted_card_combinations(deck_of_cards::Cards, size_of_hand::Int64)::Vector{Cards} = unique([sort(c) for c = collect(powerset(deck_of_cards, 0, size_of_hand))])
 
 """
-regular_combinations(field_values::SMatrix{SIDE_LENGTH, SIDE_LENGTH, FieldValue}, cards::Cards)::Vector{Cards}
+regular_combinations(spec::Just4FunSpec, cards::AbstractVector{CardValue})::Vector{Cards}
 
 Returns all valid sorted unique combinations for cards without the empty one.
 """
-function regular_combinations(field_values::SMatrix{SIDE_LENGTH, SIDE_LENGTH, FieldValue}, cards::SVector{SIZE_HAND, CardValue})::Vector{Cards}
-  max_field_value = max(SVector(field_values)...)
+function regular_combinations(spec::Just4FunSpec, cards::AbstractVector{CardValue})::Vector{Cards}
+  max_field_value = max(spec.settings.board.value_distribution...)
   rscc = unique([sort(c) for c = collect(powerset(cards, 1, length(cards)))])
-  filter(cv -> sum(cv) <= max_field_value, rscc)
+  filter(cv -> 0 < sum(cv) <= max_field_value, rscc)
 end
 
-"""
-regular_combinations(field_values::SMatrix{SIDE_LENGTH, SIDE_LENGTH, FieldValue}, cards::Vector{CardValue})::Vector{Cards}
-
-Returns all valid sorted unique combinations for cards without the empty one.
-"""
-function regular_combinations(field_values::SMatrix{SIDE_LENGTH, SIDE_LENGTH, FieldValue}, cards::Vector{CardValue})::Vector{Cards}
-  max_field_value = max(SVector(field_values)...)
-  rscc = unique([sort(c) for c = collect(powerset(cards, 1, length(cards)))])
-  filter(cv -> sum(cv) <= max_field_value, rscc)
-end
-
-"""
-generate_card_actions(field_values::SVector{SIDE_LENGTH^2, FieldValue}, deck::Vector{CardValue}, size_hand::Int64)::Vector{CardsAction}
-
-Generates the actions when stones and cards are used, i.e. vanilla just 4 fun. Only card combinations with sum >= 0 and sum <= max(field_value) are returned.
-"""
-function generate_card_actions(field_values::SVector{SIDE_LENGTH^2, FieldValue}, deck::Vector{CardValue}, size_hand::Int64)::Vector{CardsAction}
-  max_field_value = max(field_values...)
-  sorted_card_combinations = all_sorted_card_combinations(deck, size_hand)
+function generate_card_actions(settings::Just4FunSettings)::Vector{CardsAction}
+  max_field_value = max(vec(settings.board.value_distribution)...)
+  sorted_card_combinations = all_sorted_card_combinations(convert(Cards, sort(settings.cards.deck)), settings.cards.size_hand)
   card_actions::Vector{CardsAction} = map(scc -> CardsAction((cards=scc, value=sum(scc))), sorted_card_combinations)
-  filter(ca -> ca.value <= max_field_value, card_actions)
+  valid_card_actions = filter(ca -> 0 < ca.value <= max_field_value, card_actions)
+  valid_card_actions = vcat([REDRAW_ACTION], valid_card_actions)
+  sort(valid_card_actions, by=to_field_value)
 end
 
-"""
-generate_nocard_actions(field_values::SVector{SIDE_LENGTH^2, FieldValue})::Vector{NoCardsAction}
-
-Generates the actions when only stones are used, i.e. normal distribution of values does not matter, only the number of stones.
-"""
-function generate_nocard_actions(field_values::SVector{SIDE_LENGTH^2, FieldValue})::Vector{NoCardsAction}
-  convert(Vector{NoCardsAction}, sort(field_values))
+function generate_nocard_actions(settings::Just4FunSettings)::Vector{NoCardsAction}
+  convert(Vector{NoCardsAction}, sort(vec(settings.board.value_distribution)))
 end
 
 """

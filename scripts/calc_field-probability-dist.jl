@@ -7,11 +7,12 @@ const N_SAMPLES = 1_000_000 #1_000_000_000
 
 stats = Dict{FieldValue, Int64}()
 
+spec = Just4Fun.mini_j4f_spec
 
 for _ in 1:N_SAMPLES
-    hand = get_random_hand(Just4Fun.SIZE_HAND, map(Int64, Just4Fun.DECK))
+    hand = get_random_hand(spec.settings.cards.size_hand, spec.settings.cards.deck)
 
-    fields = reachable_fields(vec(Just4Fun.FIELD_VALUES_DIST), hand)
+    fields = reachable_fields(vec(spec.settings.board.value_distribution), hand)
     
     for field in fields
         stats[field] = get(stats, field, 0) + 1
@@ -30,9 +31,9 @@ for (key, value) in sort(collect(stats), by=pair -> pair[1])
     @printf("%+2s: %4.2f\n", key, value / N_SAMPLES)
 end
 
-mapped = zeros(size(Just4Fun.FIELD_VALUES_DIST))
+mapped = zeros(spec.settings.board.dimensions)
 
-for (i,v) in enumerate(Just4Fun.FIELD_VALUES_DIST)
+for (i,v) in enumerate(spec.settings.board.value_distribution)
     mapped[i] = stats[v]
 end
 

@@ -10,12 +10,12 @@ function get_random_hand(hand_size::Int64, deck::Vector{Int64})::Cards
     return random_hand
 end
 
-function reachable_fields(field_values::Vector{Int64}, hand::Cards)::Vector{FieldValue}
+function reachable_fields(spec::Just4FunSpec, hand::Cards)::Vector{FieldValue}
     unique(
         map(
             comb -> FieldValue(sum(convert(Vector{Int64}, comb))),
             regular_combinations(
-                SMatrix{SIDE_LENGTH, SIDE_LENGTH, FieldValue}(field_values),
+                spec,
                 SVector{SIZE_HAND, CardValue}(hand)
             )
         )

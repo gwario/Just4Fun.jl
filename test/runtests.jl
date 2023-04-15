@@ -6,11 +6,10 @@ using Just4Fun.StaticArrays
 using Just4Fun.DataStructures
 
 @testset verbose = true "Just4Fun.jl" begin
-
-    GI.spec(g::Just4FunEnv) = Just4FunSpec()
-
-    
     @testset verbose = true "Just4Fun Unit Tests" begin
+        @testset verbose = true "Spec tests" begin
+            include("unit/structs.jl")
+        end
         @testset verbose = true "Game" begin
             @testset verbose = true "Rules tests" begin
                 include("unit/game/rules.jl")
