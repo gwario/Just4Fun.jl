@@ -1,38 +1,74 @@
 ######################)
 # Structures
 ####
+using Base: @kwdef
+
+@kwdef struct BoardSettings
+  dimensions          :: Tuple{Int,Int} = size(JUST4FUN_DEFAULT_ORIGINAL_DIST)
+  value_distribution  :: Matrix{Int}    = JUST4FUN_DEFAULT_ORIGINAL_DIST
+  length_win          :: Int  = JUST4FUN_DEFAULT_WIN_LENGTH  
+  num_pieces          :: Int  = JUST4FUN_DEFAULT_NUM_PLAYER_STONES
+  single_piece        :: Bool = false
+  count_values        :: Bool = true
+end
+
+@kwdef struct CardsSettings
+  size_hand :: Int          = JUST4FUN_DEFAULT_SIZE_HAND
+  deck      :: Vector{Int}  = JUST4FUN_DEFAULT_DECK  
+end
+
+@kwdef struct Just4FunSettings
+  players :: Int = 2
+  board   :: BoardSettings                = BoardSettings()
+  cards   :: Union{CardsSettings,Nothing} = CardsSettings()
+end
+
+"""
+Just4FunSpec(starting_player::Union{Nothing,Player}=Player(YELLOW), settings=Just4FunSettings())::Just4FunSpec
+Just4FunSpec(per_game_seeds::Vector{Int64}, starting_player::Union{Nothing,Player}=Player(YELLOW), settings=Just4FunSettings())::Just4FunSpec
+Just4FunSpec(predefined_stack::Stack{CardValue}, starting_player::Union{Nothing,Player}=Player(YELLOW), settings=Just4FunSettings())::Just4FunSpec
+Just4FunSpec(predefined_stack::Stack{CardValue}, per_game_seeds::Vector{Int64}, starting_player::Union{Nothing,Player}=Player(YELLOW), settings=Just4FunSettings())::Just4FunSpec
+"""
 struct Just4FunSpec <: GI.AbstractGameSpec
 
   starting_player :: Union{Nothing,Player}
   per_game_seeds  :: Vector{Int64}
   initial_stack   :: Stack{CardValue}
 
-  """
-  Just4FunSpec(starting_player::Union{Nothing,Player}=Player(YELLOW))::Just4FunSpec
-  """
-  function Just4FunSpec(starting_player::Union{Nothing,Player}=Player(YELLOW))::Just4FunSpec
-    new(starting_player, Int64[], Stack{CardValue}())
+  settings        :: Just4FunSettings
+
+  actions         :: Vector{Action}
+
+  function Just4FunSpec(starting_player::Union{Nothing,Player}=Player(YELLOW), settings=Just4FunSettings())::Just4FunSpec
+    @assert settings.board.dimensions == size(settings.board.value_distribution)
+    @assert length(vec(settings.board.value_distribution)) == length(unique(vec(settings.board.value_distribution)))
+    
+    actions = isnothing(settings.cards) ? generate_nocard_actions(settings) : generate_card_actions(settings)
+    new(starting_player, Int64[], Stack{CardValue}(), settings, actions)
   end
 
-  """
-  Just4FunSpec(per_game_seeds::Vector{Int64}, starting_player::Union{Nothing,Player}=Player(YELLOW))::Just4FunSpec
-  """
-  function Just4FunSpec(per_game_seeds::Vector{Int64}, starting_player::Union{Nothing,Player}=Player(YELLOW))::Just4FunSpec
-    new(starting_player, per_game_seeds, Stack{CardValue}())
+  function Just4FunSpec(per_game_seeds::Vector{Int64}, starting_player::Union{Nothing,Player}=Player(YELLOW), settings=Just4FunSettings())::Just4FunSpec
+    @assert settings.board.dimensions == size(settings.board.value_distribution)
+    @assert length(vec(settings.board.value_distribution)) == length(unique(vec(settings.board.value_distribution)))
+    
+    actions = isnothing(settings.cards) ? generate_nocard_actions(settings) : generate_card_actions(settings)
+    new(starting_player, per_game_seeds, Stack{CardValue}(), settings, actions)
   end
   
-  """
-  Just4FunSpec(predefined_stack::Stack{CardValue}, starting_player::Union{Nothing,Player}=Player(YELLOW))::Just4FunSpec
-  """
-  function Just4FunSpec(predefined_stack::Stack{CardValue}, starting_player::Union{Nothing,Player}=Player(YELLOW))::Just4FunSpec
-    new(starting_player, Int64[], predefined_stack)
+  function Just4FunSpec(predefined_stack::Stack{CardValue}, starting_player::Union{Nothing,Player}=Player(YELLOW), settings=Just4FunSettings())::Just4FunSpec
+    @assert settings.board.dimensions == size(settings.board.value_distribution)
+    @assert length(vec(settings.board.value_distribution)) == length(unique(vec(settings.board.value_distribution)))
+    
+    actions = isnothing(settings.cards) ? generate_nocard_actions(settings) : generate_card_actions(settings)
+    new(starting_player, Int64[], predefined_stack, settings, actions)
   end
 
-  """
-  Just4FunSpec(predefined_stack::Stack{CardValue}, per_game_seeds::Vector{Int64}, starting_player::Union{Nothing,Player}=Player(YELLOW))::Just4FunSpec
-  """
-  function Just4FunSpec(predefined_stack::Stack{CardValue}, per_game_seeds::Vector{Int64}, starting_player::Union{Nothing,Player}=Player(YELLOW))::Just4FunSpec
-    new(starting_player, per_game_seeds, predefined_stack)
+  function Just4FunSpec(predefined_stack::Stack{CardValue}, per_game_seeds::Vector{Int64}, starting_player::Union{Nothing,Player}=Player(YELLOW), settings=Just4FunSettings())::Just4FunSpec
+    @assert settings.board.dimensions == size(settings.board.value_distribution)
+    @assert length(vec(settings.board.value_distribution)) == length(unique(vec(settings.board.value_distribution)))
+    
+    actions = isnothing(settings.cards) ? generate_nocard_actions(settings) : generate_card_actions(settings)
+    new(starting_player, per_game_seeds, predefined_stack, settings, actions)
   end
 end
 
@@ -40,13 +76,14 @@ mutable struct Just4FunEnv <: GI.AbstractGameEnv
 
   # state
   stack         :: Stack{CardValue}
-  used_cards    :: Cards                                      # the played cards, for convenience
-  player_cards  :: SMatrix{SIZE_HAND, NUM_PLAYERS, CardValue} # the players' cards Size <size hand> x <players> (x 1)
-  field_stones  :: SArray{Tuple{SIDE_LENGTH, SIDE_LENGTH, NUM_PLAYERS}, Stones}# Size <board_side> x <board_side> x <players> (x 1)
-  player_stones :: SVector{NUM_PLAYERS, Stones}               # Size <players> (x 1)
+  used_cards    :: Cards                      # the played cards, for convenience
+  player_cards  :: AbstractMatrix{CardValue}  # the players' cards Size <size hand> x <players> (x 1)
+  field_stones  :: AbstractArray{Stones}      # Size <board_side> x <board_side> x <players> (x 1)
+  player_stones :: AbstractVector{Stones}     # Size <players> (x 1)
   curplayer     :: Player
   # status helpers
-  action_masks  :: BitArray{2}   # Action masks for each players Size <num actions> x <players> (x 1)
+  actions_masks       :: BitArray{2}   # Action masks for each players Size <num actions> x <players> (x 1)
+  board_actions_masks :: BitArray{3}   # Board position masks for each players Size <y_len> x <x_len> x <players> (x 1)
   state         :: GameState
   winner        :: Player
 

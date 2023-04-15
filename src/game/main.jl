@@ -19,33 +19,33 @@ const JUST4FUN_DEFAULT_NUM_PLAYER_STONES = 20
 const MINI_JUST4FUN_DEFAULT_NUM_PLAYER_STONES = 10
 
 const JUST4FUN_DEFAULT_DECK = [ # 55 cards
-   1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
-   1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
-   1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
-   1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
+  01,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
+  01,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
+  01,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
+  01,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
   13, 14, 15, 16, 17, 18, 19
 ]
 const MINI_JUST4FUN_DEFAULT_DECK = [ # 24 cards
-   1, 2, 3, 4, 5,
-   1, 2, 3, 4, 5,
-   1, 2, 3, 4, 5,
-   1, 2, 3, 4, 5,
-   6, 7, 8, 9
+  1, 2, 3, 4, 5,
+  1, 2, 3, 4, 5,
+  1, 2, 3, 4, 5,
+  1, 2, 3, 4, 5,
+  6, 7, 8, 9
 ]
 
 const JUST4FUN_DEFAULT_ORIGINAL_DIST = [
-   1 14 30 24 19  8 ;
+  01 14 30 24 19  8 ;
   33 11  9 16 35 21 ;
-   6 27 31 20  3 12 ;
+  06 27 31 20  3 12 ;
   15 32  5 29 17 26 ;
   22 10 18 36 25  2 ;
   28  7 23  4 13 34
 ]
 const MINI_JUST4FUN_DEFAULT_ORIGINAL_DIST = [
-   5  3  6 15 ;
+  05  3  6 15 ;
   11 13  9  1 ;
   14  2 12  7 ;
-   4  8 16 10
+  04  8 16 10
 ]
 
 const JUST4FUN_DEFAULT_ORIGINAL_DIST_PROBA = [
@@ -63,60 +63,15 @@ const MINI_JUST4FUN_DEFAULT_ORIGINAL_DIST_PROBA = [
   0.789095  0.814536  0.264685  0.735307
 ]
 
-const JUST4FUN_DEFAULT_SIZE = size(JUST4FUN_DEFAULT_ORIGINAL_DIST)
-const MINI_JUST4FUN_DEFAULT_SIZE = size(MINI_JUST4FUN_DEFAULT_ORIGINAL_DIST)
-
 ######################
 # Game configuration
 ####
-const NUM_PLAYERS = 2 # TODO: currently only 2 player support - consider implementing the CommonRL interface which supports sequential multiplayer games
-
-# Just 4 Fun
-#const SIDE_LENGTH = size(JUST4FUN_DEFAULT_ORIGINAL_DIST)[1]
-#const FIELD_VALUES_DIST = JUST4FUN_DEFAULT_ORIGINAL_DIST
-#const FIELD_PROBAS  = JUST4FUN_DEFAULT_ORIGINAL_DIST_PROBA
-#const DECK_INT = JUST4FUN_DEFAULT_DECK
-#const SIZE_HAND   = JUST4FUN_DEFAULT_SIZE_HAND
-#const NUM_PLAYER_STONES = !FEATURE_MULTI_STONE ? Int(SIDE_LENGTH^2 / 2) : JUST4FUN_DEFAULT_NUM_PLAYER_STONES # 18x2=36, both will be out of stones when board is full
-#const WIN_LENGTH  = JUST4FUN_DEFAULT_WIN_LENGTH
-
-# Mini Just 4 Fun
-const SIDE_LENGTH   = size(MINI_JUST4FUN_DEFAULT_ORIGINAL_DIST)[1]
-const FIELD_VALUES_DIST   = MINI_JUST4FUN_DEFAULT_ORIGINAL_DIST
-const FIELD_PROBAS  = MINI_JUST4FUN_DEFAULT_ORIGINAL_DIST_PROBA
-const DECK_INT      = MINI_JUST4FUN_DEFAULT_DECK
-const SIZE_HAND     = MINI_JUST4FUN_DEFAULT_SIZE_HAND
-const NUM_PLAYER_STONES   = !FEATURE_MULTI_STONE ? Int(SIDE_LENGTH^2 / 2) : MINI_JUST4FUN_DEFAULT_NUM_PLAYER_STONES # 18x2=36, both will be out of stones when board is full
-const WIN_LENGTH    = MINI_JUST4FUN_DEFAULT_WIN_LENGTH
 
 include("types.jl")
 
-const DECK          = convert(Vector{CardValue}, DECK_INT)
-const FIELD_VALUES  = SMatrix{SIDE_LENGTH, SIDE_LENGTH, FieldValue, SIDE_LENGTH^2}(FIELD_VALUES_DIST) # Size <board_side> x <board_side> (x 1)
+include("structs.jl")
 
 include("utils.jl")
-
-const _CARDS_ACTIONS = generate_card_actions(vec(FIELD_VALUES), DECK, SIZE_HAND)
-
-const _NO_CARDS_ACTIONS = generate_nocard_actions(vec(FIELD_VALUES))
-"""
-ACTIONS::Vector{Action}
-"""
-const ACTIONS::Vector{Action} = FEATURE_CARDS ?
-  _CARDS_ACTIONS :
-  _NO_CARDS_ACTIONS
-
-const NUM_ACTIONS = length(ACTIONS)
-
-"""
-ACTION_ACTION_MASK_INDEX_MAP::Dict{Action, Int64}
-"""
-const ACTION_ACTION_MASK_INDEX_MAP = FEATURE_CARDS ?
-  generate_action_mask_lookup_index(_CARDS_ACTIONS) :
-  generate_action_mask_lookup_index(_NO_CARDS_ACTIONS)
-#@show typeof(ACTION_ACTION_MASK_INDEX_MAP)
-
-include("structs.jl")
 
 include("rules.jl")
 

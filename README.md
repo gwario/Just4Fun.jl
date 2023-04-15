@@ -10,9 +10,5 @@ If project manifest not present or needs to be created:
 
 # Configuration
 
-Set feature flags in `src/Just4Fun.jl`
+See spec config in `src/Just4Fun.jl`
 
-```
-FEATURE_CARDS = true
-FEATURE_MULTI_STONE = true
-```

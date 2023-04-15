@@ -1,5 +1,5 @@
 """
-alignment_value_for(g::Just4FunEnv, player::Player, alignment)
+alignment_value_for(spec::Just4FunSpec, g::Just4FunEnv, player::Player, alignment)::Float32
 
 Retruns a metric for degree of completeness of one winning position.
 """
@@ -14,7 +14,7 @@ function alignment_value_for(spec::Just4FunSpec, g::Just4FunEnv, player::Player,
       return 0.
     end
   end
-  return γ ^ (WIN_LENGTH - 1 - N)
+  return γ ^ (spec.settings.board.length_win - 1 - N)
 end
 
 
@@ -22,24 +22,31 @@ const Pos = Tuple{Int, Int}
 const Alignment = Vector{Pos}
 
 
+"""
+alignment_from(spec::Just4FunSpec, g::Just4FunEnv, pos, dir)::Union{Alignment, Nothing}
+"""
 function alignment_from(spec::Just4FunSpec, g::Just4FunEnv, pos, dir)::Union{Alignment, Nothing}
   al = Alignment()
-  for _ in 1:WIN_LENGTH
-    valid_pos(FIELD_VALUES, pos) || (return nothing)
+  for _ in 1:spec.settings.board.length_win
+    valid_pos(spec, pos) || (return nothing)
     push!(al, pos)
     pos = pos .+ dir
   end
   return al
 end
 
+"""
+alignments_with(spec::Just4FunSpec, g::Just4FunEnv, dir)::Vector{Alignment}
+"""
 function alignments_with(spec::Just4FunSpec, g::Just4FunEnv, dir)::Vector{Alignment}
-  als = [alignment_from(spec, g, (x, y), dir) for x in 1:SIDE_LENGTH for y in 1:SIDE_LENGTH]
+  x_len, y_len = spec.settings.board.dimensions
+  als = [alignment_from(spec, g, (x, y), dir) for x in 1:x_len for y in 1:y_len]
   filter(al -> !isnothing(al), als)
 end
 
 
 """
-heuristic_value_for(g::Just4FunEnv, player::Player)
+heuristic_value_for(spec::Just4FunSpec, g::Just4FunEnv, player::Player)
 
 Retruns a metric for degree of completeness of all winning positions.
 """
@@ -56,7 +63,7 @@ function heuristic_value_for(spec::Just4FunSpec, g::Just4FunEnv, player::Player)
 end
 
 """
-heuristic_value_for(g::Just4FunEnv, player)
+GI.heuristic_value(g::Just4FunEnv)
 
 Return a heuristic estimate of the state value for the current player.
 The given state must be nonfinal and returned values must belong to the (-∞, ∞) interval.

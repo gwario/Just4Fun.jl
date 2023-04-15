@@ -1,3 +1,6 @@
+spec = Just4Fun.j4f_spec
+GI.spec(::Just4FunEnv) = spec
+
 @testset "alignment_value_for" begin
   @testset "If yellow player holds more positions of winning alignments than the red player, value is positive (1)" begin
     state = Just4FunEnvState((
@@ -30,7 +33,7 @@
       winner=Player(0),
       action_indices=[]
     ))
-    game = GI.init(Just4FunSpec(), state)
+    game = GI.init(spec, state)
 
     # perspective of curplayer - yellow
     value = GI.heuristic_value(game)
@@ -70,7 +73,7 @@
       winner=Player(0),
       action_indices=[]
     ))
-    game = GI.init(Just4FunSpec(), state)
+    game = GI.init(spec, state)
     
     value = GI.heuristic_value(game)
 
@@ -109,7 +112,7 @@
       winner=Player(0),
       action_indices=[]
     ))
-    game_1 = GI.init(Just4FunSpec(), state_1)
+    game_1 = GI.init(spec, state_1)
     
     value_1 = GI.heuristic_value(game_1)
 
@@ -143,7 +146,7 @@
       winner=Player(0),
       action_indices=[]
     ))
-    game_2 = GI.init(Just4FunSpec(), state_2)
+    game_2 = GI.init(spec, state_2)
     #GI.render(game)
     
     value_2 = GI.heuristic_value(game_2)
@@ -211,7 +214,7 @@ This function is not needed by AlphaZero but it is useful for building baselines
       winner=Player(0),
       action_indices=[]
     ))
-    game = GI.init(Just4FunSpec(), state)
+    game = GI.init(spec, state)
     
     value = GI.heuristic_value(game)
     
@@ -249,7 +252,7 @@ This function is not needed by AlphaZero but it is useful for building baselines
       winner=Player(0),
       action_indices=[]
     ))
-    game_1 = GI.init(Just4FunSpec(), state_1)
+    game_1 = GI.init(spec, state_1)
     
     state_2 = Just4FunEnvState((
       stack=Vector{CardValue}(), used_cards=Cards(),
