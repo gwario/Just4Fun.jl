@@ -53,16 +53,14 @@ function GI.init(spec::Just4FunSpec, state = nothing)::Just4FunEnv
     # setup fields with stones
     field_stones = SArray{
         Tuple{
-            spec.settings.board.dimensions[1],
-            spec.settings.board.dimensions[2],
+            size(spec.settings.board.value_distribution)...,
             spec.settings.players,
         },
         Stones,
     }(
         zeros(
             Stones,
-            spec.settings.board.dimensions[1],
-            spec.settings.board.dimensions[2],
+            size(spec.settings.board.value_distribution)...,
             spec.settings.players,
         ),
     )
@@ -82,7 +80,7 @@ function GI.init(spec::Just4FunSpec, state = nothing)::Just4FunEnv
     )
     board_actions_masks =
         BitArray(
-            zeros(UInt8, (spec.settings.board.dimensions..., spec.settings.players)),
+            zeros(UInt8, (size(spec.settings.board.value_distribution)..., spec.settings.players)),
         )
 
     env = Just4FunEnv(
@@ -327,11 +325,33 @@ at an initial state.
 
 Returns reward for the YELLOW player in a game.
 """
-function GI.white_reward(g::Just4FunEnv)::Float32
+#function GI.white_reward(g::Just4FunEnv)::Float32 end
+
+function white_reward_ternary_outcome(g::Just4FunEnv)::Float32
     if GI.game_terminated(g)
         g.winner == Player(YELLOW) ? 1.0 : g.winner == Player(RED) ? -1.0 : 0.0
     else
         0.0
+    end
+end
+
+function white_reward_ternary_intermediary_reward(g::Just4FunEnv)::Float32
+    if GI.game_terminated(g)
+        g.winner == Player(YELLOW) ? 1.0 : g.winner == Player(RED) ? -1.0 : 0.0
+    else
+        s = GI.spec(g)
+        p_patterns = [0, 0]
+        for p_idx in 1:s.settings.players
+            for field_value_int in s.settings.board.value_distribution
+                p_patterns[p_idx] += num_connected_at(s, g.field_stones, Player(p_idx), FieldValue(field_value_int))
+            end
+        end
+        # should be att most +/-0.75 in contrast to 1/-1 for win
+        #@show p_patterns[1]
+        #@show p_patterns[2]
+        #@show sum(p_patterns)
+        #@show 0.75 * (p_patterns[1] - p_patterns[2]) / sum(p_patterns)
+        return 0.75 * (p_patterns[1] - p_patterns[2]) / sum(p_patterns)
     end
 end
 

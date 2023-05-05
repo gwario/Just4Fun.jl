@@ -227,6 +227,9 @@ end
 end
 
 @testset "Init, set state, reward and termination" begin
+
+    GI.white_reward(g::Just4FunEnv) = Just4Fun.white_reward_ternary_outcome(g)
+
     @testset "four in a row (1,1 -> 4,1) for player yellow makes white reward 1 and game terminated true" begin
 
         state = Just4FunEnvState((

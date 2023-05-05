@@ -254,8 +254,9 @@ print_top_player_stones(g::Just4FunEnv, pos::Tuple{Int64,Int64})     = print_pla
 print_bottom_player_stones(g::Just4FunEnv, pos::Tuple{Int64,Int64})  = print_player_stones(g, pos, MAGENTA)
 
 function print_cell(spec::Just4FunSpec, g::Just4FunEnv, y::Int64)
+  _, len_x = size(spec.settings.board.value_distribution)
   # row for player 4
-  for x in 1:spec.settings.board.dimensions[2]
+  for x in 1:len_x
     pos = (x, y)
     Base.print(x == 1 ? "$BORDER_V  " : "  ")
     if spec.settings.players == 4
@@ -267,7 +268,7 @@ function print_cell(spec::Just4FunSpec, g::Just4FunEnv, y::Int64)
   end
   println()
   # row for player 1, the numbers / cell id and player 2
-  for x in 1:spec.settings.board.dimensions[2]
+  for x in 1:len_x
     pos = (x, y)
     Base.print(x == 1 ? BORDER_V : "")
     print_left_player_stones(g, pos)
@@ -277,7 +278,7 @@ function print_cell(spec::Just4FunSpec, g::Just4FunEnv, y::Int64)
   end
   println()
   # row for player 3
-  for x in 1:spec.settings.board.dimensions[2]
+  for x in 1:len_x
     pos = (x, y)
     Base.print(x == 1 ? "$BORDER_V  " : "  ")
     if spec.settings.players == 3
@@ -521,7 +522,6 @@ end
 
 function Base.println(io::IO, s::BoardSettings, offset=0)
   spaces = repeat(" ", offset)
-  println(io, spaces, "Dimensions: $(join(s.dimensions, "x"))")
   println(io, spaces, "Value dist: $(s.value_distribution)")
   println(io, spaces, "Win length: $(s.length_win)")
   println(io, spaces, "Total # pieces: $(s.num_pieces)")

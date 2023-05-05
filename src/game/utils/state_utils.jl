@@ -8,7 +8,7 @@ One line for each player's cards.
 One line for the cards on the stack and one line for the used cards.
 """
 function read_state_interactive(spec::Just4FunSpec)
-    board_size = spec.settings.board.dimensions
+    board_size = size(spec.settings.board.value_distribution)
     field_stones = @SArray zeros(Stones, board_size[1], board_size[2], spec.settings.players)
     player_stones = SVector{spec.settings.players}(repeat([Stones(spec.settings.board.num_pieces)], spec.settings.players))
     player_cards = !isnothing(spec.settings.cards) ? (@SMatrix zeros(CardValue, spec.settings.cards.size_hand, spec.settings.players)) : (@SMatrix zeros(CardValue, 2, 2))
@@ -174,14 +174,14 @@ function write_state_non_interactive(spec::Just4FunSpec, game::Just4FunEnv)
 
     valid_command(input::String) = input != "" ? input != "file" ? input != "stdout" ? false : true : true : true
 
-    print("Write from file or stdout? (FILE/stdout) ")
+    Base.print("Write from file or stdout? (FILE/stdout) ")
     input = "-"
     while !valid_command(input)
         input = lowercase(strip(readline()))
     end
 
     if isempty(input) || input == "file"
-        print("Enter file path (absolute or relative to $(pwd())): ")
+        Base.print("Enter file path (absolute or relative to $(pwd())): ")
         file_path = strip(readline())
         isempty(file_path) && return # abort if empty
         open(file_path, "w") do io
@@ -262,7 +262,7 @@ _read_state!(spec::Just4FunSpec, lines::Vector{SubString{String}})
 Reads a single state from an array of strings (removing them).
 """
 function _read_state!(spec::Just4FunSpec, lines::Vector{SubString{String}})::Just4FunEnvState
-    board_size = spec.settings.board.dimensions
+    board_size = size(spec.settings.board.value_distribution)
     field_stones = @SArray zeros(Stones, board_size[1], board_size[2], spec.settings.players)
     player_stones = SVector{spec.settings.players}(repeat([Stones(spec.settings.board.num_pieces)], spec.settings.players))
     player_cards = !isnothing(spec.settings.cards) ? (@SMatrix zeros(CardValue, spec.settings.cards.size_hand, spec.settings.players)) : (@SMatrix zeros(CardValue, 2, 2))
@@ -397,14 +397,14 @@ _write_state!(io::IO, spec::Just4FunSpec, game::Just4FunEnv)
 Writes the state to the specified stream.
 """
 function _write_state!(io::IO, spec::Just4FunSpec, game::Just4FunEnv)
-
+    len_y, len_x = size(spec.settings.board.value_distribution)
     clone = GI.clone(game)
     # stones
     println(io, "# ### Stones")
-    for x in 1:spec.settings.board.dimensions[1]
+    for x in 1:len_x
         for p_idx in 1:spec.settings.players
             println(io, "# Column $x, player $p_idx:")
-            println(io, join([convert(Int64, clone.field_stones[y, x, p_idx]) for y in 1:spec.settings.board.dimensions[1]], " "))
+            println(io, join([convert(Int64, clone.field_stones[y, x, p_idx]) for y in 1:len_y], " "))
         end
     end
     

@@ -39,7 +39,7 @@ end
 alignments_with(spec::Just4FunSpec, g::Just4FunEnv, dir)::Vector{Alignment}
 """
 function alignments_with(spec::Just4FunSpec, g::Just4FunEnv, dir)::Vector{Alignment}
-  x_len, y_len = spec.settings.board.dimensions
+  x_len, y_len = size(spec.settings.board.value_distribution)
   als = [alignment_from(spec, g, (x, y), dir) for x in 1:x_len for y in 1:y_len]
   filter(al -> !isnothing(al), als)
 end

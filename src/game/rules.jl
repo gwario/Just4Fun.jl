@@ -72,7 +72,7 @@ function fields_reachability(spec::Just4FunSpec, all_player_cards::AbstractMatri
   player_cards = all_player_cards[1:spec.settings.cards.size_hand, to_index(player)]
   player_card_combinations = regular_combinations(spec, player_cards)
   values = unique(map(cc -> sum(cc), player_card_combinations))
-  field_array = zeros(Float32, spec.settings.board.dimensions)
+  field_array = zeros(Float32, size(spec.settings.board.value_distribution))
   for value in values
     positions = findall(isequal(value), spec.settings.board.value_distribution)
     for pos in positions
@@ -132,6 +132,15 @@ function get_stones(spec::Just4FunSpec, g::Just4FunEnv, field_value::FieldValue)
   field_index = findfirst(isequal(field_value), spec.settings.board.value_distribution)
   player_stones = g.field_stones[field_index[1], field_index[2], :]
   return player_stones
+end
+
+"""
+player_fieldstones(s::Just4FunEnvState, x::Int, y::Int, player::Player)::Stones
+
+Returns the vector of stones on a field.
+"""
+function player_fieldstones(s::Just4FunEnvState, x::Int, y::Int, player::Player)::Stones
+  return s.field_stones[y, x, to_index(player)]
 end
 
 """
@@ -325,6 +334,25 @@ function winning_pattern_at(spec::Just4FunSpec, field_stones::AbstractArray{Ston
   return pattern_at
 end
 
+"""
+num_connected_at(spec::Just4FunSpec, field_stones::AbstractArray{Stones}, player::Player, field_value::FieldValue)::Int64
+
+Returns number of connected fields at a field for a player in all the directions.
+"""
+function num_connected_at(spec::Just4FunSpec, field_stones::AbstractArray{Stones}, player::Player, field_value::FieldValue)::Int64
+  position = findfirst(v -> v == field_value, spec.settings.board.value_distribution) # cartesian index
+  players_stones = field_stones[position[1], position[2], :]
+  num_at = has_majority(players_stones, player) ? 1 : 0
+
+  if num_at == 1
+    4 + mapreduce(+, [(1, 1), (1, -1), (1, 0), (0, 1)]; init=0) do axis
+      num_connected_axis(spec, field_stones, player, field_value, axis)
+    end
+  else
+    return 0
+  end
+end
+
 to_action(cards::Cards)::Action = (cards=cards, value=FieldValue(sum(cards)))
 
 """
@@ -334,6 +362,7 @@ Updates the action masks of all players.
 """
 function update_action_mask!(spec::Just4FunSpec, env::Just4FunEnv)
   all_actions = GI.actions(spec)
+  @show length(all_actions)
   # reset all masks
   env.actions_masks = falses(size(env.actions_masks))
   env.board_actions_masks = falses(size(env.board_actions_masks))
@@ -344,10 +373,11 @@ function update_action_mask!(spec::Just4FunSpec, env::Just4FunEnv)
       # get the possible cells according to combinations of the players cards
       actions = map(to_action, regular_combinations(spec, playercards(env, player)))
       for action in actions
-        action_index = findfirst(isequal(action), all_actions)
-        #action_index = findfirst(a -> action.cards == a.cards, all_actions)
+        @show action
+        action_index = findfirst(isequal(action), all_actions) # verified - works
         field_stones = get_stones(spec, env, to_field_value(action))
-        available = spec.settings.board.single_piece ? empty(field_stones) : (is_available(field_stones, player) || empty_field(field_stones))
+        available = spec.settings.board.single_piece ? empty_field(field_stones) : (is_available(field_stones, player) || empty_field(field_stones))
+        @show available
         # update state
         setindex!(env.actions_masks, available, CartesianIndex((action_index, player_index)))
         idx = findfirst(isequal(to_field_value(action)), spec.settings.board.value_distribution)
@@ -355,9 +385,11 @@ function update_action_mask!(spec::Just4FunSpec, env::Just4FunEnv)
       end
       
       # if any card combination is possible: set redraw action false, otherwise true
-      some_available = any(env.actions_masks[:, player_index])
-      redraw_action_index = findfirst(isequal(REDRAW_ACTION), all_actions)
-      setindex!(env.actions_masks, !some_available, CartesianIndex((redraw_action_index, player_index)))
+      none_available = !any(env.actions_masks[:, player_index])
+      @show none_available
+      redraw_action_index = findfirst(isequal(REDRAW_ACTION), all_actions) # verified - works
+      @show redraw_action_index
+      setindex!(env.actions_masks, none_available, CartesianIndex((redraw_action_index, player_index)))
     end
   else
     for player_index in range(YELLOW, length=spec.settings.players)
@@ -384,7 +416,7 @@ NOTE: seen as if the current player has just played action!
 * winner
 """
 function update_status!(spec::Just4FunSpec, env::Just4FunEnv, action::Action)
-  
+  @show action
   update_action_mask!(spec, env)
 
   # Update winner and finished only if it was a regular action (otherwise those do not change)
@@ -419,7 +451,7 @@ Update the game status:
 * winner
 """
 function update_status!(spec::Just4FunSpec, env::Just4FunEnv)
-  
+  @show env.curplayer
   update_action_mask!(spec, env)
   # FIXME: performance improvements possible
   for player_index in range(1, length=spec.settings.players)

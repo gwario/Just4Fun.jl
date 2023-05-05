@@ -23,12 +23,12 @@ log_upper_border(logger::Log.Logger, spec::Just4FunSpec)
 """
 function log_upper_border(logger::Log.Logger, spec::Just4FunSpec)
   border = repeat(STATE_BORDER_H, spec.settings.players * 2 + spec.settings.players - 1)
-  board_size = spec.settings.board.dimensions
+  _, len_x = size(spec.settings.board.value_distribution)
   temp_str = ""
-  for x in 1:board_size[1]
+  for x in 1:len_x
     if x == 1
       temp_str *= STATE_BORDER_T_L * border * STATE_BORDER_T_MID
-    elseif x == board_size[1]
+    elseif x == len_x
       temp_str *= border * STATE_BORDER_T_R
     else
       temp_str *= border * STATE_BORDER_T_MID
@@ -41,13 +41,13 @@ end
 log_lower_border(logger::Log.Logger, spec::Just4FunSpec)
 """
 function log_lower_border(logger::Log.Logger, spec::Just4FunSpec)
-  board_size = spec.settings.board.dimensions
+  _, len_x = size(spec.settings.board.value_distribution)
   border = repeat(STATE_BORDER_H, spec.settings.players * 2 + spec.settings.players - 1)
   temp_str = ""
-  for x in 1:board_size[1]
+  for x in 1:len_x
     if x == 1
       temp_str *= STATE_BORDER_B_L * border * STATE_BORDER_B_MID
-    elseif x == board_size[1]
+    elseif x == len_x
       temp_str *= border * STATE_BORDER_B_R
     else
       temp_str *= border * STATE_BORDER_B_MID
@@ -60,13 +60,13 @@ end
 log_middle_border(logger::Log.Logger, spec::Just4FunSpec)
 """
 function log_middle_border(logger::Log.Logger, spec::Just4FunSpec)
-  board_size = spec.settings.board.dimensions
+  _, len_x = size(spec.settings.board.value_distribution)
   border = repeat(STATE_BORDER_H, spec.settings.players * 2 + spec.settings.players - 1)
   temp_str = ""
-  for x in 1:board_size[2]
+  for x in 1:len_x
     if x == 1
       temp_str *= STATE_BORDER_L_MID * border * STATE_BORDER_MID
-    elseif x == board_size[2]
+    elseif x == len_x
       temp_str *= border * STATE_BORDER_R_MID
     else
       temp_str *= border * STATE_BORDER_MID
@@ -79,10 +79,10 @@ end
 log_cell(logger::Log.Logger, spec::Just4FunSpec, s::Just4FunEnvState, y::Int64)
 """
 function log_cell(logger::Log.Logger, spec::Just4FunSpec, s::Just4FunEnvState, y::Int64)
-  board_size = spec.settings.board.dimensions
+  _, len_x = size(spec.settings.board.value_distribution)
   # cell id row
   temp_str = ""
-  for x in 1:board_size[2]
+  for x in 1:len_x
     temp_str *= (x == 1 ? STATE_BORDER_V : "")
     temp_str *= padded(string(spec.settings.board.value_distribution[y, x]))
     temp_str *= " "
@@ -93,7 +93,7 @@ function log_cell(logger::Log.Logger, spec::Just4FunSpec, s::Just4FunEnvState, y
 
   # player stones row
   temp_str = ""
-  for x in 1:board_size[2]
+  for x in 1:len_x
     pos = (x, y)
     temp_str *= (x == 1 ? STATE_BORDER_V : "")
     for p in 1:spec.settings.players
@@ -316,13 +316,13 @@ log_state(logger::Log.Logger, spec::Just4FunSpec, state::Just4FunEnvState. playe
 Print the game state on the standard output.
 """
 function log_state(logger::Log.Logger, spec::Just4FunSpec, state::Just4FunEnvState, player_names::Vector{String})
-    board_size = spec.settings.board.dimensions
-    for y in 1:board_size[2]
+    len_y, _ = size(spec.settings.board.value_distribution)
+    for y in 1:len_y
         if y == 1
             log_upper_border(logger, spec)
         end
         log_cell(logger, spec, state, y)
-        if y < board_size[2]
+        if y < len_y
           log_middle_border(logger, spec)
         else
           log_lower_border(logger, spec)

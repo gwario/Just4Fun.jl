@@ -12,7 +12,12 @@ using Just4Fun.DataStructures
         end
         @testset verbose = true "Game" begin
             @testset verbose = true "Rules tests" begin
-                include("unit/game/rules.jl")
+                include("unit/game/rules_jl/dominated.jl")
+                include("unit/game/rules_jl/dominating.jl")
+                include("unit/game/rules_jl/has_majority.jl")
+                include("unit/game/rules_jl/has_minority.jl")
+                include("unit/game/rules_jl/player_fieldstones.jl")
+                include("unit/game/rules_jl/all.jl")
             end
             @testset verbose = true "GI tests" begin
                 include("unit/game/game.jl")
