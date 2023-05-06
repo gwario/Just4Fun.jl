@@ -19,8 +19,6 @@ end
 
 const NoCardsAction = FieldValue
 const CardsAction   = NamedTuple{(:cards, :value), Tuple{Cards, FieldValue}}
-const REDRAW_ACTION = CardsAction((cards=Cards[], value=FieldValue(0)))
-
 const Action = Union{CardsAction, NoCardsAction}
 
 const Just4FunEnvState = NamedTuple{

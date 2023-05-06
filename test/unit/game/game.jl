@@ -176,12 +176,6 @@ end
         @test findall(a -> a.value < FieldValue(0), GI.actions(spec)) == []
     end
 
-    @testset "there is one special action with pos 0 for redrawing cards" begin
-        spec = Just4Fun.j4f_spec
-        GI.spec(::Just4FunEnv) = spec
-        @test length(findall(a -> a.value == FieldValue(0), GI.actions(spec))) == 1
-    end
-
     @testset "Actions are 1-36" begin
         spec = Just4Fun.j4f_nc_spec
         GI.spec(::Just4FunEnv) = spec

@@ -349,17 +349,6 @@ function print_card_actions(spec::Just4FunSpec, card_combinations::Vector{Cards}
 end
 
 """
-print_redraw_action()
-
-Prints the redraw action that is mandatory if there are no card combinations possible.
-"""
-function print_redraw_action()
-  @warn "No possible combination of cards to play!"
-  println("No moves possible!")
-  println(string(crayon"fg:dark_gray", "redraw     -> Redraw cards", crayon"reset"))
-end
-
-"""
 print_curplayer_actions(spec::Just4FunSpec, g::Just4FunEnv)
 
 Prints the current player's possible actions - possible card combinations.
@@ -367,24 +356,8 @@ Safe to be displayed to the current player.
 """
 function print_curplayer_actions(spec::Just4FunSpec, g::Just4FunEnv)
   actions = GI.available_actions(g)
-
-  if isredraw(first(actions))
-    print_redraw_action()
-  else
-    print_card_actions(spec, map(to_cards, actions))
-  end
-end
-#function print_curplayer_actions(spec::Just4FunSpec, g::Just4FunEnv)
-#  card_combinations = regular_combinations(spec.settings.board.value_distribution, curplayercards(g))
-#  combination_pos = [sum(combi) for combi = card_combinations]
-#
-#  if isdisjoint(spec.settings.board.value_distribution, combination_pos)
-#    print_redraw_action()
-#  else
-#    print_card_actions(spec, card_combinations)
-#  end
-#end
-  
+  print_card_actions(spec, map(to_cards, actions))
+end  
 
 """
 print_gamecards(g::Just4FunEnv)

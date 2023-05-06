@@ -74,7 +74,6 @@ function generate_card_actions(settings::Just4FunSettings)::Vector{CardsAction}
   sorted_card_combinations = all_sorted_card_combinations(convert(Cards, sort(settings.cards.deck)), settings.cards.size_hand)
   card_actions::Vector{CardsAction} = map(scc -> CardsAction((cards=scc, value=sum(scc))), sorted_card_combinations)
   valid_card_actions = filter(ca -> 0 < ca.value <= max_field_value, card_actions)
-  valid_card_actions = vcat([REDRAW_ACTION], valid_card_actions)
   sort(valid_card_actions, by=to_field_value)
 end
 

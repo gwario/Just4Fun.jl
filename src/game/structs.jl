@@ -110,7 +110,7 @@ mutable struct Just4FunEnv <: GI.AbstractGameEnv
     state::GameState
     winner::Player
 
-    # Used for precise stats on game end and number of regular vs redraw actions
+    # Used for precise stats on game end and number of regular
     action_indices::Vector{Int64} # The indices of the played actions in the action mask. can be looked up efficiently via the map
 
 end

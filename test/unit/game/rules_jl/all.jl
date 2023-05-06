@@ -363,16 +363,6 @@ end
     ]
 end
 ##########
-@testset "isredraw" begin
-    @test Just4Fun.isredraw(CardsAction((cards = [], value = 1))) == false
-    @test Just4Fun.isredraw(CardsAction((cards = [CardValue(0)], value = 0))) == false
-    @test Just4Fun.isredraw(CardsAction((cards = [CardValue(1)], value = 0))) == false
-    @test Just4Fun.isredraw(
-        CardsAction((cards = [CardValue(1), CardValue(2)], value = 1)),
-    ) == false
-    @test Just4Fun.isredraw(CardsAction((cards = [], value = 0))) == true
-end
-##########
 @testset "empty_field" begin
     @test Just4Fun.empty_field(SVector{2,Stones}(zeros(Stones, 2))) == true
     @test Just4Fun.empty_field(SVector{2,Stones}(ones(Stones, 2))) == false
@@ -1516,39 +1506,6 @@ end
 
         Just4Fun.update_status!(spec, game, (cards = CardValue[], value = FieldValue(31)))
 
-        @test game.winner == Player(0)
-        @test game.state == in_progress
-    end
-
-    @testset "after action (redraw) 4" begin
-        spec = Just4Fun.j4f_spec
-        GI.spec(::Just4FunEnv) = spec
-        game = GI.init(spec)
-
-        @test game.winner == Player(0)
-        @test game.state == in_progress
-
-        #make player yellow win
-        #  1 14 30 24 19  8 ;
-        # 33 11  9 16 35 21 ;
-        #  6 27 31 20  3 12 ;
-        # 15 32  5 29 17 26 ;
-        # 22 10 18 36 25  2 ;
-        # 28  7 23  4 13 34
-        game.curplayer = RED
-        Just4Fun.place_stone!(spec, game, FieldValue(1))
-        game.curplayer = YELLOW
-        Just4Fun.place_stone!(spec, game, FieldValue(1))
-        Just4Fun.place_stone!(spec, game, FieldValue(1))
-        Just4Fun.place_stone!(spec, game, FieldValue(11))
-        Just4Fun.place_stone!(spec, game, FieldValue(31))
-        Just4Fun.place_stone!(spec, game, FieldValue(29))
-        # artificial win for YELLOW
-
-        # forcing an update after redraw, which is not supposed to check the winning conditions
-        Just4Fun.update_status!(spec, game, (cards = CardValue[], value = FieldValue(0)))
-
-        # winner is still not set and game still not finished
         @test game.winner == Player(0)
         @test game.state == in_progress
     end

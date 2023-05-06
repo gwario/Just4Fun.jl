@@ -6,25 +6,21 @@ Prases card actions. Valid actions are space separated list of numbers and an em
 function parse_action_cards(spec::Just4FunSpec, cards_string)::Union{CardsAction, Nothing}
     action_input = strip(cards_string)
 
-    if action_input == "redraw"
-        (cards=[], value=0)
-    else
-        max_field_value, _ = findmax(spec.settings.board.value_distribution)
-        try
-            played_cards = convert(Cards, [parse(UInt8, c) for c = split(action_input, CARD_ACTION_SEPARATOR)])
-            sort!(played_cards)
-            num_played_cards = length(played_cards)
-            sum_played_cards = sum(played_cards)
-            if 1 <= num_played_cards && num_played_cards <= spec.settings.cards.size_hand && sum_played_cards <= max_field_value
-                return (cards=played_cards, value=sum_played_cards)
-            else
-                @warn "Invalid action played_cards=$(convert(Vector{Int64}, played_cards)), value=$(convert(Int64, sum_played_cards))"
-                return nothing
-            end
-        catch error
-            @warn "Failed to parse action!"
+    max_field_value, _ = findmax(spec.settings.board.value_distribution)
+    try
+        played_cards = convert(Cards, [parse(UInt8, c) for c = split(action_input, CARD_ACTION_SEPARATOR)])
+        sort!(played_cards)
+        num_played_cards = length(played_cards)
+        sum_played_cards = sum(played_cards)
+        if 1 <= num_played_cards && num_played_cards <= spec.settings.cards.size_hand && sum_played_cards <= max_field_value
+            return (cards=played_cards, value=sum_played_cards)
+        else
+            @warn "Invalid action played_cards=$(convert(Vector{Int64}, played_cards)), value=$(convert(Int64, sum_played_cards))"
             return nothing
         end
+    catch error
+        @warn "Failed to parse action!"
+        return nothing
     end
 end
 

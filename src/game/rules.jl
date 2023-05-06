@@ -150,7 +150,7 @@ Removes the cards from the curplayercards and adds them to the usedcards.
 NOTE: updates mutable states in place and replaces immutable ones
 NOTE: Vectors are replaced not modified inplace! (!worked)
 """
-function put_down!(spec::Just4FunSpec, g::Just4FunEnv, cards_to_put_down::Cards)
+function put_down!(spec::Just4FunSpec, g::Just4FunEnv, cards_to_put_down::AbstractVector{CardValue})
   @assert(0 <= length(cards_to_put_down) && length(cards_to_put_down) <= spec.settings.cards.size_hand, "Trying to put down an invalid number of cards")
   player_index = to_index(g.curplayer)
 
@@ -196,13 +196,6 @@ function pick_cards!(spec::Just4FunSpec, g::Just4FunEnv, amount::Int64)
     g.player_cards = setindex(g.player_cards, picked_card, CartesianIndex(empty_slot_index, curplayer_index))
   end
 end
-
-"""
-redraw(action::CardsAction)::Bool
-
-Returns true if the given action is the redraw action.
-"""
-isredraw(action::CardsAction)::Bool = isempty(action.cards) && iszero(action.value)
 
 """
 empty_field(player_stones::AbstractVector{Stones})::Bool
@@ -362,7 +355,6 @@ Updates the action masks of all players.
 """
 function update_action_mask!(spec::Just4FunSpec, env::Just4FunEnv)
   all_actions = GI.actions(spec)
-  @show length(all_actions)
   # reset all masks
   env.actions_masks = falses(size(env.actions_masks))
   env.board_actions_masks = falses(size(env.board_actions_masks))
@@ -373,23 +365,14 @@ function update_action_mask!(spec::Just4FunSpec, env::Just4FunEnv)
       # get the possible cells according to combinations of the players cards
       actions = map(to_action, regular_combinations(spec, playercards(env, player)))
       for action in actions
-        @show action
         action_index = findfirst(isequal(action), all_actions) # verified - works
         field_stones = get_stones(spec, env, to_field_value(action))
         available = spec.settings.board.single_piece ? empty_field(field_stones) : (is_available(field_stones, player) || empty_field(field_stones))
-        @show available
         # update state
         setindex!(env.actions_masks, available, CartesianIndex((action_index, player_index)))
         idx = findfirst(isequal(to_field_value(action)), spec.settings.board.value_distribution)
         setindex!(env.board_actions_masks, available, CartesianIndex((idx, player_index)))
       end
-      
-      # if any card combination is possible: set redraw action false, otherwise true
-      none_available = !any(env.actions_masks[:, player_index])
-      @show none_available
-      redraw_action_index = findfirst(isequal(REDRAW_ACTION), all_actions) # verified - works
-      @show redraw_action_index
-      setindex!(env.actions_masks, none_available, CartesianIndex((redraw_action_index, player_index)))
     end
   else
     for player_index in range(YELLOW, length=spec.settings.players)
@@ -416,13 +399,8 @@ NOTE: seen as if the current player has just played action!
 * winner
 """
 function update_status!(spec::Just4FunSpec, env::Just4FunEnv, action::Action)
-  @show action
+  
   update_action_mask!(spec, env)
-
-  # Update winner and finished only if it was a regular action (otherwise those do not change)
-  if !isnothing(spec.settings.cards) && isredraw(action)
-    return
-  end
 
   no_stones_left = iszero(sum(env.player_stones))
 
@@ -451,7 +429,7 @@ Update the game status:
 * winner
 """
 function update_status!(spec::Just4FunSpec, env::Just4FunEnv)
-  @show env.curplayer
+  
   update_action_mask!(spec, env)
   # FIXME: performance improvements possible
   for player_index in range(1, length=spec.settings.players)
@@ -510,19 +488,19 @@ end
 
 
 """
-get_points_info(g::Just4FunEnv)::Tuple{Vector{FieldValue}, Vector{FieldValue}}
+get_points_info(spec::Just4FunSpec, g::Just4FunEnv)::Tuple{Vector{Int64}, Vector{Int64}}
 TODO: check profile info
 Returns the points info (sum of fields with majority and the highest
 field with majority) of each player.
 """
-function get_points_info(spec::Just4FunSpec, g::Just4FunEnv)::Tuple{Vector{FieldValue}, Vector{FieldValue}}
+function get_points_info(spec::Just4FunSpec, g::Just4FunEnv)::Tuple{Vector{Int64}, Vector{Int64}}
   players = map(p_i -> Player(p_i), range(Just4Fun.YELLOW, length=spec.settings.players))
-  points = zeros(UInt8, spec.settings.players)
-  max_field_points = zeros(UInt8, spec.settings.players)
+  points = zeros(Int64, spec.settings.players)
+  max_field_points = zeros(Int64, spec.settings.players)
 
   for field_value in spec.settings.board.value_distribution
     player_stones = get_stones(spec, g, FieldValue(field_value))
-    field_points = [has_majority(player_stones, player) ? field_value : 0x0 for player in players]
+    field_points = [has_majority(player_stones, player) ? field_value : 0 for player in players]
     max_field_points = [max(max_field_points[to_index(player)], field_points[to_index(player)]) for player in players]
     points .+= field_points
   end

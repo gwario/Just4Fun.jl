@@ -17,10 +17,9 @@ function GI.init(spec::Just4FunSpec, state = nothing)::Just4FunEnv
     end
 
     if !isnothing(spec.settings.cards)
-        player_cards =
-            SMatrix{spec.settings.cards.size_hand,spec.settings.players,CardValue}(
-                zeros(CardValue, spec.settings.cards.size_hand, spec.settings.players),
-            )
+        player_cards = SMatrix{spec.settings.cards.size_hand,spec.settings.players,CardValue}(
+            zeros(CardValue, spec.settings.cards.size_hand, spec.settings.players),
+        )
         stack = Stack{CardValue}()
 
         # setup player cards
@@ -35,11 +34,7 @@ function GI.init(spec::Just4FunSpec, state = nothing)::Just4FunEnv
             for card_index = 1:spec.settings.cards.size_hand
                 for player_index = 1:spec.settings.players
                     card = pop!(stack)
-                    player_cards = setindex(
-                        player_cards,
-                        card,
-                        CartesianIndex(card_index, player_index),
-                    )
+                    player_cards = setindex(player_cards, card, CartesianIndex(card_index, player_index))
                 end
             end
         end
@@ -51,37 +46,20 @@ function GI.init(spec::Just4FunSpec, state = nothing)::Just4FunEnv
     end
 
     # setup fields with stones
-    field_stones = SArray{
-        Tuple{
-            size(spec.settings.board.value_distribution)...,
-            spec.settings.players,
-        },
-        Stones,
-    }(
-        zeros(
-            Stones,
-            size(spec.settings.board.value_distribution)...,
-            spec.settings.players,
-        ),
+    field_stones = SArray{Tuple{size(spec.settings.board.value_distribution)...,spec.settings.players},Stones}(
+        zeros(Stones, size(spec.settings.board.value_distribution)..., spec.settings.players),
     )
     # setup player's stones
-    player_stones = SVector{spec.settings.players, Stones}(
-        repeat([Stones(spec.settings.board.num_pieces)], spec.settings.players),
-    )
+    player_stones =
+        SVector{spec.settings.players,Stones}(repeat([Stones(spec.settings.board.num_pieces)], spec.settings.players))
     # set current player
-    curplayer =
-        isnothing(spec.starting_player) ? Player(rand(1:spec.settings.players)) :
-        spec.starting_player
+    curplayer = isnothing(spec.starting_player) ? Player(rand(1:spec.settings.players)) : spec.starting_player
 
     n_actions = GI.num_actions(spec)
     # initialize actions masks
-    actions_masks = BitMatrix(
-        zeros(UInt8, n_actions, spec.settings.players),
-    )
+    actions_masks = BitMatrix(zeros(UInt8, n_actions, spec.settings.players))
     board_actions_masks =
-        BitArray(
-            zeros(UInt8, (size(spec.settings.board.value_distribution)..., spec.settings.players)),
-        )
+        BitArray(zeros(UInt8, (size(spec.settings.board.value_distribution)..., spec.settings.players)))
 
     env = Just4FunEnv(
         stack,
@@ -156,7 +134,7 @@ function board_π(spec::Just4FunSpec, env::Just4FunEnv, π)
     available_actions = GI.available_actions(env)
     @assert size(available_actions) == size(π)
     actions_board = board_actions(spec)
-    
+
     board_p = zeros(size(actions_board))
     for (p_idx, action) in enumerate(available_actions)
         board_idx = findfirst(isequal(to_int_field_value(action)), actions_board)
@@ -214,10 +192,7 @@ IMPORTANT: The output is of the network output size.
 function available_net_actions_indices(spec::Just4FunSpec, env::Just4FunEnv)::Vector{Int}
     available_actions = GI.available_actions(env)
     available_net_actions = filter(a -> a in net_actions(spec), map(to_field_value, available_actions))
-    return [
-        findfirst(isequal(action), net_actions(spec)) for
-        action in available_net_actions
-    ]
+    return [findfirst(isequal(action), net_actions(spec)) for action in available_net_actions]
 end
 
 
@@ -341,7 +316,7 @@ function white_reward_ternary_intermediary_reward(g::Just4FunEnv)::Float32
     else
         s = GI.spec(g)
         p_patterns = [0, 0]
-        for p_idx in 1:s.settings.players
+        for p_idx = 1:s.settings.players
             for field_value_int in s.settings.board.value_distribution
                 p_patterns[p_idx] += num_connected_at(s, g.field_stones, Player(p_idx), FieldValue(field_value_int))
             end
@@ -369,39 +344,33 @@ function GI.play!(env::Just4FunEnv, action::Action)
 
     spec = GI.spec(env)
 
-    # update state
     if !isnothing(spec.settings.cards)
-        if isredraw(action)
-            curplayer_cards = curplayercards(env)
-            put_down!(spec, env, Cards(curplayer_cards))
-            pick_cards!(spec, env, length(curplayer_cards))
-        else
-            put_down!(spec, env, action.cards)
-            pick_cards!(spec, env, length(action.cards))
-
-            take_stone!(env)
-            place_stone!(spec, env, action.value)
-        end
-
-        push!(env.action_indices, findfirst(isequal(action), GI.actions(spec)))
-    else
-        take_stone!(env)
-        place_stone!(spec, env, action)
-
-        push!(env.action_indices, action)
+        put_down!(spec, env, action.cards)
+        pick_cards!(spec, env, length(action.cards))
     end
+
+    take_stone!(env)
+    place_stone!(spec, env, to_field_value(action))
+    push!(env.action_indices, findfirst(isequal(action), GI.actions(spec)))
 
     update_status!(spec, env, action)
 
-    stones_left = !iszero(sum(env.player_stones))
-    # if at least some player has stones left
-    if stones_left
-        # try next player until someone has stones left
-        while true
-            env.curplayer = next_player(spec, env.curplayer)
-            if !iszero(curplayerstones(env))
-                break
-            end
+    # try next player until someone has stones left or the game has ended
+    while !GI.game_terminated(env)
+        env.curplayer = next_player(spec, env.curplayer)
+        # check if a redraw should be applied and do it and go to the next player
+        if !isnothing(spec.settings.cards) && isempty(GI.available_actions(env))
+            #@info "Redraw happended"
+            
+            all_cards = curplayercards(env)
+            put_down!(spec, env, all_cards)
+            pick_cards!(spec, env, length(all_cards))
+            
+            push!(env.action_indices, -1)
+            
+            update_status!(spec, env)
+        elseif !iszero(curplayerstones(env))
+            break
         end
     end
 end
