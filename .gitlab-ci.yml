@@ -16,11 +16,7 @@
         c, t = get_summary(process_folder())
         using Printf
         @printf "Test coverage %.2f%%\n" 100c / t'
-    - |
-      curl -Os https://uploader.codecov.io/v0.1.0_4653/linux/codecov
-
-      chmod +x codecov
-      ./codecov
+    - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit_local(process_folder())
 Julia 1.9:
   image: julia:1.9
   extends:
