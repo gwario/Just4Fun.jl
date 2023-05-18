@@ -55,9 +55,7 @@ function GI.init(spec::Just4FunSpec, state = nothing)::Just4FunEnv
     # set current player
     curplayer = isnothing(spec.starting_player) ? Player(rand(1:spec.settings.players)) : spec.starting_player
 
-    n_actions = GI.num_actions(spec)
     # initialize actions masks
-    actions_masks = BitMatrix(zeros(UInt8, n_actions, spec.settings.players))
     board_actions_masks =
         BitArray(zeros(UInt8, (size(spec.settings.board.value_distribution)..., spec.settings.players)))
 
@@ -68,7 +66,6 @@ function GI.init(spec::Just4FunSpec, state = nothing)::Just4FunEnv
         field_stones,
         player_stones,
         curplayer,
-        actions_masks,
         board_actions_masks,
         in_progress,
         Player(0),
@@ -88,6 +85,16 @@ end
 ##### Game API
 #####
 
+to_net(board) = vec(board)
+
+"""
+GI.actions(spec::Just4FunSpec)
+
+Return the vector of all game actions.
+"""
+GI.actions(spec::Just4FunSpec)::Vector{Action} = convert(Vector{NoCardsAction}, net_actions(spec))
+
+
 """
 GI.actions_mask(g::Just4FunEnv)
 
@@ -96,105 +103,74 @@ This does not reflect the available fields on the game board directly since it
 is necessary do differentiate between two actions, even though they target the
 same position on the board.
 """
-function GI.actions_mask(g::Just4FunEnv)::AbstractVector{Bool}
-    a = g.actions_masks[:, to_index(g.curplayer)]
-    return Vector{Bool}(a)
-end
+GI.actions_mask(g::Just4FunEnv)::AbstractVector{Bool} = convert(Vector{Bool}, net_actions_mask(g))
 
-"""
-GI.actions(spec::Just4FunSpec)
-
-Return the vector of all game actions.
-"""
-GI.actions(spec::Just4FunSpec)::Vector{Action} = spec.actions
-
-
-"""
-board_actions_mask(spec::Just4FunSpec, env::Just4FunEnv)::AbstractMatrix{Bool}
-
-Returns a boolean mask indicating all allowed board positions for the current player.
-
-This DOES reflect the available fields on the game board directly.
-
-IMPORTANT: The output is of the board size.
-"""
-function board_actions_mask(spec::Just4FunSpec, env::Just4FunEnv)::AbstractMatrix{Bool}
-    a = env.board_actions_masks[:, :, to_index(env.curplayer)]
-    return a
-end
-
-"""
-board_π(spec::Just4FunSpec, env::Just4FunEnv, π)
-
-Converts the action based policy to a board based policy.
-IMPORTANT: The input is of the GI.available_actions size.
-IMPORTANT: The output is of the board size.
-"""
-function board_π(spec::Just4FunSpec, env::Just4FunEnv, π)
-    available_actions = GI.available_actions(env)
-    @assert size(available_actions) == size(π)
-    actions_board = board_actions(spec)
-
-    board_p = zeros(size(actions_board))
-    for (p_idx, action) in enumerate(available_actions)
-        board_idx = findfirst(isequal(to_int_field_value(action)), actions_board)
-        if !isnothing(board_idx)
-            board_p[board_idx] = π[p_idx]
-        end
-    end
-    return board_p
-end
 
 """
 net_actions(spec::Just4FunSpec)::Vector{Int}
 
 IMPORTANT: The output is of the network output size.
 """
-net_actions(spec::Just4FunSpec)::Vector{Int} = vec(board_actions(spec))
+net_actions(spec::Just4FunSpec)::Vector{FieldValue} = to_net(spec.settings.board.value_distribution)
 
 """
-board_actions(spec::Just4FunSpec)::Matrix{Int}
-
-IMPORTANT: The output is of the board size.
-"""
-board_actions(spec::Just4FunSpec)::Matrix{Int} = spec.settings.board.value_distribution
-
-"""
-net_actions_mask(spec::Just4FunSpec, board_actions_mask)
+net_actions_mask(env::Just4FunEnv)
 
 Converts the board based actions mask to a linear actions mask for the network outputs.
 IMPORTANT: The input is of the board size.
 IMPORTANT: The output is of the network output size.    
 """
-function net_actions_mask(spec::Just4FunSpec, board_actions_mask)
-    @assert size(board_actions_mask) == size(board_actions(spec))
-    return vec(board_actions_mask)
+function net_actions_mask(env::Just4FunEnv)::Vector
+    return to_net(env.board_actions_masks[:,:,to_index(env.curplayer)])
 end
 
 """
-net_π(spec::Just4FunSpec, board_π)
+available_net_actions(game::Just4FunEnv)
 
-Converts the board based policy to a linear policy of the network outputs.
-
-IMPORTANT: The input is of the board size.
-IMPORTANT: The output is of the network output size.    
+same as default
 """
-function net_π(spec::Just4FunSpec, board_π)
-    @assert size(board_π) == size(board_actions(spec))
-    return vec(board_π)
+function available_net_actions(game::Just4FunEnv)
+    mask = net_actions_mask(game)
+    return net_actions(GI.spec(game))[mask]
 end
 
 """
-available_net_actions_indices(spec::Just4FunSpec, env::Just4FunEnv)::Vector{Int64}
+available_cards_actions(game::Just4FunEnv)::Vector{CardsAction}
 
-IMPORTANT: The output is of the network output size.    
+evtl override default available_actions
 """
-function available_net_actions_indices(spec::Just4FunSpec, env::Just4FunEnv)::Vector{Int}
-    available_actions = GI.available_actions(env)
-    available_net_actions = filter(a -> a in net_actions(spec), map(to_field_value, available_actions))
-    return [findfirst(isequal(action), net_actions(spec)) for action in available_net_actions]
+function available_cards_actions(game::Just4FunEnv)::Vector{CardsAction}
+    spec = GI.spec(game)
+    return available_cards_actions(spec, game, game.curplayer)
 end
 
+cards_actions(spec::Just4FunSpec, game::Just4FunEnv, player::Player) = map(cs -> CardsAction((cards=cs, value=sum(cs))), regular_combinations(spec, playercards(game, player)))
+
+
+"""
+the net actions mask with out the actions not possible due to cards
+
+convert policy
+"""
+function cards_actions_mask(env::Just4FunEnv)
+    spec = GI.spec(env)
+    avns = available_net_actions(env)
+    cas = map(to_int_field_value, cards_actions(spec, env, env.curplayer))
+    nam = indexin(cas, avns) 
+
+end
+
+"""
+available_cards_actions(spec::Just4FunSpec, game::Just4FunEnv, player::Player)::Vector{CardsAction}
+
+evtl override default available_actions
+"""
+function available_cards_actions(spec::Just4FunSpec, game::Just4FunEnv, player::Player)::Vector{CardsAction}
+    av_net_actions = available_net_actions(game)
+    card_actions = cards_actions(spec, game, player)
+    av_card_actions = filter(ca -> to_int_field_value(ca) in av_net_actions, card_actions)
+    return av_card_actions
+end
 
 """
   GI.current_state(g::Just4FunEnv)
@@ -215,7 +191,7 @@ function GI.current_state(g::Just4FunEnv)::Just4FunEnvState
         curplayer = g.curplayer,
         state = g.state,
         winner = g.winner,
-        action_indices = copy(g.action_indices), # necessary!
+        actions = copy(g.actions), # necessary!
     )
     return s
 end
@@ -247,7 +223,7 @@ function GI.set_state!(game::Just4FunEnv, state)
     game.curplayer = state.curplayer
 
     game.state = state.state
-    game.action_indices = copy(state.action_indices)
+    game.actions = copy(state.actions)
 
     update_status!(spec, game)
 end
@@ -268,11 +244,10 @@ function GI.clone(g::Just4FunEnv)::Just4FunEnv
         g.field_stones,
         g.player_stones,
         g.curplayer,
-        copy(g.actions_masks),
         copy(g.board_actions_masks),
         g.state,
         g.winner,
-        copy(g.action_indices),
+        copy(g.actions),
     )
     update_status!(spec, env)
     return env
@@ -310,26 +285,6 @@ function white_reward_ternary_outcome(g::Just4FunEnv)::Float32
     end
 end
 
-function white_reward_ternary_intermediary_reward(g::Just4FunEnv)::Float32
-    if GI.game_terminated(g)
-        g.winner == Player(YELLOW) ? 1.0 : g.winner == Player(RED) ? -1.0 : 0.0
-    else
-        s = GI.spec(g)
-        p_patterns = [0, 0]
-        for p_idx = 1:s.settings.players
-            for field_value_int in s.settings.board.value_distribution
-                p_patterns[p_idx] += num_connected_at(s, g.field_stones, Player(p_idx), FieldValue(field_value_int))
-            end
-        end
-        # should be att most +/-0.75 in contrast to 1/-1 for win
-        #@show p_patterns[1]
-        #@show p_patterns[2]
-        #@show sum(p_patterns)
-        #@show 0.75 * (p_patterns[1] - p_patterns[2]) / sum(p_patterns)
-        return 0.75 * (p_patterns[1] - p_patterns[2]) / sum(p_patterns)
-    end
-end
-
 # This function does not need to be deterministic, so it might be an option to pick the cards randomly here an not just randomize the deck at the beginning.
 # ...this is not sufficient for determinization anyways since the mcts player picks a different set of cards to play everytime...
 """
@@ -351,7 +306,7 @@ function GI.play!(env::Just4FunEnv, action::Action)
 
     take_stone!(env)
     place_stone!(spec, env, to_field_value(action))
-    push!(env.action_indices, findfirst(isequal(action), GI.actions(spec)))
+    push!(env.actions, action)
 
     update_status!(spec, env, action)
 
@@ -359,14 +314,13 @@ function GI.play!(env::Just4FunEnv, action::Action)
     while !GI.game_terminated(env)
         env.curplayer = next_player(spec, env.curplayer)
         # check if a redraw should be applied and do it and go to the next player
-        if !isnothing(spec.settings.cards) && isempty(GI.available_actions(env))
+        if !isnothing(spec.settings.cards) && isempty(available_cards_actions(env))
             #@info "Redraw happended"
-            
             all_cards = curplayercards(env)
             put_down!(spec, env, all_cards)
             pick_cards!(spec, env, length(all_cards))
             
-            push!(env.action_indices, -1)
+            push!(env.actions, CardsAction((cards=Cards(), value=FieldValue(0))))
             
             update_status!(spec, env)
         elseif !iszero(curplayerstones(env))

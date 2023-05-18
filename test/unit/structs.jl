@@ -25,25 +25,6 @@
 @test Just4FunSpec().settings.board.single_piece == false
 @test Just4FunSpec().settings.board.count_values == true
 
-@testset "generate_card_actions" begin
-    @testset "field values order has no impact" begin
-        settings1 = Just4FunSettings(
-            cards = CardsSettings(deck = reverse([1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3])),
-        )
-        settings2 = Just4FunSettings(
-            cards = CardsSettings(deck = [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3]),
-        )
-        actions1 = Just4Fun.generate_card_actions(settings1)
-        actions2 = Just4Fun.generate_card_actions(settings2)
-        @test length(actions1) == length(actions2)
-        for (i, a1) in enumerate(actions1)
-            @test Just4Fun.to_field_value(a1) == Just4Fun.to_field_value(actions2[i])
-        end
-        for (i, a1) in enumerate(actions1)
-            @test a1.cards == actions2[i].cards
-        end
-    end
-end
 ######
 @testset "generate_nocard_actions" begin
     settings1 = Just4FunSettings(

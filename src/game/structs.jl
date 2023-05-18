@@ -36,18 +36,15 @@ struct Just4FunSpec <: GI.AbstractGameSpec
 
     settings::Just4FunSettings
 
-    actions::Vector{Action}
+    board_actions::Vector{Action}
 
     function Just4FunSpec(
         starting_player::Union{Nothing,Player} = Player(YELLOW),
         settings = Just4FunSettings(),
     )::Just4FunSpec
-        @assert length(vec(settings.board.value_distribution)) ==
-                length(unique(vec(settings.board.value_distribution)))
+        @assert length(vec(settings.board.value_distribution)) == length(unique(vec(settings.board.value_distribution)))
 
-        actions =
-            isnothing(settings.cards) ? generate_nocard_actions(settings) :
-            generate_card_actions(settings)
+        actions = generate_board_actions(settings)
         new(starting_player, Int64[], Stack{CardValue}(), settings, actions)
     end
 
@@ -56,12 +53,9 @@ struct Just4FunSpec <: GI.AbstractGameSpec
         starting_player::Union{Nothing,Player} = Player(YELLOW),
         settings = Just4FunSettings(),
     )::Just4FunSpec
-        @assert length(vec(settings.board.value_distribution)) ==
-                length(unique(vec(settings.board.value_distribution)))
+        @assert length(vec(settings.board.value_distribution)) == length(unique(vec(settings.board.value_distribution)))
 
-        actions =
-            isnothing(settings.cards) ? generate_nocard_actions(settings) :
-            generate_card_actions(settings)
+        actions = generate_board_actions(settings)
         new(starting_player, per_game_seeds, Stack{CardValue}(), settings, actions)
     end
 
@@ -70,12 +64,9 @@ struct Just4FunSpec <: GI.AbstractGameSpec
         starting_player::Union{Nothing,Player} = Player(YELLOW),
         settings = Just4FunSettings(),
     )::Just4FunSpec
-        @assert length(vec(settings.board.value_distribution)) ==
-                length(unique(vec(settings.board.value_distribution)))
+        @assert length(vec(settings.board.value_distribution)) == length(unique(vec(settings.board.value_distribution)))
 
-        actions =
-            isnothing(settings.cards) ? generate_nocard_actions(settings) :
-            generate_card_actions(settings)
+        actions = generate_board_actions(settings)
         new(starting_player, Int64[], predefined_stack, settings, actions)
     end
 
@@ -85,12 +76,9 @@ struct Just4FunSpec <: GI.AbstractGameSpec
         starting_player::Union{Nothing,Player} = Player(YELLOW),
         settings = Just4FunSettings(),
     )::Just4FunSpec
-        @assert length(vec(settings.board.value_distribution)) ==
-                length(unique(vec(settings.board.value_distribution)))
+        @assert length(vec(settings.board.value_distribution)) == length(unique(vec(settings.board.value_distribution)))
 
-        actions =
-            isnothing(settings.cards) ? generate_nocard_actions(settings) :
-            generate_card_actions(settings)
+        actions = generate_board_actions(settings)
         new(starting_player, per_game_seeds, predefined_stack, settings, actions)
     end
 end
@@ -105,12 +93,11 @@ mutable struct Just4FunEnv <: GI.AbstractGameEnv
     player_stones::AbstractVector{Stones}     # Size <players> (x 1)
     curplayer::Player
     # status helpers
-    actions_masks::BitArray{2}   # Action masks for each players Size <num actions> x <players> (x 1)
     board_actions_masks::BitArray{3}   # Board position masks for each players Size <y_len> x <x_len> x <players> (x 1)
     state::GameState
     winner::Player
 
     # Used for precise stats on game end and number of regular
-    action_indices::Vector{Int64} # The indices of the played actions in the action mask. can be looked up efficiently via the map
+    actions::Vector{Action} # The indices of the played actions in the action mask. can be looked up efficiently via the map
 
 end

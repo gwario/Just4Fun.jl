@@ -16,7 +16,7 @@ function read_state_interactive(spec::Just4FunSpec)
     used_cards = Cards()
     curplayer = Player(0)
     state::GameState = in_progress
-    action_indices = Vector{Int64}()
+    actions = Vector{Action}()
 
     # field stones and player stones
     n_lines = board_size[1] * spec.settings.players
@@ -99,7 +99,7 @@ function read_state_interactive(spec::Just4FunSpec)
         curplayer     = curplayer,
 
         state           = state,
-        action_indices  = action_indices
+        actions  = actions
     )
 end
 
@@ -271,7 +271,7 @@ function _read_state!(spec::Just4FunSpec, lines::Vector{SubString{String}})::Jus
     curplayer = Player(0)
     state::GameState = in_progress
     winner = Player(0)
-    action_indices = Vector{Int64}()
+    actions = Vector{Action}()
 
     # field stones and player stones
     n_lines = board_size[1] * spec.settings.players
@@ -356,7 +356,7 @@ function _read_state!(spec::Just4FunSpec, lines::Vector{SubString{String}})::Jus
 
         state           = state,
         winner          = winner,
-        action_indices  = action_indices
+        actions         = actions
     )
 end
 

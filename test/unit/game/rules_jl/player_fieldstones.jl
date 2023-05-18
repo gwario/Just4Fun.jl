@@ -22,7 +22,7 @@
             curplayer = Player(Just4Fun.YELLOW),
             state = in_progress,
             winner = Player(0),
-            action_indices = [1],
+            actions = [1],
         )
 
         @test Just4Fun.player_fieldstones(state, 1, 1, Player(1)) == Stones(2)
@@ -82,7 +82,7 @@
             curplayer = Player(Just4Fun.YELLOW),
             state = in_progress,
             winner = Player(0),
-            action_indices = [1],
+            actions = [1],
         )
 
         @test Just4Fun.player_fieldstones(state, 1, 1, Player(1)) == Stones(1)

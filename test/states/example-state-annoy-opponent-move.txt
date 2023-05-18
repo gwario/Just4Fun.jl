@@ -27,4 +27,4 @@
 1 2 3 4 5 6 7 8 9 10 11 12
 # since both have have same amount of plys, its player 1/yellow's turn... state judgement is for p1/yellow
 # state is always be 0 - in progress
-# action_indices is irrelevant for the game - just statistics
+# actions is irrelevant for the game - just statistics

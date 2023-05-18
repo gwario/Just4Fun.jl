@@ -121,6 +121,18 @@ connect4_nc_nf_nm_settings = Just4FunSettings(
     ),
 )
 
+j4f_nc_nm_settings = Just4FunSettings(
+    players = 2,
+    cards = nothing,
+    board = BoardSettings(
+        value_distribution = Just4Fun.JUST4FUN_DEFAULT_ORIGINAL_DIST,
+        length_win = Just4Fun.JUST4FUN_DEFAULT_WIN_LENGTH,
+        num_pieces = 18,
+        single_piece = true,
+        count_values = true,
+    ),
+)
+
 j4f_nc_nf_settings = Just4FunSettings(
     players = 2,
     cards = nothing,

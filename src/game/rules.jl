@@ -354,35 +354,34 @@ update_action_mask!(spec::Just4FunSpec, env::Just4FunEnv)
 Updates the action masks of all players.
 """
 function update_action_mask!(spec::Just4FunSpec, env::Just4FunEnv)
-  all_actions = GI.actions(spec)
   # reset all masks
-  env.actions_masks = falses(size(env.actions_masks))
   env.board_actions_masks = falses(size(env.board_actions_masks))
   
-  if !isnothing(spec.settings.cards)
+  if isnothing(spec.settings.cards)
+    all_actions = GI.actions(spec)
     for player_index in range(YELLOW, length=spec.settings.players)
       player = Player(player_index)
-      # get the possible cells according to combinations of the players cards
-      actions = map(to_action, regular_combinations(spec, playercards(env, player)))
-      for action in actions
-        action_index = findfirst(isequal(action), all_actions) # verified - works
-        field_stones = get_stones(spec, env, to_field_value(action))
+      for action in all_actions
+        field_stones = get_stones(spec, env, FieldValue(action))
         available = spec.settings.board.single_piece ? empty_field(field_stones) : (is_available(field_stones, player) || empty_field(field_stones))
         # update state
-        setindex!(env.actions_masks, available, CartesianIndex((action_index, player_index)))
-        idx = findfirst(isequal(to_field_value(action)), spec.settings.board.value_distribution)
+        idx = findfirst(isequal(action), spec.settings.board.value_distribution)
         setindex!(env.board_actions_masks, available, CartesianIndex((idx, player_index)))
       end
     end
   else
     for player_index in range(YELLOW, length=spec.settings.players)
-      player = Player(player_index)      
-      for (action_index, action) in enumerate(all_actions)
-        field_stones = get_stones(spec, env, to_field_value(action))
+      player = Player(player_index)
+      # get the possible cells according to combinations of the players cards
+      actions = unique(map(to_int_field_value, cards_actions(spec, env, player)))
+      for action in actions
+        field_stones = get_stones(spec, env, FieldValue(action))
+        #@show action
+        #@show spec.settings.board.single_piece
+        #@show empty_field(field_stones)
         available = spec.settings.board.single_piece ? empty_field(field_stones) : (is_available(field_stones, player) || empty_field(field_stones))
         # update state
-        setindex!(env.actions_masks, available, CartesianIndex((action_index, player_index)))
-        idx = findfirst(isequal(to_field_value(action)), spec.settings.board.value_distribution)
+        idx = findfirst(isequal(action), spec.settings.board.value_distribution)
         setindex!(env.board_actions_masks, available, CartesianIndex((idx, player_index)))
       end
     end

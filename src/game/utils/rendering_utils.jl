@@ -355,8 +355,10 @@ Prints the current player's possible actions - possible card combinations.
 Safe to be displayed to the current player.
 """
 function print_curplayer_actions(spec::Just4FunSpec, g::Just4FunEnv)
-  actions = GI.available_actions(g)
-  print_card_actions(spec, map(to_cards, actions))
+  av_net_actions = Just4Fun.available_net_actions(g)
+  card_actions = map(cs -> CardsAction((cards=cs, value=sum(cs))), Just4Fun.regular_combinations(spec, Just4Fun.curplayercards(g)))
+  av_card_actions = filter(ca -> Just4Fun.to_int_field_value(ca) in av_net_actions, card_actions)
+  print_card_actions(spec, map(to_cards, av_card_actions))
 end  
 
 """
@@ -511,8 +513,8 @@ function Base.show(io::IO, ::MIME"text/plain", s::Just4FunEnv)
   println(io, "field_stones{2}=$(convert(Matrix{Int64}, s.field_stones[:, :, 2]))")
   println(io, "player_stones=$(convert(Vector{Int64}, s.player_stones))")
   println(io, "curplayer=$(convert(Int64, s.curplayer))")
-  println(io, "actions_masks{1}=$(s.actions_masks[:, 1])")
-  println(io, "actions_masks{2}=$(s.actions_masks[:, 2])")
+  println(io, "board_actions_masks{1}=$(s.board_actions_masks[:,:, 1])")
+  println(io, "board_actions_masks{2}=$(s.board_actions_masks[:,:, 2])")
   println(io, "state=$(s.state)")
   println(io, "winner=$(convert(Int64, s.winner))")
 end
