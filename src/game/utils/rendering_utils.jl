@@ -254,8 +254,9 @@ print_top_player_stones(g::Just4FunEnv, pos::Tuple{Int64,Int64})     = print_pla
 print_bottom_player_stones(g::Just4FunEnv, pos::Tuple{Int64,Int64})  = print_player_stones(g, pos, MAGENTA)
 
 function print_cell(spec::Just4FunSpec, g::Just4FunEnv, y::Int64)
+  _, len_x = size(spec.settings.board.value_distribution)
   # row for player 4
-  for x in 1:spec.settings.board.dimensions[2]
+  for x in 1:len_x
     pos = (x, y)
     Base.print(x == 1 ? "$BORDER_V  " : "  ")
     if spec.settings.players == 4
@@ -267,7 +268,7 @@ function print_cell(spec::Just4FunSpec, g::Just4FunEnv, y::Int64)
   end
   println()
   # row for player 1, the numbers / cell id and player 2
-  for x in 1:spec.settings.board.dimensions[2]
+  for x in 1:len_x
     pos = (x, y)
     Base.print(x == 1 ? BORDER_V : "")
     print_left_player_stones(g, pos)
@@ -277,7 +278,7 @@ function print_cell(spec::Just4FunSpec, g::Just4FunEnv, y::Int64)
   end
   println()
   # row for player 3
-  for x in 1:spec.settings.board.dimensions[2]
+  for x in 1:len_x
     pos = (x, y)
     Base.print(x == 1 ? "$BORDER_V  " : "  ")
     if spec.settings.players == 3
@@ -348,42 +349,17 @@ function print_card_actions(spec::Just4FunSpec, card_combinations::Vector{Cards}
 end
 
 """
-print_redraw_action()
-
-Prints the redraw action that is mandatory if there are no card combinations possible.
-"""
-function print_redraw_action()
-  @warn "No possible combination of cards to play!"
-  println("No moves possible!")
-  println(string(crayon"fg:dark_gray", "redraw     -> Redraw cards", crayon"reset"))
-end
-
-"""
 print_curplayer_actions(spec::Just4FunSpec, g::Just4FunEnv)
 
 Prints the current player's possible actions - possible card combinations.
 Safe to be displayed to the current player.
 """
 function print_curplayer_actions(spec::Just4FunSpec, g::Just4FunEnv)
-  actions = GI.available_actions(g)
-
-  if isredraw(first(actions))
-    print_redraw_action()
-  else
-    print_card_actions(spec, map(to_cards, actions))
-  end
-end
-#function print_curplayer_actions(spec::Just4FunSpec, g::Just4FunEnv)
-#  card_combinations = regular_combinations(spec.settings.board.value_distribution, curplayercards(g))
-#  combination_pos = [sum(combi) for combi = card_combinations]
-#
-#  if isdisjoint(spec.settings.board.value_distribution, combination_pos)
-#    print_redraw_action()
-#  else
-#    print_card_actions(spec, card_combinations)
-#  end
-#end
-  
+  av_net_actions = Just4Fun.available_net_actions(g)
+  card_actions = map(cs -> CardsAction((cards=cs, value=sum(cs))), Just4Fun.regular_combinations(spec, Just4Fun.curplayercards(g)))
+  av_card_actions = filter(ca -> Just4Fun.to_int_field_value(ca) in av_net_actions, card_actions)
+  print_card_actions(spec, map(to_cards, av_card_actions))
+end  
 
 """
 print_gamecards(g::Just4FunEnv)
@@ -521,7 +497,6 @@ end
 
 function Base.println(io::IO, s::BoardSettings, offset=0)
   spaces = repeat(" ", offset)
-  println(io, spaces, "Dimensions: $(join(s.dimensions, "x"))")
   println(io, spaces, "Value dist: $(s.value_distribution)")
   println(io, spaces, "Win length: $(s.length_win)")
   println(io, spaces, "Total # pieces: $(s.num_pieces)")
@@ -538,8 +513,8 @@ function Base.show(io::IO, ::MIME"text/plain", s::Just4FunEnv)
   println(io, "field_stones{2}=$(convert(Matrix{Int64}, s.field_stones[:, :, 2]))")
   println(io, "player_stones=$(convert(Vector{Int64}, s.player_stones))")
   println(io, "curplayer=$(convert(Int64, s.curplayer))")
-  println(io, "actions_masks{1}=$(s.actions_masks[:, 1])")
-  println(io, "actions_masks{2}=$(s.actions_masks[:, 2])")
+  println(io, "board_actions_masks{1}=$(s.board_actions_masks[:,:, 1])")
+  println(io, "board_actions_masks{2}=$(s.board_actions_masks[:,:, 2])")
   println(io, "state=$(s.state)")
   println(io, "winner=$(convert(Int64, s.winner))")
 end

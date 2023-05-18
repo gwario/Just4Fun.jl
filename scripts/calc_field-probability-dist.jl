@@ -31,7 +31,7 @@ for (key, value) in sort(collect(stats), by=pair -> pair[1])
     @printf("%+2s: %4.2f\n", key, value / N_SAMPLES)
 end
 
-mapped = zeros(spec.settings.board.dimensions)
+mapped = zeros(spec.settings.board.value_distribution)
 
 for (i,v) in enumerate(spec.settings.board.value_distribution)
     mapped[i] = stats[v]

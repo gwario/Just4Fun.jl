@@ -72,7 +72,7 @@ function fields_reachability(spec::Just4FunSpec, all_player_cards::AbstractMatri
   player_cards = all_player_cards[1:spec.settings.cards.size_hand, to_index(player)]
   player_card_combinations = regular_combinations(spec, player_cards)
   values = unique(map(cc -> sum(cc), player_card_combinations))
-  field_array = zeros(Float32, spec.settings.board.dimensions)
+  field_array = zeros(Float32, size(spec.settings.board.value_distribution))
   for value in values
     positions = findall(isequal(value), spec.settings.board.value_distribution)
     for pos in positions
@@ -135,13 +135,22 @@ function get_stones(spec::Just4FunSpec, g::Just4FunEnv, field_value::FieldValue)
 end
 
 """
+player_fieldstones(s::Just4FunEnvState, x::Int, y::Int, player::Player)::Stones
+
+Returns the vector of stones on a field.
+"""
+function player_fieldstones(s::Just4FunEnvState, x::Int, y::Int, player::Player)::Stones
+  return s.field_stones[y, x, to_index(player)]
+end
+
+"""
 put_down!(spec::Just4FunSpec, g::Just4FunEnv, cards_to_put_down::Cards)
 
 Removes the cards from the curplayercards and adds them to the usedcards.
 NOTE: updates mutable states in place and replaces immutable ones
 NOTE: Vectors are replaced not modified inplace! (!worked)
 """
-function put_down!(spec::Just4FunSpec, g::Just4FunEnv, cards_to_put_down::Cards)
+function put_down!(spec::Just4FunSpec, g::Just4FunEnv, cards_to_put_down::AbstractVector{CardValue})
   @assert(0 <= length(cards_to_put_down) && length(cards_to_put_down) <= spec.settings.cards.size_hand, "Trying to put down an invalid number of cards")
   player_index = to_index(g.curplayer)
 
@@ -187,13 +196,6 @@ function pick_cards!(spec::Just4FunSpec, g::Just4FunEnv, amount::Int64)
     g.player_cards = setindex(g.player_cards, picked_card, CartesianIndex(empty_slot_index, curplayer_index))
   end
 end
-
-"""
-redraw(action::CardsAction)::Bool
-
-Returns true if the given action is the redraw action.
-"""
-isredraw(action::CardsAction)::Bool = isempty(action.cards) && iszero(action.value)
 
 """
 empty_field(player_stones::AbstractVector{Stones})::Bool
@@ -325,6 +327,25 @@ function winning_pattern_at(spec::Just4FunSpec, field_stones::AbstractArray{Ston
   return pattern_at
 end
 
+"""
+num_connected_at(spec::Just4FunSpec, field_stones::AbstractArray{Stones}, player::Player, field_value::FieldValue)::Int64
+
+Returns number of connected fields at a field for a player in all the directions.
+"""
+function num_connected_at(spec::Just4FunSpec, field_stones::AbstractArray{Stones}, player::Player, field_value::FieldValue)::Int64
+  position = findfirst(v -> v == field_value, spec.settings.board.value_distribution) # cartesian index
+  players_stones = field_stones[position[1], position[2], :]
+  num_at = has_majority(players_stones, player) ? 1 : 0
+
+  if num_at == 1
+    4 + mapreduce(+, [(1, 1), (1, -1), (1, 0), (0, 1)]; init=0) do axis
+      num_connected_axis(spec, field_stones, player, field_value, axis)
+    end
+  else
+    return 0
+  end
+end
+
 to_action(cards::Cards)::Action = (cards=cards, value=FieldValue(sum(cards)))
 
 """
@@ -333,41 +354,34 @@ update_action_mask!(spec::Just4FunSpec, env::Just4FunEnv)
 Updates the action masks of all players.
 """
 function update_action_mask!(spec::Just4FunSpec, env::Just4FunEnv)
-  all_actions = GI.actions(spec)
   # reset all masks
-  env.actions_masks = falses(size(env.actions_masks))
   env.board_actions_masks = falses(size(env.board_actions_masks))
   
-  if !isnothing(spec.settings.cards)
+  if isnothing(spec.settings.cards)
+    all_actions = GI.actions(spec)
     for player_index in range(YELLOW, length=spec.settings.players)
       player = Player(player_index)
-      # get the possible cells according to combinations of the players cards
-      actions = map(to_action, regular_combinations(spec, playercards(env, player)))
-      for action in actions
-        action_index = findfirst(isequal(action), all_actions)
-        #action_index = findfirst(a -> action.cards == a.cards, all_actions)
-        field_stones = get_stones(spec, env, to_field_value(action))
-        available = spec.settings.board.single_piece ? empty(field_stones) : (is_available(field_stones, player) || empty_field(field_stones))
+      for action in all_actions
+        field_stones = get_stones(spec, env, FieldValue(action))
+        available = spec.settings.board.single_piece ? empty_field(field_stones) : (is_available(field_stones, player) || empty_field(field_stones))
         # update state
-        setindex!(env.actions_masks, available, CartesianIndex((action_index, player_index)))
-        idx = findfirst(isequal(to_field_value(action)), spec.settings.board.value_distribution)
+        idx = findfirst(isequal(action), spec.settings.board.value_distribution)
         setindex!(env.board_actions_masks, available, CartesianIndex((idx, player_index)))
       end
-      
-      # if any card combination is possible: set redraw action false, otherwise true
-      some_available = any(env.actions_masks[:, player_index])
-      redraw_action_index = findfirst(isequal(REDRAW_ACTION), all_actions)
-      setindex!(env.actions_masks, !some_available, CartesianIndex((redraw_action_index, player_index)))
     end
   else
     for player_index in range(YELLOW, length=spec.settings.players)
-      player = Player(player_index)      
-      for (action_index, action) in enumerate(all_actions)
-        field_stones = get_stones(spec, env, to_field_value(action))
+      player = Player(player_index)
+      # get the possible cells according to combinations of the players cards
+      actions = unique(map(to_int_field_value, cards_actions(spec, env, player)))
+      for action in actions
+        field_stones = get_stones(spec, env, FieldValue(action))
+        #@show action
+        #@show spec.settings.board.single_piece
+        #@show empty_field(field_stones)
         available = spec.settings.board.single_piece ? empty_field(field_stones) : (is_available(field_stones, player) || empty_field(field_stones))
         # update state
-        setindex!(env.actions_masks, available, CartesianIndex((action_index, player_index)))
-        idx = findfirst(isequal(to_field_value(action)), spec.settings.board.value_distribution)
+        idx = findfirst(isequal(action), spec.settings.board.value_distribution)
         setindex!(env.board_actions_masks, available, CartesianIndex((idx, player_index)))
       end
     end
@@ -386,11 +400,6 @@ NOTE: seen as if the current player has just played action!
 function update_status!(spec::Just4FunSpec, env::Just4FunEnv, action::Action)
   
   update_action_mask!(spec, env)
-
-  # Update winner and finished only if it was a regular action (otherwise those do not change)
-  if !isnothing(spec.settings.cards) && isredraw(action)
-    return
-  end
 
   no_stones_left = iszero(sum(env.player_stones))
 
@@ -478,19 +487,19 @@ end
 
 
 """
-get_points_info(g::Just4FunEnv)::Tuple{Vector{FieldValue}, Vector{FieldValue}}
+get_points_info(spec::Just4FunSpec, g::Just4FunEnv)::Tuple{Vector{Int64}, Vector{Int64}}
 TODO: check profile info
 Returns the points info (sum of fields with majority and the highest
 field with majority) of each player.
 """
-function get_points_info(spec::Just4FunSpec, g::Just4FunEnv)::Tuple{Vector{FieldValue}, Vector{FieldValue}}
+function get_points_info(spec::Just4FunSpec, g::Just4FunEnv)::Tuple{Vector{Int64}, Vector{Int64}}
   players = map(p_i -> Player(p_i), range(Just4Fun.YELLOW, length=spec.settings.players))
-  points = zeros(UInt8, spec.settings.players)
-  max_field_points = zeros(UInt8, spec.settings.players)
+  points = zeros(Int64, spec.settings.players)
+  max_field_points = zeros(Int64, spec.settings.players)
 
   for field_value in spec.settings.board.value_distribution
     player_stones = get_stones(spec, g, FieldValue(field_value))
-    field_points = [has_majority(player_stones, player) ? field_value : 0x0 for player in players]
+    field_points = [has_majority(player_stones, player) ? field_value : 0 for player in players]
     max_field_points = [max(max_field_points[to_index(player)], field_points[to_index(player)]) for player in players]
     points .+= field_points
   end

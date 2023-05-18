@@ -19,20 +19,18 @@ end
 
 const NoCardsAction = FieldValue
 const CardsAction   = NamedTuple{(:cards, :value), Tuple{Cards, FieldValue}}
-const REDRAW_ACTION = CardsAction((cards=Cards[], value=FieldValue(0)))
-
 const Action = Union{CardsAction, NoCardsAction}
 
 const Just4FunEnvState = NamedTuple{
   (
     :stack, :used_cards, :player_cards,
     :field_stones, :player_stones,
-    :curplayer, :state, :winner, :action_indices
+    :curplayer, :state, :winner, :actions
   ),
   Tuple{
     Vector{UInt8}, Vector{UInt8}, Matrix{UInt8},
     Array{UInt8}, Vector{UInt8},
-    UInt8, GameState, UInt8, Vector{Int64}
+    UInt8, GameState, UInt8, Vector{Action}
   }
 }
 

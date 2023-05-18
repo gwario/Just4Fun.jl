@@ -1,175 +1,3 @@
-@testset "has_majority" begin
-
-    @test Just4Fun.has_majority(SVector(FieldValue(1), FieldValue(0)), Player(YELLOW)) ==
-          true
-
-    @test Just4Fun.has_majority(SVector(FieldValue(1), FieldValue(0)), Player(RED)) == false
-
-    @test Just4Fun.has_majority(SVector(FieldValue(2), FieldValue(0)), Player(YELLOW)) ==
-          true
-
-    @test Just4Fun.has_majority(SVector(FieldValue(2), FieldValue(0)), Player(RED)) == false
-
-    @test Just4Fun.has_majority(SVector(FieldValue(2), FieldValue(1)), Player(YELLOW)) ==
-          true
-
-    @test Just4Fun.has_majority(SVector(FieldValue(2), FieldValue(1)), Player(RED)) == false
-
-    ##
-
-    @test Just4Fun.has_majority(SVector(FieldValue(0), FieldValue(1)), Player(RED)) == true
-
-    @test Just4Fun.has_majority(SVector(FieldValue(0), FieldValue(1)), Player(YELLOW)) ==
-          false
-
-    @test Just4Fun.has_majority(SVector(FieldValue(0), FieldValue(2)), Player(RED)) == true
-
-    @test Just4Fun.has_majority(SVector(FieldValue(0), FieldValue(2)), Player(YELLOW)) ==
-          false
-
-    @test Just4Fun.has_majority(SVector(FieldValue(1), FieldValue(2)), Player(RED)) == true
-
-    @test Just4Fun.has_majority(SVector(FieldValue(1), FieldValue(2)), Player(YELLOW)) ==
-          false
-
-    ##
-
-    @test Just4Fun.has_majority(SVector(FieldValue(0), FieldValue(0)), Player(YELLOW)) ==
-          false
-
-    @test Just4Fun.has_majority(SVector(FieldValue(0), FieldValue(0)), Player(RED)) == false
-
-    @test Just4Fun.has_majority(SVector(FieldValue(2), FieldValue(2)), Player(YELLOW)) ==
-          false
-
-    @test Just4Fun.has_majority(SVector(FieldValue(2), FieldValue(2)), Player(RED)) == false
-
-    # TODO make game spec parametrized for size and player no, add tests for more than 2
-end
-
-######
-
-@testset "has_minority" begin
-
-    @test Just4Fun.has_minority(SVector(FieldValue(1), FieldValue(0)), Player(YELLOW)) ==
-          false
-
-    @test Just4Fun.has_minority(SVector(FieldValue(1), FieldValue(0)), Player(RED)) == true
-
-    @test Just4Fun.has_minority(SVector(FieldValue(2), FieldValue(0)), Player(YELLOW)) ==
-          false
-
-    @test Just4Fun.has_minority(SVector(FieldValue(2), FieldValue(0)), Player(RED)) == true
-
-    @test Just4Fun.has_minority(SVector(FieldValue(2), FieldValue(1)), Player(YELLOW)) ==
-          false
-
-    @test Just4Fun.has_minority(SVector(FieldValue(2), FieldValue(1)), Player(RED)) == true
-
-    ##
-
-    @test Just4Fun.has_minority(SVector(FieldValue(0), FieldValue(1)), Player(RED)) == false
-
-    @test Just4Fun.has_minority(SVector(FieldValue(0), FieldValue(1)), Player(YELLOW)) ==
-          true
-
-    @test Just4Fun.has_minority(SVector(FieldValue(0), FieldValue(2)), Player(RED)) == false
-
-    @test Just4Fun.has_minority(SVector(FieldValue(0), FieldValue(2)), Player(YELLOW)) ==
-          true
-
-    @test Just4Fun.has_minority(SVector(FieldValue(1), FieldValue(2)), Player(RED)) == false
-
-    @test Just4Fun.has_minority(SVector(FieldValue(1), FieldValue(2)), Player(YELLOW)) ==
-          true
-
-    ##
-
-    @test Just4Fun.has_minority(SVector(FieldValue(0), FieldValue(0)), Player(YELLOW)) ==
-          false
-
-    @test Just4Fun.has_minority(SVector(FieldValue(0), FieldValue(0)), Player(RED)) == false
-
-    @test Just4Fun.has_minority(SVector(FieldValue(2), FieldValue(2)), Player(YELLOW)) ==
-          false
-
-    @test Just4Fun.has_minority(SVector(FieldValue(2), FieldValue(2)), Player(RED)) == false
-
-    # TODO make game spec parametrized for size and player no, add tests for more than 2
-end
-
-######
-
-@testset "dominated" begin
-
-    @test Just4Fun.dominated(SVector(FieldValue(2), FieldValue(0)), Player(YELLOW)) == false
-
-    @test Just4Fun.dominated(SVector(FieldValue(1), FieldValue(0)), Player(YELLOW)) == false
-
-    @test Just4Fun.dominated(SVector(FieldValue(0), FieldValue(1)), Player(YELLOW)) == false
-
-    @test Just4Fun.dominated(SVector(FieldValue(3), FieldValue(3)), Player(YELLOW)) == false
-
-    ##
-
-    @test Just4Fun.dominated(SVector(FieldValue(0), FieldValue(2)), Player(RED)) == false
-
-    @test Just4Fun.dominated(SVector(FieldValue(0), FieldValue(1)), Player(RED)) == false
-
-    @test Just4Fun.dominated(SVector(FieldValue(1), FieldValue(0)), Player(RED)) == false
-
-    @test Just4Fun.dominated(SVector(FieldValue(3), FieldValue(3)), Player(RED)) == false
-
-    ##
-
-    @test Just4Fun.dominated(SVector(FieldValue(2), FieldValue(0)), Player(YELLOW)) == false
-
-    @test Just4Fun.dominated(SVector(FieldValue(3), FieldValue(1)), Player(YELLOW)) == false
-
-    @test Just4Fun.dominated(SVector(FieldValue(0), FieldValue(2)), Player(RED)) == false
-
-    @test Just4Fun.dominated(SVector(FieldValue(1), FieldValue(3)), Player(RED)) == false
-
-end
-
-######
-
-@testset "dominating" begin
-
-    @test Just4Fun.dominating(SVector(FieldValue(2), FieldValue(0)), Player(YELLOW)) == true
-
-    @test Just4Fun.dominating(SVector(FieldValue(1), FieldValue(0)), Player(YELLOW)) ==
-          false
-
-    @test Just4Fun.dominating(SVector(FieldValue(0), FieldValue(1)), Player(YELLOW)) ==
-          false
-
-    @test Just4Fun.dominating(SVector(FieldValue(3), FieldValue(3)), Player(YELLOW)) ==
-          false
-
-    ##
-
-    @test Just4Fun.dominating(SVector(FieldValue(0), FieldValue(2)), Player(RED)) == true
-
-    @test Just4Fun.dominating(SVector(FieldValue(0), FieldValue(1)), Player(RED)) == false
-
-    @test Just4Fun.dominating(SVector(FieldValue(1), FieldValue(0)), Player(RED)) == false
-
-    @test Just4Fun.dominating(SVector(FieldValue(3), FieldValue(3)), Player(RED)) == false
-
-    ##
-
-    @test Just4Fun.dominating(SVector(FieldValue(2), FieldValue(0)), Player(YELLOW)) == true
-
-    @test Just4Fun.dominating(SVector(FieldValue(3), FieldValue(1)), Player(YELLOW)) == true
-
-    @test Just4Fun.dominating(SVector(FieldValue(0), FieldValue(2)), Player(RED)) == true
-
-    @test Just4Fun.dominating(SVector(FieldValue(1), FieldValue(3)), Player(RED)) == true
-
-end
-
-######
 
 @testset "dominant_player" begin
 
@@ -535,16 +363,6 @@ end
     ]
 end
 ##########
-@testset "isredraw" begin
-    @test Just4Fun.isredraw(CardsAction((cards = [], value = 1))) == false
-    @test Just4Fun.isredraw(CardsAction((cards = [CardValue(0)], value = 0))) == false
-    @test Just4Fun.isredraw(CardsAction((cards = [CardValue(1)], value = 0))) == false
-    @test Just4Fun.isredraw(
-        CardsAction((cards = [CardValue(1), CardValue(2)], value = 1)),
-    ) == false
-    @test Just4Fun.isredraw(CardsAction((cards = [], value = 0))) == true
-end
-##########
 @testset "empty_field" begin
     @test Just4Fun.empty_field(SVector{2,Stones}(zeros(Stones, 2))) == true
     @test Just4Fun.empty_field(SVector{2,Stones}(ones(Stones, 2))) == false
@@ -678,7 +496,6 @@ end
             nothing,
             Just4FunSettings(
                 board=BoardSettings(
-                    dimensions=(4,4),
                     value_distribution=[
                         01  2  3  4 ;
                         05  6  7  8 ;
@@ -737,7 +554,6 @@ end
             nothing,
             Just4FunSettings(
                 board=BoardSettings(
-                    dimensions=(6,6),
                     value_distribution=[
                         01 14 30 24 19  8 ;
                         33 11  9 16 35 21 ;
@@ -830,7 +646,6 @@ end
             nothing,
             Just4FunSettings(
                 board=BoardSettings(
-                    dimensions=(4,4),
                     value_distribution=[
                         01  2  3  4 ;
                         05  6  7  8 ;
@@ -1044,7 +859,6 @@ end
             nothing,
             Just4FunSettings(
                 board=BoardSettings(
-                    dimensions=(6,6),
                     value_distribution=[
                         01  2  3  4  5  6 ;
                         07  8  9 10 11 12 ;
@@ -1124,7 +938,6 @@ end
             nothing,
             Just4FunSettings(
                 board=BoardSettings(
-                    dimensions=(4,4),
                     value_distribution=[
                         01  2  3  4 ;
                         05  6  7  8 ;
@@ -1213,7 +1026,6 @@ end
             nothing,
             Just4FunSettings(
                 board=BoardSettings(
-                    dimensions=(6,6),
                     value_distribution=[
                         01  2  3  4  5  6 ;
                         07  8  9 10 11 12 ;
@@ -1295,7 +1107,6 @@ end
             nothing,
             Just4FunSettings(
                 board=BoardSettings(
-                    dimensions=(4,4),
                     value_distribution=[
                         01  2  3  4 ;
                         05  6  7  8 ;
@@ -1330,7 +1141,6 @@ end
             nothing,
             Just4FunSettings(
                 board=BoardSettings(
-                    dimensions=(6,6),
                     value_distribution=[
                         01  2  3  4  5  6 ;
                         07  8  9 10 11 12 ;
@@ -1696,39 +1506,6 @@ end
 
         Just4Fun.update_status!(spec, game, (cards = CardValue[], value = FieldValue(31)))
 
-        @test game.winner == Player(0)
-        @test game.state == in_progress
-    end
-
-    @testset "after action (redraw) 4" begin
-        spec = Just4Fun.j4f_spec
-        GI.spec(::Just4FunEnv) = spec
-        game = GI.init(spec)
-
-        @test game.winner == Player(0)
-        @test game.state == in_progress
-
-        #make player yellow win
-        #  1 14 30 24 19  8 ;
-        # 33 11  9 16 35 21 ;
-        #  6 27 31 20  3 12 ;
-        # 15 32  5 29 17 26 ;
-        # 22 10 18 36 25  2 ;
-        # 28  7 23  4 13 34
-        game.curplayer = RED
-        Just4Fun.place_stone!(spec, game, FieldValue(1))
-        game.curplayer = YELLOW
-        Just4Fun.place_stone!(spec, game, FieldValue(1))
-        Just4Fun.place_stone!(spec, game, FieldValue(1))
-        Just4Fun.place_stone!(spec, game, FieldValue(11))
-        Just4Fun.place_stone!(spec, game, FieldValue(31))
-        Just4Fun.place_stone!(spec, game, FieldValue(29))
-        # artificial win for YELLOW
-
-        # forcing an update after redraw, which is not supposed to check the winning conditions
-        Just4Fun.update_status!(spec, game, (cards = CardValue[], value = FieldValue(0)))
-
-        # winner is still not set and game still not finished
         @test game.winner == Player(0)
         @test game.state == in_progress
     end

@@ -59,7 +59,7 @@ TODO: pass spec
 function GI.render(g::Just4FunEnv; with_position_names=true, botmargin=true, debug=false, player::Player=Player(RED))
     spec = GI.spec(g)
     pname = player_name(g.curplayer)
-    board_size = spec.settings.board.dimensions
+    board_size = size(spec.settings.board.value_distribution)
     its_me_playing = g.curplayer == player
 
     println()
