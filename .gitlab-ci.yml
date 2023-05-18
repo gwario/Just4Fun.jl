@@ -20,7 +20,7 @@
       curl -Os https://uploader.codecov.io/v0.1.0_4653/linux/codecov
 
       chmod +x codecov
-      ./codecov -t $CODECOV_TOKEN -r gwario/Just4Fun.jl
+      ./codecov
 Julia 1.9:
   image: julia:1.9
   extends:
