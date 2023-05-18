@@ -2,7 +2,9 @@
 
 Coverage in detail:
 
-![codecov](https://codecov.io/gl/gwario/Just4Fun.jl/branch/main/graphs/tree.svg?token=KK6LMAU5XU)
+<a href="https://codecov.io/gl/gwario/Just4Fun.jl">
+    <img src="https://codecov.io/gl/gwario/Just4Fun.jl/branch/main/graphs/tree.svg?token=KK6LMAU5XU"/> 
+</a>
 
 # Preparation
 
