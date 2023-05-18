@@ -13,10 +13,15 @@
         using Pkg
         Pkg.add("Coverage")
         using Coverage
-        c, t = get_summary(process_folder())
+        pf = process_folder()
+        
+        # codecov.io
+        Codecov.submit_local(pf)
+        
+        # simple print
+        c, t = get_summary(pf)
         using Printf
         @printf "Test coverage %.2f%%\n" 100c / t'
-    - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit_local(process_folder())
 Julia 1.9:
   image: julia:1.9
   extends:
