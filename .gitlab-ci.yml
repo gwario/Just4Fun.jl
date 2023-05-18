@@ -16,33 +16,13 @@
         c, t = get_summary(process_folder())
         using Printf
         @printf "Test coverage %.2f%%\n" 100c / t'
-Julia 1.8:
-  image: julia:1.8
+    - |
+      curl -Os https://uploader.codecov.io/v0.1.0_4653/linux/codecov
+
+      chmod +x codecov
+      ./codecov -t $CODECOV_TOKEN -r gwario/Just4Fun.jl
+Julia 1.9:
+  image: julia:1.9
   extends:
     - .script
     - .coverage
-#Julia 1.7:
-#  image: julia:1.7
-#  extends:
-#    - .script
-#    - .coverage
-#pages:
-#  image: julia:1.7
-#  stage: deploy
-#  script:
-#    - |
-#      julia --project=docs -e '
-#        using Pkg
-#        Pkg.develop(PackageSpec(path=pwd()))
-#        Pkg.instantiate()
-#        using Documenter: doctest
-#        using Just4Fun
-#        doctest(Just4Fun)
-#        include("docs/make.jl")'
-#    - mkdir -p public
-#    - mv docs/build public/dev
-#  artifacts:
-#    paths:
-#      - public
-#  only:
-#    - main

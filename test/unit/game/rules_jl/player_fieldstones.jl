@@ -22,7 +22,7 @@
             curplayer = Player(Just4Fun.YELLOW),
             state = in_progress,
             winner = Player(0),
-            actions = [1],
+            actions = [NoCardsAction(1)],
         )
 
         @test Just4Fun.player_fieldstones(state, 1, 1, Player(1)) == Stones(2)
@@ -62,7 +62,7 @@
 
     @testset "2" begin
         state::Just4FunEnvState = (
-            stack = Vector{CardValue}(),
+            stack = Cards(),
             used_cards = Cards(),
             player_cards = Matrix{CardValue}([
                 0x01 0x01
@@ -82,7 +82,7 @@
             curplayer = Player(Just4Fun.YELLOW),
             state = in_progress,
             winner = Player(0),
-            actions = [1],
+            actions = [NoCardsAction(1)],
         )
 
         @test Just4Fun.player_fieldstones(state, 1, 1, Player(1)) == Stones(1)

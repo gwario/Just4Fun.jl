@@ -1235,13 +1235,13 @@ end
         cards_red = Just4Fun.playercards(game, game.curplayer)
         regular_combs_red = Just4Fun.regular_combinations(spec, cards_red)
 
-        for (action_card_comb, value) in actions
+        for value in actions
 
-            mask_index = findfirst(isequal((cards = action_card_comb, value = value)), GI.actions(spec))
+            mask_index = findfirst(isequal(value), GI.actions(spec))
             
             # p1 combination: [2], [2 2], [2 2 2], [2 2 2 2]
             game.curplayer = YELLOW
-            if action_card_comb in regular_combs
+            if value in map(sum, regular_combs)
                 @test GI.actions_mask(game)[mask_index] == true
             else
                 @test GI.actions_mask(game)[mask_index] == false
@@ -1249,25 +1249,25 @@ end
 
             # p2 combination: [1], [1 1], [1 1 1], [1 1 1 1]
             game.curplayer = Player(RED)
-            if action_card_comb in regular_combs_red
+            if value in map(sum, regular_combs_red)
                 @test GI.actions_mask(game)[mask_index] == true
             else
                 @test GI.actions_mask(game)[mask_index] == false
             end
         end
 
-        mask_index = findfirst(isequal((cards = [0x1], value = 0x1)), GI.actions(spec))
+        mask_index = findfirst(isequal(FieldValue(1)), GI.actions(spec))
         @test GI.actions_mask(game)[mask_index] == true
 
         # block YELLOW / p1 on field 1 by stone of RED
         game.curplayer = RED
-        Just4Fun.place_stone!(spec, game, 0x1)
-        Just4Fun.place_stone!(spec, game, 0x1)
+        Just4Fun.place_stone!(spec, game, FieldValue(1))
+        Just4Fun.place_stone!(spec, game, FieldValue(1))
         Just4Fun.update_action_mask!(spec, game)
 
         game.curplayer = YELLOW
-        mask_index = findfirst(isequal((cards = [0x1], value = 0x1)), GI.actions(spec))
-        @test GI.actions_mask(game)[mask_index] == 0x0 # false
+        mask_index = findfirst(isequal(FieldValue(1)), GI.actions(spec))
+        @test GI.actions_mask(game)[mask_index] == false
     end
     
     @testset "opponent dominated fields not available in action mask (FEATURE_CARDS=false)" begin
@@ -1337,13 +1337,13 @@ end
         cards_red = Just4Fun.playercards(game, game.curplayer)
         regular_combs_red = Just4Fun.regular_combinations(spec, cards_red)
 
-        for (action_card_comb, value) in actions
+        for action in actions
 
-            mask_index = findfirst(isequal((cards = action_card_comb, value = value)), GI.actions(spec))
+            mask_index = findfirst(isequal(action), GI.actions(spec))
 
             # p1 combination: [2], [2 2], [2 2 2], [2 2 2 2]
             game.curplayer = YELLOW
-            if action_card_comb in regular_combs
+            if action in map(sum, regular_combs)
                 @test GI.actions_mask(game)[mask_index] == true
             else
                 @test GI.actions_mask(game)[mask_index] == false
@@ -1351,25 +1351,25 @@ end
 
             # p2 combination: [1], [1 1], [1 1 1], [1 1 1 1]
             game.curplayer = Player(RED)
-            if action_card_comb in regular_combs_red
+            if action in map(sum, regular_combs_red)
                 @test GI.actions_mask(game)[mask_index] == true
             else
                 @test GI.actions_mask(game)[mask_index] == false
             end
         end
 
-        mask_index = findfirst(isequal((cards = [0x1], value = 0x1)), GI.actions(spec))
+        mask_index = findfirst(isequal(FieldValue(1)), GI.actions(spec))
         @test GI.actions_mask(game)[mask_index] == true
 
         # block YELLOW / p1 on field 1 by stone of itself
         game.curplayer = YELLOW
-        Just4Fun.place_stone!(spec, game, 0x1)
-        Just4Fun.place_stone!(spec, game, 0x1)
+        Just4Fun.place_stone!(spec, game, FieldValue(1))
+        Just4Fun.place_stone!(spec, game, FieldValue(1))
         Just4Fun.update_action_mask!(spec, game)
 
         game.curplayer = YELLOW
-        mask_index = findfirst(isequal((cards = [0x1], value = 0x1)), GI.actions(spec))
-        @test GI.actions_mask(game)[mask_index] == 0x0 # false
+        mask_index = findfirst(isequal(FieldValue(1)), GI.actions(spec))
+        @test GI.actions_mask(game)[mask_index] == false
     end
 
     @testset "self dominated fields not available in action mask (FEATURE_CARDS=false)" begin
@@ -1390,7 +1390,7 @@ end
 
         # initially both players can place on every field
         for value in actions
-            mask_index = findfirst(isequal(0x1), GI.actions(spec))
+            mask_index = findfirst(isequal(FieldValue(1)), GI.actions(spec))
 
             game.curplayer = YELLOW
             @test GI.actions_mask(game)[mask_index] == true
@@ -1401,12 +1401,12 @@ end
 
         # block YELLOW / p1 on field 1 by stone of itself
         game.curplayer = YELLOW
-        Just4Fun.place_stone!(spec, game, 0x1)
-        Just4Fun.place_stone!(spec, game, 0x1)
+        Just4Fun.place_stone!(spec, game, FieldValue(1))
+        Just4Fun.place_stone!(spec, game, FieldValue(1))
         Just4Fun.update_action_mask!(spec, game)
 
         game.curplayer = YELLOW
-        mask_index = findfirst(isequal(0x1), GI.actions(spec))
+        mask_index = findfirst(isequal(FieldValue(1)), GI.actions(spec))
         @test GI.actions_mask(game)[mask_index] == false
     end
 end
