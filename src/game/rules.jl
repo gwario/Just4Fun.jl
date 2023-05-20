@@ -82,6 +82,20 @@ function fields_reachability(spec::Just4FunSpec, all_player_cards::AbstractMatri
   return field_array
 end
 
+"""
+fields_probability(spec::Just4FunSpec)::Array{Float32}
+
+Returns an array with statisctical probabilites to be able to play the fields sampled from random hands.
+"""
+function fields_probability(spec::Just4FunSpec)::Array{Float32}
+  if spec.settings.board.value_distribution == Just4Fun.JUST4FUN_DEFAULT_ORIGINAL_DIST
+    Just4Fun.JUST4FUN_DEFAULT_ORIGINAL_DIST_PROBA
+  elseif spec.settings.board.value_distribution == Just4Fun.MINI_JUST4FUN_DEFAULT_ORIGINAL_DIST
+    Just4Fun.MINI_JUST4FUN_DEFAULT_ORIGINAL_DIST_PROBA
+  else
+    throw(DomainError(spec.settings.board.value_distribution, "No probability distribution for the given value distribution"))
+  end
+end
 
 """
 dominating(field_stones::AbstractVector{Stones}, player::Player)::Bool
