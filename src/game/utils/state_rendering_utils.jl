@@ -312,10 +312,10 @@ function log_winner_result(logger::Log.Logger, s::Just4FunEnvState, player_names
 end
 
 """
-log_state(logger::Log.Logger, spec::Just4FunSpec, state::Just4FunEnvState. player_names::Vector{String})
+log_state(logger::Log.Logger, spec::Just4FunSpec, state. player_names::Vector{String})
 Print the game state on the standard output.
 """
-function log_state(logger::Log.Logger, spec::Just4FunSpec, state::Just4FunEnvState, player_names::Vector{String})
+function log_state(logger::Log.Logger, spec::Just4FunSpec, state, player_names::Vector{String})
     len_y, _ = size(spec.settings.board.value_distribution)
     for y in 1:len_y
         if y == 1
