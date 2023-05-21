@@ -109,11 +109,11 @@ function log_cell(logger::Log.Logger, spec::Just4FunSpec, s, y::Int64)
 end
 
 """
-get_points_info(spec::Just4FunSpec, s::Just4FunEnvState)::Tuple{Vector{FieldValue}, Vector{FieldValue}}
+get_points_info(spec::Just4FunSpec, s)::Tuple{Vector{FieldValue}, Vector{FieldValue}}
 Returns the points info (sum of fields with majority and the highest
 field with majority) of each player.
 """
-function get_points_info(spec::Just4FunSpec, s::Just4FunEnvState)::Tuple{Vector{FieldValue}, Vector{FieldValue}}
+function get_points_info(spec::Just4FunSpec, s)::Tuple{Vector{FieldValue}, Vector{FieldValue}}
   players = map(p_i -> Player(p_i), range(Just4Fun.YELLOW, length=spec.settings.players))
   points = zeros(UInt8, spec.settings.players)
   max_field_points = zeros(UInt8, spec.settings.players)
@@ -128,11 +128,11 @@ function get_points_info(spec::Just4FunSpec, s::Just4FunEnvState)::Tuple{Vector{
 end
 
 """
-get_stones(spec::Just4FunSpec, s::Just4FunEnvState, field_value::FieldValue)::AbstractVector{Stones}
+get_stones(spec::Just4FunSpec, s, field_value::FieldValue)::AbstractVector{Stones}
 
 Returns the vector of stones on a field.
 """
-function get_stones(spec::Just4FunSpec, s::Just4FunEnvState, field_value::Int)::AbstractVector{Stones}
+function get_stones(spec::Just4FunSpec, s, field_value::Int)::AbstractVector{Stones}
   # TODO make a map field value to index
   field_index = findfirst(isequal(field_value), spec.settings.board.value_distribution)
   player_stones = s.field_stones[field_index[1], field_index[2], :]
@@ -140,11 +140,11 @@ function get_stones(spec::Just4FunSpec, s::Just4FunEnvState, field_value::Int)::
 end
 
 """
-log_playercards_stones_points_max_field(logger::Log.Logger, spec::Just4FunSpec, s::Just4FunEnvState)
+log_playercards_stones_points_max_field(logger::Log.Logger, spec::Just4FunSpec, s)
 
 Prints all players' cards.
 """
-function log_playercards_stones_points_max_field(logger::Log.Logger, spec::Just4FunSpec, s::Just4FunEnvState, player_names::Vector{String})
+function log_playercards_stones_points_max_field(logger::Log.Logger, spec::Just4FunSpec, s, player_names::Vector{String})
   points, max_field_points = get_points_info(spec, s)
     
   for player_index in range(YELLOW; length=spec.settings.players)
@@ -164,20 +164,20 @@ function log_playercards_stones_points_max_field(logger::Log.Logger, spec::Just4
 end
 
 """
-log_gamecards(logger::Log.Logger, s::Just4FunEnvState)
+log_gamecards(logger::Log.Logger, s)
 
 Prints the game cards (the not yet dealt cards)
 """
-function log_gamecards(logger::Log.Logger, s::Just4FunEnvState)
+function log_gamecards(logger::Log.Logger, s)
   Log.print(logger, string("Stack: ^ ", join(convert(Vector{Int64}, reverse(collect(Iterators.reverse(s.stack)))), " "), " \$"))
 end
 
 """
-log_used_cards(logger::Log.Logger, s::Just4FunEnvState)
+log_used_cards(logger::Log.Logger, s)
 
 Prints the used cards.
 """
-function log_used_cards(logger::Log.Logger, s::Just4FunEnvState)
+function log_used_cards(logger::Log.Logger, s)
   cards = sort(s.used_cards)
   Log.print(logger, string("Pile: ", join(convert(Vector{Int64}, cards), " ")))
 end
@@ -299,11 +299,11 @@ end
 
 
 """
-log_winner_result(logger::Log.Logger, s::Just4FunEnvState, player_names::Vector{String})
+log_winner_result(logger::Log.Logger, s, player_names::Vector{String})
 
 Prints the winner or draw notice.
 """
-function log_winner_result(logger::Log.Logger, s::Just4FunEnvState, player_names::Vector{String})
+function log_winner_result(logger::Log.Logger, s, player_names::Vector{String})
   if s.winner != Player(0)
     Log.print(logger, "$(player_names[Just4Fun.to_index(s.winner)])($(player_name(s.winner))) has won $(s.state)!")
   elseif iszero(s.player_stones)

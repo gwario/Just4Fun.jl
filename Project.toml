@@ -1,7 +1,7 @@
+authors = ["Mario Gastegger <mario.gastegger@gmail.com>"]
 name = "Just4Fun"
 uuid = "0d7812c4-fa3b-419c-ad61-1d3cb8b5efa2"
-authors = ["Mario Gastegger <mario.gastegger@gmail.com>"]
-version = "0.2.2"
+version = "0.2.3"
 
 [deps]
 AlphaZero = "8ed9eb0b-7496-408d-8c8b-2119aeea02cd"
@@ -15,5 +15,5 @@ SnoopPrecompile = "66db9d55-30c0-4569-8b51-7e840670fc0c"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [compat]
-julia = "^1.8"
 AlphaZero = "^0.5.4"
+julia = "^1.8"
