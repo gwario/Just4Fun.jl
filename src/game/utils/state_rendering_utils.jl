@@ -76,9 +76,9 @@ function log_middle_border(logger::Log.Logger, spec::Just4FunSpec)
 end
 
 """
-log_cell(logger::Log.Logger, spec::Just4FunSpec, s::Just4FunEnvState, y::Int64)
+log_cell(logger::Log.Logger, spec::Just4FunSpec, s, y::Int64)
 """
-function log_cell(logger::Log.Logger, spec::Just4FunSpec, s::Just4FunEnvState, y::Int64)
+function log_cell(logger::Log.Logger, spec::Just4FunSpec, s, y::Int64)
   _, len_x = size(spec.settings.board.value_distribution)
   # cell id row
   temp_str = ""
