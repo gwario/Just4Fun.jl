@@ -17,24 +17,38 @@ function GI.action_string(spec::Just4FunSpec, played_cards_or_cell)
     else
         return string(convert(Int64, played_cards_or_cell))
     end
-end 
+end
 
-GI.action_string(spec::Just4FunSpec, action::CardsAction) = string(join(sort(convert(Array{Int64}, action.cards)), " "), " -> $(padded(action.value))")
+GI.action_string(spec::Just4FunSpec, action::CardsAction) =
+    string(join(sort(convert(Array{Int64}, action.cards)), " "), " -> $(padded(action.value))")
 GI.action_string(spec::Just4FunSpec, action::NoCardsAction) = string(convert(Int64, action))
 
 """
-GI.parse_action(spec::Just4FunSpec, string)::Union(Action,Nothing)
+GI.parse_action(spec::Just4FunSpec, string)::Union{Action,Nothing}
 
 Parses the user input and returns the coresponding action - a combination of cards or a cell id!
 TODO check if the action is valid in the game environment here or in play! or ignore it and let action_mask do the validating?
 Tictactoe also only validated that its a number in the range of positions...
 """
-function GI.parse_action(spec::Just4FunSpec, string)
-    if !isnothing(spec.settings.cards)
-        parse_action_cards(spec, string)
-    else
+function GI.parse_action(spec::Just4FunSpec, string)::Union{Action,Nothing}
+    if isnothing(spec.settings.cards)
         parse_action_cell_id(spec, string)
+    else
+        parse_action_cards(spec, string)
     end
+end
+
+# To support different behavior of available actions (which operates on board positions, whereas actions are cards actsion)
+function AlphaZero.select_move(::Human, game::Just4FunEnv, turn)
+    a = nothing
+    while isnothing(a) || to_int_field_value(a) ∉ GI.available_actions(game)
+        Base.print("> ")
+        str = readline()
+        Base.print("\n")
+        isempty(str) && throw(Quit())
+        a = GI.parse_action(GI.spec(game), str)
+    end
+    return a
 end
 
 """
@@ -56,7 +70,13 @@ render(game::Just4FunEnv)
 Print the game state on the standard output.
 TODO: pass spec
 """
-function GI.render(g::Just4FunEnv; with_position_names=true, botmargin=true, debug=false, player::Player=Player(RED))
+function GI.render(
+    g::Just4FunEnv;
+    with_position_names = true,
+    botmargin = true,
+    debug = false,
+    player::Player = Player(RED),
+)
     spec = GI.spec(g)
     pname = player_name(g.curplayer)
     board_size = size(spec.settings.board.value_distribution)
@@ -65,7 +85,7 @@ function GI.render(g::Just4FunEnv; with_position_names=true, botmargin=true, deb
     println()
     println("$pname plays:\n")
 
-    for y in 1:board_size[1]
+    for y = 1:board_size[1]
         if y == 1
             print_upper_border(board_size)
         end
@@ -74,7 +94,7 @@ function GI.render(g::Just4FunEnv; with_position_names=true, botmargin=true, deb
             print_middle_border(board_size)
         else
             print_lower_border(board_size)
-        end  
+        end
     end
 
     botmargin && println()
@@ -97,7 +117,7 @@ function GI.render(g::Just4FunEnv; with_position_names=true, botmargin=true, deb
         end
     end
 
-    if !GI.game_terminated(g) 
+    if !GI.game_terminated(g)
         # game is still on
         println("$(player_name(g.curplayer))'s turn ($(its_me_playing ? "you" : "other player")).")
         println()
