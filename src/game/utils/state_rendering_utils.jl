@@ -113,9 +113,9 @@ get_points_info(spec::Just4FunSpec, s)::Tuple{Vector{FieldValue}, Vector{FieldVa
 Returns the points info (sum of fields with majority and the highest
 field with majority) of each player.
 """
-function get_points_info(spec::Just4FunSpec, s)::Tuple{Vector{FieldValue}, Vector{FieldValue}}
+function get_points_info(spec::Just4FunSpec, s)::Tuple{Vector{Int64}, Vector{FieldValue}}
   players = map(p_i -> Player(p_i), range(Just4Fun.YELLOW, length=spec.settings.players))
-  points = zeros(UInt8, spec.settings.players)
+  points = zeros(Int64, spec.settings.players)
   max_field_points = zeros(UInt8, spec.settings.players)
 
   for field_value in spec.settings.board.value_distribution
