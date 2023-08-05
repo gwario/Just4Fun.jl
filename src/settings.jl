@@ -135,3 +135,15 @@ j4f_nf_nm_settings = Just4FunSettings(
         count_values = false,
     ),
 )
+
+j4f_nf_settings = Just4FunSettings(
+    players = 2,
+    cards = j4f_cards_settings,
+    board = BoardSettings(
+        value_distribution = JUST4FUN_DEFAULT_ORIGINAL_DIST,
+        length_win = JUST4FUN_DEFAULT_WIN_LENGTH,
+        num_pieces = 20,
+        single_piece = false,
+        count_values = false,
+    ),
+)

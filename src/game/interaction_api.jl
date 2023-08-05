@@ -45,7 +45,7 @@ function AlphaZero.select_move(::Human, game::Just4FunEnv, turn)
         Base.print("> ")
         str = readline()
         Base.print("\n")
-        isempty(str) && throw(Quit())
+        str == "Quit" && throw(AlphaZero.Quit())
         a = GI.parse_action(GI.spec(game), str)
     end
     return a
