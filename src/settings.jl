@@ -75,7 +75,7 @@ j4f_nc_nf_nm_settings = Just4FunSettings(
     board = BoardSettings(
         value_distribution = Just4Fun.JUST4FUN_DEFAULT_ORIGINAL_DIST,
         length_win = Just4Fun.JUST4FUN_DEFAULT_WIN_LENGTH,
-        num_pieces = 18,
+        num_pieces = round(length(JUST4FUN_DEFAULT_ORIGINAL_DIST) / 2, RoundNearest),
         single_piece = true,
         count_values = false,
     ),
@@ -94,7 +94,7 @@ connect4_nc_nf_nm_settings = Just4FunSettings(
             6 12 18 24 30 36
         ],
         length_win = Just4Fun.JUST4FUN_DEFAULT_WIN_LENGTH,
-        num_pieces = 18,
+        num_pieces = round(36 / 2, RoundNearest),
         single_piece = true,
         count_values = false,
     ),
@@ -106,7 +106,7 @@ j4f_nc_nm_settings = Just4FunSettings(
     board = BoardSettings(
         value_distribution = Just4Fun.JUST4FUN_DEFAULT_ORIGINAL_DIST,
         length_win = Just4Fun.JUST4FUN_DEFAULT_WIN_LENGTH,
-        num_pieces = 18,
+        num_pieces = round(length(JUST4FUN_DEFAULT_ORIGINAL_DIST) / 2, RoundNearest),
         single_piece = true,
         count_values = true,
     ),
@@ -130,7 +130,7 @@ j4f_nf_nm_settings = Just4FunSettings(
     board = BoardSettings(
         value_distribution = JUST4FUN_DEFAULT_ORIGINAL_DIST,
         length_win = JUST4FUN_DEFAULT_WIN_LENGTH,
-        num_pieces = 18,
+        num_pieces = round(length(JUST4FUN_DEFAULT_ORIGINAL_DIST) / 2, RoundNearest),
         single_piece = true,
         count_values = false,
     ),
@@ -142,8 +142,20 @@ j4f_nf_settings = Just4FunSettings(
     board = BoardSettings(
         value_distribution = JUST4FUN_DEFAULT_ORIGINAL_DIST,
         length_win = JUST4FUN_DEFAULT_WIN_LENGTH,
-        num_pieces = 20,
+        num_pieces = JUST4FUN_DEFAULT_NUM_PLAYER_STONES,
         single_piece = false,
         count_values = false,
+    ),
+)
+
+j4f_nm_settings = Just4FunSettings(
+    players = 2,
+    cards = j4f_cards_settings,
+    board = BoardSettings(
+        value_distribution = JUST4FUN_DEFAULT_ORIGINAL_DIST,
+        length_win = JUST4FUN_DEFAULT_WIN_LENGTH,
+        num_pieces = length(JUST4FUN_DEFAULT_ORIGINAL_DIST) / 2,
+        single_piece = true,
+        count_values = true,
     ),
 )

@@ -25,7 +25,7 @@ function read_state_interactive(spec::Just4FunSpec)
         i_player = 1 + (i_line - 1) % spec.settings.players
         i_row = 1 + trunc(Int, (i_line - 1) / spec.settings.players)
         
-        print("Row $i_row for player $i_player: ")
+        Base.print("Row $i_row for player $i_player: ")
         fields_stones_player_str = strip(readline())
         
         isempty(fields_stones_player_str) && continue
@@ -55,7 +55,7 @@ function read_state_interactive(spec::Just4FunSpec)
         while i_line <= n_lines
             i_player = i_line
 
-            print("Player $i_player cards: ")
+            Base.print("Player $i_player cards: ")
             cards_str = strip(readline())
 
             isempty(cards_str) && continue
@@ -76,12 +76,12 @@ function read_state_interactive(spec::Just4FunSpec)
         end
 
         # stack cards
-        print("Stack cards: ")
+        Base.print("Stack cards: ")
         cards_str = strip(readline())
         foreach(c -> push!(stack, parse(CardValue, c)), reverse(split(cards_str)))
 
         # used cards
-        print("Used cards: ")
+        Base.print("Used cards: ")
         cards_str = strip(readline())
         foreach(c -> push!(used_cards, parse(CardValue, c)), reverse(split(cards_str)))
     end
@@ -140,7 +140,7 @@ function read_state_non_interactive(spec::Just4FunSpec)
     
     valid_command(input::String) = input != "" ? input != "file" ? input != "stdin" ? false : true : true : true
 
-    print("Read from file or stdin? (FILE/stdin) ")
+    Base.print("Read from file or stdin? (FILE/stdin) ")
     input = "-"
     while !valid_command(input)
         input = lowercase(strip(readline()))
@@ -150,7 +150,7 @@ function read_state_non_interactive(spec::Just4FunSpec)
         file_path_valid = false
         file_path = "-"
         while !file_path_valid
-            print("Enter file path (absolute or relative to $(pwd())): ")
+            Base.print("Enter file path (absolute or relative to $(pwd())): ")
             file_path = strip(readline())
             try
                 file_path_valid = isfile(file_path)
@@ -184,6 +184,7 @@ function write_state_non_interactive(spec::Just4FunSpec, game::Just4FunEnv)
         Base.print("Enter file path (absolute or relative to $(pwd())): ")
         file_path = strip(readline())
         isempty(file_path) && return # abort if empty
+        mkpath(file_path)
         open(file_path, "w") do io
             _write_state!(io, spec, game)
             println("Successfully saved the current state to $(file_path).")
@@ -217,7 +218,7 @@ function read_trace_non_interactive(spec::Just4FunSpec)
     valid_command(input::String) = input != "" ? input != "file" ? input != "stdin" ? false : true : true : true
     
 
-    print("Read from file or stdin? (FILE/stdin) ")
+    Base.print("Read from file or stdin? (FILE/stdin) ")
     input = "-"
     while !valid_command(input)
         input = lowercase(strip(readline()))
@@ -227,7 +228,7 @@ function read_trace_non_interactive(spec::Just4FunSpec)
         file_path_valid = false
         file_path = "-"
         while !file_path_valid
-            print("Enter file path (absolute or relative to $(pwd())): ")
+            Base.print("Enter file path (absolute or relative to $(pwd())): ")
             file_path = strip(readline())
             try
                 file_path_valid = isfile(file_path)
