@@ -34,6 +34,20 @@ j4f_board_settings = BoardSettings(
 j4f_settings =
     Just4FunSettings(players = 2, cards = j4f_cards_settings, board = j4f_board_settings)
 
+mini_j4f_np_nm_settings = Just4FunSettings(
+    players = 2,
+    cards = mini_j4f_cards_settings,
+    board = board = BoardSettings(
+        value_distribution = Just4Fun.MINI_JUST4FUN_DEFAULT_ORIGINAL_DIST,
+        length_win = Just4Fun.MINI_JUST4FUN_DEFAULT_WIN_LENGTH,
+        # with no multi stones, the game ends latest with the last stone, so the
+        # stones must not be more than the fields!
+        num_pieces = length(Just4Fun.MINI_JUST4FUN_DEFAULT_ORIGINAL_DIST) / 2,
+        single_piece = true,
+        count_values = false,
+    ),
+)
+
 mini_j4f_nc_nf_nm_settings = Just4FunSettings(
     players = 2,
     cards = nothing,
