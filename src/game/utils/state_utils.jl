@@ -184,7 +184,7 @@ function write_state_non_interactive(spec::Just4FunSpec, game::Just4FunEnv)
         Base.print("Enter file path (absolute or relative to $(pwd())): ")
         file_path = strip(readline())
         isempty(file_path) && return # abort if empty
-        mkpath(file_path)
+        mkpath(dirname(file_path))
         open(file_path, "w") do io
             _write_state!(io, spec, game)
             println("Successfully saved the current state to $(file_path).")
