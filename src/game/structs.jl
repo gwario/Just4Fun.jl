@@ -101,3 +101,10 @@ mutable struct Just4FunEnv <: GI.AbstractGameEnv
     actions::Vector{Action} # The indices of the played actions in the action mask. can be looked up efficiently via the map
 
 end
+
+struct CardsState
+    players::Vector{Cards}
+    stack::Stack{CardValue}
+    pile::Cards
+end
+

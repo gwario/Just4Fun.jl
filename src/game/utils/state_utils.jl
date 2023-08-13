@@ -10,8 +10,12 @@ One line for the cards on the stack and one line for the used cards.
 function read_state_interactive(spec::Just4FunSpec)
     board_size = size(spec.settings.board.value_distribution)
     field_stones = @SArray zeros(Stones, board_size[1], board_size[2], spec.settings.players)
-    player_stones = SVector{spec.settings.players}(repeat([Stones(spec.settings.board.num_pieces)], spec.settings.players))
-    player_cards = !isnothing(spec.settings.cards) ? (@SMatrix zeros(CardValue, spec.settings.cards.size_hand, spec.settings.players)) : (@SMatrix zeros(CardValue, 2, 2))
+    player_stones =
+        SVector{spec.settings.players}(repeat([Stones(spec.settings.board.num_pieces)], spec.settings.players))
+    player_cards =
+        !isnothing(spec.settings.cards) ?
+        (@SMatrix zeros(CardValue, spec.settings.cards.size_hand, spec.settings.players)) :
+        (@SMatrix zeros(CardValue, 2, 2))
     stack = Vector{CardValue}()
     used_cards = Cards()
     curplayer = Player(0)
@@ -24,30 +28,30 @@ function read_state_interactive(spec::Just4FunSpec)
     while i_line <= n_lines
         i_player = 1 + (i_line - 1) % spec.settings.players
         i_row = 1 + trunc(Int, (i_line - 1) / spec.settings.players)
-        
+
         Base.print("Row $i_row for player $i_player: ")
         fields_stones_player_str = strip(readline())
-        
+
         isempty(fields_stones_player_str) && continue
-        
+
         fields_stones_player = map(s -> parse(Stones, s), split(fields_stones_player_str))
 
         if length(fields_stones_player) != board_size[1]
             @error "Only $(length(fields_stones_player)) out of $(board_size[1]) fields provided!"
             continue
         end
-        
+
         for (i_col, n_stones) in enumerate(fields_stones_player)
             player_field_index = CartesianIndex(i_col, i_row, i_player)
             field_stones = setindex(field_stones, n_stones, player_field_index)
         end
-        
+
         new_player_stones = player_stones[i_player] - sum(fields_stones_player)
         player_stones = setindex(player_stones, new_player_stones, i_player)
-        
+
         i_line += 1
     end
-    
+
     if !isnothing(spec.settings.cards)
         # player cards
         n_lines = spec.settings.players
@@ -59,14 +63,14 @@ function read_state_interactive(spec::Just4FunSpec)
             cards_str = strip(readline())
 
             isempty(cards_str) && continue
-            
+
             cards = map(c -> parse(CardValue, c), split(cards_str))
 
             if length(cards) != spec.settings.cards.size_hand
                 @error "Only $(length(cards)), not $(spec.settings.cards.size_hand) cards provided!"
                 continue
             end
-            
+
             for (i_card, card) in enumerate(sort(cards))
                 player_card_index = CartesianIndex(i_card, i_player)
                 player_cards = setindex(player_cards, card, player_card_index)
@@ -89,17 +93,14 @@ function read_state_interactive(spec::Just4FunSpec)
     curplayer = Player(argmax(player_stones))
 
     return (
-        stack         = stack,
-        used_cards    = used_cards,
-        player_cards  = player_cards,
-        
-        field_stones  = field_stones,
-    
+        stack = stack,
+        used_cards = used_cards,
+        player_cards = player_cards,
+        field_stones = field_stones,
         player_stones = player_stones,
-        curplayer     = curplayer,
-
-        state           = state,
-        actions  = actions
+        curplayer = curplayer,
+        state = state,
+        actions = actions,
     )
 end
 
@@ -137,7 +138,7 @@ For 3 players and 4x4 board e.g.:
  <uc1> <uc2> ... <ucn>\n
 """
 function read_state_non_interactive(spec::Just4FunSpec)
-    
+
     valid_command(input::String) = input != "" ? input != "file" ? input != "stdin" ? false : true : true : true
 
     Base.print("Read from file or stdin? (FILE/stdin) ")
@@ -156,7 +157,7 @@ function read_state_non_interactive(spec::Just4FunSpec)
                 file_path_valid = isfile(file_path)
             catch e
                 @error e.msg
-            end 
+            end
         end
         lines = reverse(filter(not_comment, chomp.(readlines(file_path))))
     else
@@ -165,6 +166,57 @@ function read_state_non_interactive(spec::Just4FunSpec)
     end
     #dump(lines)
     return _read_state!(spec, lines)
+end
+
+"""
+read_cards_state(spec::Just4FunSpec)::CardsState
+Returns the cards state.
+
+Blank lines and lines starting with '#' are ignored.
+Player cards rows are prefixed with pc_<player>O.
+Stack and used cards are prefixed with sc and uc.
+
+E.g.:
+
+# YELLOW
+pc_1 <p1c1> <p1c2> ... <p1cn>\n
+# RED
+pc_2 <p2c1> <p2c2> ... <p2cn>\n
+\n
+# stack cards top to bottom
+sc <sc1> <sc2> ... <scn>\n
+# used cards pile
+uc <uc1> <uc2> ... <ucn>\n
+"""
+function read_cards_state(spec::Just4FunSpec)::CardsState
+
+    valid_command(input::String) = input != "" ? input != "file" ? input != "stdin" ? false : true : true : true
+
+    Base.print("Read from file or stdin? (FILE/stdin) ")
+    input = "-"
+    while !valid_command(input)
+        input = lowercase(strip(readline()))
+    end
+
+    if isempty(input) || input == "file"
+        file_path_valid = false
+        file_path = "-"
+        while !file_path_valid
+            Base.print("Enter file path (absolute or relative to $(pwd())): ")
+            file_path = strip(readline())
+            try
+                file_path_valid = isfile(file_path)
+            catch e
+                @error e.msg
+            end
+        end
+        lines = reverse(filter(not_comment, chomp.(readlines(file_path))))
+    else
+        println("Enter the full state at once and submit by pressing Enter and Ctrl-D")
+        lines = reverse(filter(not_comment, chomp.(readlines())))
+    end
+    #dump(lines)
+    return _read_cards_state!(spec, lines)
 end
 
 """
@@ -195,7 +247,8 @@ function write_state_non_interactive(spec::Just4FunSpec, game::Just4FunEnv)
     end
 end
 
-not_comment(input::Union{String, SubString{String}}) = !isempty(input) && !startswith(input, "#")
+
+not_comment(input::Union{String,SubString{String}}) = !isempty(input) && !startswith(input, "#")
 
 """
 read_trace_non_interactive(spec::Just4FunSpec)
@@ -216,7 +269,7 @@ Uses the same format as `read_state_non_interactive(spec::Just4FunSpec)`
 function read_trace_non_interactive(spec::Just4FunSpec)
 
     valid_command(input::String) = input != "" ? input != "file" ? input != "stdin" ? false : true : true : true
-    
+
 
     Base.print("Read from file or stdin? (FILE/stdin) ")
     input = "-"
@@ -234,7 +287,7 @@ function read_trace_non_interactive(spec::Just4FunSpec)
                 file_path_valid = isfile(file_path)
             catch e
                 @error e.msg
-            end 
+            end
         end
         lines = reverse(filter(not_comment, chomp.(readlines(file_path))))
     else
@@ -265,8 +318,12 @@ Reads a single state from an array of strings (removing them).
 function _read_state!(spec::Just4FunSpec, lines::Vector{SubString{String}})::Just4FunEnvState
     board_size = size(spec.settings.board.value_distribution)
     field_stones = @SArray zeros(Stones, board_size[1], board_size[2], spec.settings.players)
-    player_stones = SVector{spec.settings.players}(repeat([Stones(spec.settings.board.num_pieces)], spec.settings.players))
-    player_cards = !isnothing(spec.settings.cards) ? (@SMatrix zeros(CardValue, spec.settings.cards.size_hand, spec.settings.players)) : (@SMatrix zeros(CardValue, 2, 2))
+    player_stones =
+        SVector{spec.settings.players}(repeat([Stones(spec.settings.board.num_pieces)], spec.settings.players))
+    player_cards =
+        !isnothing(spec.settings.cards) ?
+        (@SMatrix zeros(CardValue, spec.settings.cards.size_hand, spec.settings.players)) :
+        (@SMatrix zeros(CardValue, 2, 2))
     stack = Vector{CardValue}()
     used_cards = Cards()
     curplayer = Player(0)
@@ -280,24 +337,24 @@ function _read_state!(spec::Just4FunSpec, lines::Vector{SubString{String}})::Jus
     while i_line <= n_lines
         i_player = 1 + (i_line - 1) % spec.settings.players
         i_row = 1 + trunc(Int, (i_line - 1) / spec.settings.players)
-        
+
         line = strip(pop!(lines))
         @debug "Parsed row $i_row for player $i_player: $line"
-        
+
         fields_stones_player = map(s -> parse(Stones, s), split(line))
 
         if length(fields_stones_player) != board_size[1]
             @error "Only $(length(fields_stones_player)) out of $(board_size[1]) fields provided!"
         end
-        
+
         for (i_col, n_stones) in enumerate(fields_stones_player)
             player_field_index = CartesianIndex(i_col, i_row, i_player)
             field_stones = setindex(field_stones, n_stones, player_field_index)
         end
-        
+
         new_player_stones = player_stones[i_player] - sum(fields_stones_player)
         player_stones = setindex(player_stones, new_player_stones, i_player)
-        
+
         i_line += 1
     end
 
@@ -310,13 +367,13 @@ function _read_state!(spec::Just4FunSpec, lines::Vector{SubString{String}})::Jus
 
             line = strip(pop!(lines))
             @debug "Parsed player $i_player cards: "
-            
+
             cards = map(c -> parse(CardValue, c), split(line))
 
             if length(cards) != spec.settings.cards.size_hand
                 @error "Only $(length(cards)), not $(spec.settings.cards.size_hand) cards provided!"
             end
-            
+
             for (i_card, card) in enumerate(sort(cards))
                 player_card_index = CartesianIndex(i_card, i_player)
                 player_cards = setindex(player_cards, card, player_card_index)
@@ -325,7 +382,7 @@ function _read_state!(spec::Just4FunSpec, lines::Vector{SubString{String}})::Jus
             i_line += 1
         end
 
-    
+
         # stack cards - if not provided, it might be an empty line which got chomped to no line
         if !isempty(lines)
             line = strip(pop!(lines))
@@ -341,24 +398,72 @@ function _read_state!(spec::Just4FunSpec, lines::Vector{SubString{String}})::Jus
     end
     # current player
     curplayer = Player(argmax(player_stones))
-    
+
     # state
     # action indeices
-    
+
     return (
-        stack           = stack,
-        used_cards      = used_cards,
-        player_cards    = player_cards,
-        
-        field_stones    = field_stones,
-
-        player_stones   = player_stones,
-        curplayer       = curplayer,
-
-        state           = state,
-        winner          = winner,
-        actions         = actions
+        stack = stack,
+        used_cards = used_cards,
+        player_cards = player_cards,
+        field_stones = field_stones,
+        player_stones = player_stones,
+        curplayer = curplayer,
+        state = state,
+        winner = winner,
+        actions = actions,
     )
+end
+
+"""
+_read_cards_state!(spec::Just4FunSpec, lines::Vector{SubString{String}})::CardsState
+
+Reads the cards state from an array of strings (removing them).
+"""
+function _read_cards_state!(spec::Just4FunSpec, lines::Vector{SubString{String}})::CardsState
+    players_cards = Vector{Cards}()
+    stack = Stack{CardValue}()
+    used_cards = Cards()
+
+    # player cards
+    if !isnothing(spec.settings.cards)
+        for p = 1:spec.settings.players
+            player_cards = mapreduce(
+                split,
+                vcat,
+                map(l -> chopprefix(l, "pc_$p "), filter(l -> startswith(l, Regex("^pc_\\Q$p\\E\\s")), lines)),
+                init=[]
+            )
+            if isempty(player_cards)
+                @info "No cards provided for player $p"
+                push!(players_cards, Cards())
+            else
+                @debug "Parsed player $p cards: $player_cards"
+                cards = map(c -> parse(CardValue, c), player_cards)
+                push!(players_cards, sort(cards))
+            end
+        end
+    end
+
+    # stack cards
+    stack_cards = mapreduce(split, vcat, map(l -> chopprefix(l, "sc "), filter(l -> startswith(l, r"^sc\s"), lines)), init=[])
+    if !isempty(stack_cards)
+        @debug "Parsed stack cards: $stack_cards"
+        foreach(c -> push!(stack, parse(CardValue, c)), reverse(stack_cards))
+    else
+        @info "No stack provided"
+    end
+
+    # used cards
+    pile_cards = mapreduce(split, vcat, map(l -> chopprefix(l, "uc "), filter(l -> startswith(l, r"^uc\s"), lines)), init=[])
+    if !isempty(pile_cards)
+        @debug "Parsed used cards: $pile_cards"
+        foreach(c -> push!(used_cards, parse(CardValue, c)), pile_cards)
+    else
+        @info "No pile provided"
+    end
+
+    return CardsState(players_cards, stack, used_cards)
 end
 
 """
@@ -402,19 +507,28 @@ function _write_state!(io::IO, spec::Just4FunSpec, game::Just4FunEnv)
     clone = GI.clone(game)
     # stones
     println(io, "# ### Stones")
-    for x in 1:len_x
-        for p_idx in 1:spec.settings.players
+    for x = 1:len_x
+        for p_idx = 1:spec.settings.players
             println(io, "# Column $x, player $p_idx:")
-            println(io, join([convert(Int64, clone.field_stones[y, x, p_idx]) for y in 1:len_y], " "))
+            println(io, join([convert(Int64, clone.field_stones[y, x, p_idx]) for y = 1:len_y], " "))
         end
     end
-    
+
     if !isnothing(spec.settings.cards)
         # player cards
         println(io, "# ### Player cards")
-        for p_idx in 1:spec.settings.players
+        for p_idx = 1:spec.settings.players
             println(io, "# Player $p_idx cards:")
-            println(io, join(convert(Vector{Int64}, [clone.player_cards[card_idx, p_idx] for card_idx in 1:spec.settings.cards.size_hand]), " "))
+            println(
+                io,
+                join(
+                    convert(
+                        Vector{Int64},
+                        [clone.player_cards[card_idx, p_idx] for card_idx = 1:spec.settings.cards.size_hand],
+                    ),
+                    " ",
+                ),
+            )
         end
 
         # stack cards
@@ -422,7 +536,7 @@ function _write_state!(io::IO, spec::Just4FunSpec, game::Just4FunEnv)
         #dump(clone.stack)
         println(io, "# ### Stack cards")
         println(io, join(Vector{Int64}([c for c in Iterators.reverse(clone.stack)]), " "))
-        
+
         #@show clone.used_cards
         #dump(clone.used_cards)
         # used cards
