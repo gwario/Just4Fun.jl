@@ -300,6 +300,7 @@ function GI.play!(env::Just4FunEnv, action::Action)
     spec = GI.spec(env)
 
     if !isnothing(spec.settings.cards)
+        #@show action
         put_down!(spec, env, action.cards)
         pick_cards!(spec, env, length(action.cards))
     end

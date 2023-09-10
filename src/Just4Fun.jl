@@ -39,6 +39,7 @@ j4f_spec = Just4FunSpec()
 export Just4FunSpec,
     Just4FunEnv,
     Just4FunEnvState,
+    CardsState,
     Just4FunSettings,
     BoardSettings,
     CardsSettings,

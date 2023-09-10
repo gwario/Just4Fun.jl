@@ -167,14 +167,18 @@ NOTE: Vectors are replaced not modified inplace! (!worked)
 function put_down!(spec::Just4FunSpec, g::Just4FunEnv, cards_to_put_down::AbstractVector{CardValue})
   @assert(0 <= length(cards_to_put_down) && length(cards_to_put_down) <= spec.settings.cards.size_hand, "Trying to put down an invalid number of cards")
   player_index = to_index(g.curplayer)
-
+  #@show cards_to_put_down
+  #@show player_cards = g.player_cards[:, player_index]
   for card_to_put_down in cards_to_put_down
     # find the index of the card
     player_cards = g.player_cards[:, player_index]
+    #@show player_cards = g.player_cards[:, player_index]
     card_index = findfirst(card -> card == card_to_put_down, player_cards)
     @assert(!isnothing(card_index), "Trying to put down a card that's not in hand!")
+    #@show card_index
     # remove it from player's hand
     g.player_cards = setindex(g.player_cards, CardValue(0), CartesianIndex(card_index, player_index))
+    #@show getindex(g.player_cards, CartesianIndex(card_index, player_index))
     # add it to the usedcards
     g.used_cards = push!(copy(g.used_cards), card_to_put_down)
   end
