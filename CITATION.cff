@@ -1,0 +1,33 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Just4Fun.jl
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Mario
+    family-names: Gastegger
+    email: mario.gastegger@gmail.com
+abstract: TODO
+keywords:
+  - planning
+  - search
+  - tree search
+  - neural network
+  - deep learning
+  - alphazero.jl
+  - julia
+  - mcts
+  - is-mcts
+  - board game
+  - just 4 fun
+  - imperfect information
+  - non-deterministic
+  - stochastic
+license: BSD-2-Clause
+commit: ac28b8a82628cf858c3bc483e069da432fd4d042
+version: 0.3.6
+date-released: '2023-09-10'

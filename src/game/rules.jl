@@ -100,7 +100,7 @@ end
 """
 dominating(field_stones::AbstractVector{Stones}, player::Player)::Bool
 
-Retruns true if player p is dominating by another player in this cell.
+Retruns true if player p is dominating all other players in this cell.
 """
 function dominating(field_stones::AbstractVector{Stones}, player::Player)::Bool
   is_dominating = player == dominant_player(field_stones)
