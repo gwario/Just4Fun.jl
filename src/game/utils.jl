@@ -58,10 +58,16 @@ Returns all valid sorted unique combinations for cards without the empty one.
 """
 function regular_combinations(spec::Just4FunSpec, cards::AbstractVector{CardValue})::Vector{Cards}
     max_field_value = max(spec.settings.board.value_distribution...)
-    rscc = unique([sort(c) for c in collect(powerset(cards, 1, length(cards)))])
-    filter(cv -> 0 < sum(cv) <= max_field_value, rscc)
+    unique(Iterators.map(sort, Iterators.filter(cv -> 0 < sum(cv) <= max_field_value, powerset(cards, 1, length(cards)))))
 end
 
-function generate_board_actions(settings::Just4FunSettings)::Vector{NoCardsAction}
-    convert(Vector{NoCardsAction}, sort(vec(settings.board.value_distribution)))
+"""
+cards_combinations(spec::Just4FunSpec, field::FieldValue, cards::AbstractVector{CardValue})::Vector{Cards}
+
+Returns all valid sorted unique combinations for cards without the empty one.
+"""
+function cards_combinations(spec::Just4FunSpec, field::FieldValue, cards::AbstractVector{CardValue})::Vector{Cards}
+    unique(Iterators.map(sort, Iterators.filter(cvs -> sum(cvs) == field, powerset(cards, 1, spec.settings.cards.size_hand))))
 end
+
+generate_board_actions(settings::Just4FunSettings)::Vector{NoCardsAction} = convert(Vector{NoCardsAction}, sort(vec(settings.board.value_distribution)))

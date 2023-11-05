@@ -38,14 +38,16 @@ struct Just4FunSpec <: GI.AbstractGameSpec
 
     board_actions::Vector{Action}
 
+    field_value_map::Dict{FieldValue,CartesianIndex}
+
     function Just4FunSpec(
         starting_player::Union{Nothing,Player} = Player(YELLOW),
         settings = Just4FunSettings(),
     )::Just4FunSpec
         @assert length(vec(settings.board.value_distribution)) == length(unique(vec(settings.board.value_distribution)))
-
+        board_map = Dict{FieldValue, CartesianIndex}(FieldValue(settings.board.value_distribution[idx]) => idx for idx in eachindex(IndexCartesian(), settings.board.value_distribution))
         actions = generate_board_actions(settings)
-        new(starting_player, Int64[], Stack{CardValue}(), settings, actions)
+        new(starting_player, Int64[], Stack{CardValue}(), settings, actions, board_map)
     end
 
     function Just4FunSpec(
@@ -54,9 +56,9 @@ struct Just4FunSpec <: GI.AbstractGameSpec
         settings = Just4FunSettings(),
     )::Just4FunSpec
         @assert length(vec(settings.board.value_distribution)) == length(unique(vec(settings.board.value_distribution)))
-
+        board_map = Dict{FieldValue, CartesianIndex}(FieldValue(settings.board.value_distribution[idx]) => idx for idx in eachindex(IndexCartesian(), settings.board.value_distribution))
         actions = generate_board_actions(settings)
-        new(starting_player, per_game_seeds, Stack{CardValue}(), settings, actions)
+        new(starting_player, per_game_seeds, Stack{CardValue}(), settings, actions, board_map)
     end
 
     function Just4FunSpec(
@@ -65,9 +67,9 @@ struct Just4FunSpec <: GI.AbstractGameSpec
         settings = Just4FunSettings(),
     )::Just4FunSpec
         @assert length(vec(settings.board.value_distribution)) == length(unique(vec(settings.board.value_distribution)))
-
+        board_map = Dict{FieldValue, CartesianIndex}(FieldValue(settings.board.value_distribution[idx]) => idx for idx in eachindex(IndexCartesian(), settings.board.value_distribution))
         actions = generate_board_actions(settings)
-        new(starting_player, Int64[], predefined_stack, settings, actions)
+        new(starting_player, Int64[], predefined_stack, settings, actions, board_map)
     end
 
     function Just4FunSpec(
@@ -77,9 +79,9 @@ struct Just4FunSpec <: GI.AbstractGameSpec
         settings = Just4FunSettings(),
     )::Just4FunSpec
         @assert length(vec(settings.board.value_distribution)) == length(unique(vec(settings.board.value_distribution)))
-
+        board_map = Dict{FieldValue, CartesianIndex}(FieldValue(settings.board.value_distribution[idx]) => idx for idx in eachindex(IndexCartesian(), settings.board.value_distribution))
         actions = generate_board_actions(settings)
-        new(starting_player, per_game_seeds, predefined_stack, settings, actions)
+        new(starting_player, per_game_seeds, predefined_stack, settings, actions, board_map)
     end
 end
 

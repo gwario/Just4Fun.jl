@@ -133,8 +133,8 @@ get_stones(spec::Just4FunSpec, s, field_value::FieldValue)::AbstractVector{Stone
 Returns the vector of stones on a field.
 """
 function get_stones(spec::Just4FunSpec, s, field_value::Int)::AbstractVector{Stones}
-  # TODO make a map field value to index
-  field_index = findfirst(isequal(field_value), spec.settings.board.value_distribution)
+  #field_index = findfirst(isequal(field_value), spec.settings.board.value_distribution)
+  field_index = spec.field_value_map[FieldValue(field_value)]
   player_stones = s.field_stones[field_index[1], field_index[2], :]
   return player_stones
 end

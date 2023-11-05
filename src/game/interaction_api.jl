@@ -38,15 +38,18 @@ function GI.parse_action(spec::Just4FunSpec, string)::Union{Action,Nothing}
     end
 end
 
+
+
 # To support different behavior of available actions (which operates on board positions, whereas actions are cards actsion)
 function AlphaZero.select_move(::Human, game::Just4FunEnv, turn)
     a = nothing
-    while isnothing(a) || to_int_field_value(a) ∉ GI.available_actions(game)
+    spec = GI.spec(game)
+    while isnothing(a) || to_int_field_value(a) ∉ GI.available_actions(game) || (!isnothing(spec.settings.cards) && a ∉ available_cards_actions(game))
         Base.print("> ")
         str = readline()
         Base.print("\n")
         str == "Quit" && throw(AlphaZero.Quit())
-        a = GI.parse_action(GI.spec(game), str)
+        a = GI.parse_action(spec, str)
     end
     return a
 end

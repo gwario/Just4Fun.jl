@@ -121,7 +121,7 @@ IMPORTANT: The input is of the board size.
 IMPORTANT: The output is of the network output size.    
 """
 function net_actions_mask(env::Just4FunEnv)::Vector
-    return to_net(env.board_actions_masks[:,:,to_index(env.curplayer)])
+    return to_net(env.board_actions_masks[:, :, to_index(env.curplayer)])
 end
 
 """
@@ -144,21 +144,8 @@ function available_cards_actions(game::Just4FunEnv)::Vector{CardsAction}
     return available_cards_actions(spec, game, game.curplayer)
 end
 
-cards_actions(spec::Just4FunSpec, game::Just4FunEnv, player::Player) = map(cs -> CardsAction((cards=cs, value=sum(cs))), regular_combinations(spec, playercards(game, player)))
-
-
-"""
-the net actions mask with out the actions not possible due to cards
-
-convert policy
-"""
-function cards_actions_mask(env::Just4FunEnv)
-    spec = GI.spec(env)
-    avns = available_net_actions(env)
-    cas = map(to_int_field_value, cards_actions(spec, env, env.curplayer))
-    nam = indexin(cas, avns) 
-
-end
+cards_actions(spec::Just4FunSpec, game::Just4FunEnv, player::Player) =
+    map(cs -> CardsAction((cards = cs, value = sum(cs))), regular_combinations(spec, playercards(game, player)))
 
 """
 available_cards_actions(spec::Just4FunSpec, game::Just4FunEnv, player::Player)::Vector{CardsAction}
@@ -312,6 +299,7 @@ function GI.play!(env::Just4FunEnv, action::Action)
     update_status!(spec, env, action)
 
     # try next player until someone has stones left or the game has ended
+    #@show !GI.game_terminated(env)
     while !GI.game_terminated(env)
         env.curplayer = next_player(spec, env.curplayer)
         # check if a redraw should be applied and do it and go to the next player
@@ -320,11 +308,12 @@ function GI.play!(env::Just4FunEnv, action::Action)
             all_cards = curplayercards(env)
             put_down!(spec, env, all_cards)
             pick_cards!(spec, env, length(all_cards))
-            
-            push!(env.actions, CardsAction((cards=Cards(), value=FieldValue(0))))
-            
+
+            push!(env.actions, CardsAction((cards = Cards(), value = FieldValue(0))))
+
             update_status!(spec, env)
         elseif !iszero(curplayerstones(env))
+            #@show !iszero(curplayerstones(env))
             break
         end
     end

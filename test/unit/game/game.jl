@@ -212,6 +212,58 @@ end
 
     GI.white_reward(g::Just4FunEnv) = Just4Fun.white_reward_ternary_outcome(g)
 
+
+    @testset "Get state and set state result in the same game env" begin
+        stack = Vector{CardValue}()
+        push!(stack, 1)
+        push!(stack, 2)
+        push!(stack, 3)
+        push!(stack, 4)
+        # -> 4 3 2 1
+        state = Just4FunEnvState((
+            stack = stack,
+            used_cards = Cards([5, 6, 7, 8]),
+            player_cards = SMatrix{4,2}([
+                0x01 0x01
+                0x02 0x02
+                0x03 0x03
+                0x04 0x04
+            ]),
+            field_stones = SArray{Tuple{6,6,2},Stones}(
+                [
+                    # p1
+                    0x00 0x00 0x01 0x00 0x00 0x00; # __ __ 30 __ __ __
+                    0x00 0x00 0x00 0x00 0x00 0x00; 0x00 0x00 0x00 0x00 0x00 0x00; 0x00 0x00 0x00 0x00 0x00 0x00; 0x00 0x00 0x00 0x00 0x00 0x00; 0x00 0x00 0x00 0x00 0x00 0x00;;;
+                    # p2
+                    0x01 0x01 0x00 0x00 0x00 0x00; # _1 14 __ __ __ __
+                    0x00 0x00 0x00 0x00 0x00 0x00; 0x00 0x00 0x00 0x00 0x00 0x00; 0x00 0x00 0x00 0x00 0x00 0x00; 0x00 0x00 0x00 0x00 0x00 0x00; 0x00 0x00 0x00 0x00 0x00 0x00
+                ],
+            ),
+            player_stones = SVector{2,Stones}(repeat([Stones(4)], 2)),
+            curplayer = Player(Just4Fun.YELLOW),
+            state = in_progress,
+            winner = Player(0),
+            actions = [],
+        ))
+        spec = Just4Fun.j4f_spec
+        GI.spec(::Just4FunEnv) = spec
+        game = GI.init(spec)
+
+        GI.set_state!(game, state)
+        game_state_2 = GI.current_state(game)
+
+        @test state.stack == game_state_2.stack
+        @test state.player_cards == game_state_2.player_cards
+        @test state.used_cards == game_state_2.used_cards
+        @test state.curplayer == game_state_2.curplayer
+
+        @test state.field_stones == game_state_2.field_stones
+        @test state.player_stones == game_state_2.player_stones
+        @test state.state == game_state_2.state
+        @test state.winner == game_state_2.winner
+        @test state.actions == game_state_2.actions
+    end
+
     @testset "four in a row (1,1 -> 4,1) for player yellow makes white reward 1 and game terminated true" begin
 
         state = Just4FunEnvState((
