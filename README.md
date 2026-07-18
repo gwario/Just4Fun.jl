@@ -1,14 +1,8 @@
-# Just4Fun [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://gwario.gitlab.io/Just4Fun.jl/dev) [![Build Status](https://gitlab.com/gwario/Just4Fun.jl/badges/main/pipeline.svg)](https://gitlab.com/gwario/Just4Fun.jl/pipelines) [![Coverage](https://gitlab.com/gwario/Just4Fun.jl/badges/main/coverage.svg)](https://gitlab.com/gwario/Just4Fun.jl/commits/main) [![codecov](https://codecov.io/gl/gwario/Just4Fun.jl/branch/main/graph/badge.svg?token=KK6LMAU5XU)](https://codecov.io/gl/gwario/Just4Fun.jl)
+# Just4Fun
 
-Implementation of the board game Just 4 Fun (https://gwario.gitlab.io/Just4Fun.jl/dev)
+Implementation of the board game Just 4 Fun
 
 Implementing the AlphaZero.jl game interface
-
-Coverage in detail:
-
-<a href="https://codecov.io/gl/gwario/Just4Fun.jl">
-    <img src="https://codecov.io/gl/gwario/Just4Fun.jl/branch/main/graphs/tree.svg?token=KK6LMAU5XU"/> 
-</a>
 
 # Preparation
 
