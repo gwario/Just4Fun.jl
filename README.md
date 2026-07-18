@@ -3,6 +3,7 @@
 Implementation of the board game Just 4 Fun (https://gwario.gitlab.io/Just4Fun.jl/dev)
 
 Implementing the AlphaZero.jl game interface
+
 Coverage in detail:
 
 <a href="https://codecov.io/gl/gwario/Just4Fun.jl">
